@@ -34,7 +34,7 @@ In scope:
 - One card per species (Pokédex model); subsequent sightings update a sightings log on the existing card, not a new card
 - Card content: species data + user's photo + first-sight metadata + bird call audio + range map + conservation status badge
 - Collection browser: grid view, search by name, filter by family/habitat/conservation status, sort by date/name/rarity
-- Explore surface: eBird-powered "what birds are near me," common-species-in-region list, personal global sightings map
+- Explore surface: research-based "Near me" and "Region" lists of species expected in the user's area (powered by eBird aggregate species frequency + curated DB), plus personal global sightings map. No real-time crowdsourced data in v1 — that's a v1.1 layer.
 - Daily streak tracker (strict: miss a day, reset)
 - Achievement system across five categories: collection milestones, streak tiers, regional/geographic, family/category masters, and habitat masters. Mastery categories use a five-tier exponential progression (Spotter/Apprentice/Adept/Expert/Master) for accessibility.
 - Free tier with 3 daily ID attempts; Weekly ($3.99) and Yearly ($29.99) subscriptions to remove the cap (no free trial in v1)
@@ -112,12 +112,14 @@ Closing the capture flow (X in the top corner, or back gesture) returns the user
 
 **Explore tab (~4 screens)**
 
-- Explore map (default) — birds reported near the user, pulled from the eBird "recent observations nearby" API, with map pins per species
-- Common species list — scrollable list of birds frequently seen in the user's region, with a "spotted / not spotted" status overlay derived from the user's collection
-- My global map — the user's personal sightings worldwide
-- Species preview (modal) — tap any bird in the map or list to see a preview card with sighting status; can deep-link to the user's existing card if they've already collected the species
+- Near me (default) — research-based list of species expected in the user's immediate area (~50 mi / county), with status overlay from the user's collection
+- Region — broader list of species common in the user's state or larger biogeographic region
+- My map — the user's personal sightings worldwide on the brand-styled illustrated map
+- Species preview (modal) — tap any species in the lists or pin on My map to see a preview with species info and sighting status
 
-The Explore tab does *not* include hotspots in v1 (deferred — fine candidate for v1.1 if Explore engagement is strong).
+All three modes use only research-grade data sources in v1 — no real-time crowdsourced observation feed. This is a deliberate v1 choice (see §6.4): with a small early user base, real-time data would be sparse and unreliable. Live "recent observations" and a "Get directions to this sighting" deep-link are v1.1+ candidates.
+
+The Explore tab does *not* include hotspots or "save as target" in v1 (both deferred to v1.1+).
 
 **Profile tab (~6 screens)**
 
@@ -260,13 +262,64 @@ The Collection tab opens to a segmented control at the top: **Spotted** (the use
 - **Sighting count badge** (★N) appears on thumbnails for species the user has spotted more than once. Single-sighting cards don't show the badge — keeps the grid quiet.
 - **Empty state** (no captures yet, Spotted view): hero illustration of binoculars + "Photograph your first bird" copy + a CTA that switches to the Capture tab. The All North America toggle is hidden on the empty state to avoid leading new users into an overwhelming view.
 
-### 6.4 Explore: what's near me
+### 6.4 Explore
 
-1. User taps the Explore tab → opens to the Explore map by default
-2. Map centers on the user's current location, showing pins for recent bird observations from eBird (within a configurable radius, default ~25 km)
-3. Tap a pin → species preview modal (photo, name, when/where it was last reported, "Spotted / Not yet" status from user's collection)
-4. Toggle at top switches between three surfaces: Map (nearby), Common species (list), My global map (personal)
-5. From any species preview, user can deep-link to their existing card (if collected) or save it as a target species (v1.1 — for now just close)
+The Explore tab is structured around a single principle for v1: **research-based data only.** With a small early user base, any feed that depends on what users are posting (whether birdr users or even eBird's broader live community) will feel sparse and unreliable. Explore instead uses eBird's published aggregate species frequency data, BirdLife/Cornell range data, our curated DB's habitat and seasonality info — all of which give complete, reliable answers for "what bird species are likely to be here" without depending on anyone posting anything today.
+
+The tab opens to a segmented control at the top: **Near me** (default), **Region**, **My map**.
+
+**Near me (default)**
+
+A list of species expected in the user's immediate area (roughly county-level scope, ~50 mi). Powered by eBird sub-regional species frequency data + the curated DB's range/habitat info.
+
+- Contextual header: "Spring near Asheville, NC · 47 species expected"
+- Each row: reference illustration, species name, species type, seasonality ("Year-round" / "Summer only" / "Winter visitor"), sighting status (sage check for Spotted, gray "Not yet" for unspotted)
+- Order: **unspotted species first** (chase mode), spotted species below under a divider
+- Filter icon top-right opens a sheet for: species type filter, season toggle (current season vs. year-round)
+- Tap a row → species preview modal
+
+**Region**
+
+Same row format as Near me but with broader scope — species common in the user's state or larger biogeographic region. Used for trip planning and seasonal discovery beyond the immediate area.
+
+- Contextual header: "Common in North Carolina · 245 species"
+- Same ordering (unspotted first), same filter affordances, same row format
+
+**My map**
+
+The user's personal sightings worldwide on the brand-styled illustrated map (Mapbox custom style per §18.3).
+
+- Stats trio across the top: Captures / Species / States
+- Coral pins for each sighting; clusters with counts when zoomed out
+- Tap a single pin → personal sighting detail (date, location, photo, species — deep-links to Collection card detail)
+- Tap a cluster → smooth-zoom in to expand it
+- Empty state for new users (no captures yet): friendly illustrated map of North America with a "Your sightings will appear here once you start capturing" overlay + CTA to switch to Capture tab
+
+**Species preview modal**
+
+Triggered by tapping a row in Near me / Region. Bottom sheet with drag handle.
+
+- Hero: reference illustration + species name + species type
+- Habitat pill (no flip interaction here — that's specific to Card detail)
+- Status badge: "Spotted" (sage with check) or "Not yet" (saffron)
+- Body: seasonality summary, About copy from curated DB
+- Actions:
+  - **View my card** (sage primary) — if user has spotted the species; deep-links to Collection card detail
+  - For unspotted species: info-only, with a "Close" affordance. No "Add to target" in v1 (deferred).
+
+**Empty / error states**
+
+- *Location permission denied* — "Explore needs your location to show what's near you" with an Open Settings deep-link. Region and My map render with last-known location or a continental default.
+- *eBird API unavailable* — Near me / Region show a brief retry banner; if persistent, fall back to a state-level static species list embedded in the app (last-known-good cache).
+- *No species expected at user's location* — virtually never happens for North America; if it does, copy reads "We don't have nearby data for this location yet — try Region."
+
+**Deferred to v1.1+**
+
+- Real-time "Live" observations layer (third-party crowdsourced data once we trust density and terms)
+- "Get directions" deep-link from the species preview (requires real-time observation lat/lng)
+- "Add to target species" / wishlist
+- eBird hotspots layer
+- Region size filter (county / state / multi-state custom radius)
 
 ### 6.5 Achievements
 
@@ -912,14 +965,19 @@ Estimated effort: 2–3 focused months for one person, less with assistance.
 
 ### 13.2 eBird API for the Explore tab
 
-The Explore tab pulls live data from the eBird API:
+The Explore tab uses eBird's **research-grade aggregate data only** in v1 — no real-time crowdsourced observation feed. This is deliberate: with a small early user base, any data dependent on what users posted today feels sparse and unreliable (see §6.4).
 
-- `recent observations nearby` (radius default ~25 km from user's current location)
-- `common species in region` (subnational regions for the US)
+Endpoints used in v1:
 
-eBird requires an API key and has terms of use that distinguish non-commercial from commercial use. The legal review for commercial use must happen before launch. If commercial terms are not workable, fall back options include: (a) iNaturalist's public observations API, (b) curated static "common species by state" data shipped with the app and updated periodically.
+- **Sub-regional species list / frequency data** (`/product/spplist/{regionCode}` and seasonal frequency endpoints) — drives Near me and Region modes. Returns the full set of species expected in a given county/state/region, with bar-chart frequency over the year. This is aggregated historical data — well-populated and consistent across every region.
 
-All eBird responses are cached server-side with a short TTL (e.g., 15–30 minutes) to control external API volume and stay within rate limits.
+Endpoints explicitly **not used** in v1 (candidates for v1.1+):
+
+- `/data/obs/{regionCode}/recent` — real-time observations. Deferred until we either have a sufficient internal user base or are confident in the data density + commercial terms.
+
+eBird requires an API key and has terms of use that distinguish non-commercial from commercial use. The legal review for commercial use must happen before launch. If commercial terms are not workable for the aggregate frequency endpoint, fall back options include: (a) BirdLife range data + Cornell Birds of the World species data, both research/curated sources, (b) ship a static seasonal species list per US state with the app and update via OTA on releases.
+
+All eBird responses are cached server-side with a long TTL (24+ hours acceptable for aggregate data — it doesn't change frequently) to control external API volume.
 
 ### 13.3 Range map asset pipeline
 
@@ -963,8 +1021,8 @@ When v2 introduces social features, public-facing sighting locations must be fuz
 3. **ID provider final pick:** Locked at "TBD — engineering decision pending." Candidates: Gemini Flash, Cornell Merlin (commercial terms TBD), iNaturalist CV (commercial terms TBD), custom fine-tuned model.
 4. **Onboarding length:** How many tutorial screens before dropping into the app?
 5. **Notification defaults:** Default reminder time, user customization scope
-6. **Explore radius default:** 25 km is a guess. Should users be able to adjust it? Does urban vs. rural location warrant different defaults?
-7. **eBird commercial terms:** Confirm commercial-use viability before building Explore on top of it. Identify fallback if blocked.
+6. **Explore "Near me" scope:** Working default is county-level (~50 mi). Should users be able to adjust this scope, or is one fixed scope per mode (Near me = county, Region = state) the simplest answer?
+7. **eBird aggregate API commercial terms:** Confirm commercial-use viability for the research-grade frequency endpoints. Identify fallback (BirdLife/Cornell or static state lists) if blocked.
 8. **Capture tab when launching camera mid-session:** When the user has the camera modal open and dismisses it, do they return to a fresh hub or the previous in-progress capture? (Working answer: dismiss = abandon; return to fresh hub.)
 9. **Explore "target species" save:** Should v1 include a "save as target" interaction on Explore species, or is that a v1.1 add?
 10. **Rarity gradient exact stops:** Working defaults are LC=saffron, NT=light orange, VU=coral, EN=terracotta, CR=burgundy. Validate against the full palette and the look of common species frames.
@@ -997,8 +1055,9 @@ When v2 introduces social features, public-facing sighting locations must be fuz
 | App Store rejection over location data | L | H | Conservative privacy disclosure; consider fuzzing earlier if Apple pushes back |
 | Non-bird photos clutter the ID model | L | L | Confidence threshold + "try again" handles this naturally |
 | NA-only DB feels limiting to global users | M | L | Geofence App Store to US for v1 (already planned) |
-| eBird API commercial terms block Explore | L | H | Confirm terms early; have fallback (iNat or static data) ready |
-| eBird API rate limits or downtime | M | M | Server-side caching with short TTL; degrade gracefully on outage |
+| eBird aggregate API commercial terms block Explore | L | H | Confirm terms early; fallback to BirdLife/Cornell data or static per-state lists shipped with the app |
+| eBird aggregate API rate limits or downtime | L | L | Long server-side cache (24+ hours) — aggregate data doesn't change frequently; degrade to last-known-good cache on outage |
+| Explore feels thin without real-time data | M | M | Lean into research positioning ("what you'll find here") rather than "what's happening now"; v1.1 adds live layer once data density improves |
 
 ## 18. Visual design language
 
