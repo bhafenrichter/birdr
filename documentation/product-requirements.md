@@ -44,6 +44,7 @@ In scope:
 Out of scope for v1 — planned for later releases:
 
 - **Audio-based identification** (record a bird call → AI identifies it). Deferred to v2.
+- **Manual species search from the top-3 picker** ("I think it's a..." search box when none of the three candidates match). v1.1 candidate.
 - All social features (friends, feeds, leaderboards, comments)
 - Card sharing/export, trading or gifting
 - Multi-region species DB (Europe, Asia, etc.)
@@ -181,7 +182,7 @@ Out of scope for v1 hub (candidates for v1.1+): bird-of-the-day featured species
 6. Backend calls cloud vision API, returns ranked species candidates with confidence scores
 7. Branch on top-candidate confidence:
    - **≥85%:** Auto-accept, show card creation animation
-   - **60–85%:** Show top-3 candidate picker with thumbnails + names; user selects correct species
+   - **60–85%:** Show top-3 candidate picker (see §6.8); user selects correct species
    - **<60%:** Show "Try again" with photo guidance (lighting, framing, get closer)
 8. On successful ID:
    - **New species:** Card is created with a celebratory "First Sight!" animation, then user can dismiss back to the Capture hub or open the full card
@@ -253,6 +254,43 @@ Conservation framing (donation prompts, protection info) lives in the card detai
 **First-time user nuance.** On the user's very first card unlock (tutorial capture or first real capture), the reveal plays at full duration and the "tap to continue" hint is delayed by an extra second — give them time to absorb the moment.
 
 **Implementation notes.** Use React Native Reanimated for card scale/position, Lottie for particle bursts (one Lottie per rarity tier), and the existing haptic-feedback pattern (see `documentation/haptic-feedback-pattern.md`) for the tactile cues at beats 2 and 3.
+
+### 6.8 Top-3 candidate picker
+
+When the cloud ID returns a top-candidate confidence in the 60–85% range, the user sees the top-3 picker — a screen that hands the final call to the user with enough information to make an informed pick. This is part of the camera modal flow, presented fullscreen without the tab bar.
+
+**Tone and framing.** The screen frames the moment as collaboration, not failure. Headings use "Pick the bird you spotted" and "A few species look alike — tap the closest match" rather than "we couldn't identify your bird." The user is positioned as the expert who knows what they saw; the AI is the assistant that narrowed down the field.
+
+**Screen anatomy**
+
+1. **Top app bar** — X close (returns to camera viewfinder) on the left; "Identify" small title centered; "?" help icon on the right (reserved; no-op in v1).
+2. **User's photo (hero)** — ~30% of the screen height. The captured photo with a "Your photo" pill in the corner. Static at this size in v1 (tap to enlarge is a v1.1 candidate).
+3. **Heading section** — "Pick the bird you spotted" (H2) + "A few species look alike — tap the closest match" (caption).
+4. **3 candidate rows** — each row contains:
+   - Reference image (canonical species illustration, 68px square, rounded) on the left
+   - Species name (medium weight)
+   - One-line meta: species type + distinguishing feature (e.g., "Songbird · Bright red, black face mask")
+   - Chevron right (tap affordance)
+   - The top-confidence candidate has a small "Most likely" pill in saffron above the name and a 1.5px saffron border on the row
+5. **"None of these match"** — separated by a divider, with a refresh icon. Always visible, never hidden behind a menu.
+
+**Interaction model**
+
+- Tap on any candidate row: immediate selection. Triggers the card unlock reveal animation (§6.7) for the selected species. No confirmation step — users can edit the species from the card detail later (subject to First Sight editability in §15).
+- Tap on "None of these match": close the picker and return to the camera viewfinder. Implies "try a different photo."
+- Tap X: same as "None of these" — return to viewfinder.
+- No first-time tooltip or coach mark — the title and the distinguishing-feature line are the explanation.
+
+**Why no confidence numbers.** Showing "73% confident" anchors users on a number they can't meaningfully interpret and undermines the framing of collaboration. The "Most likely" pill is the only ranking signal in the UI.
+
+**Distinguishing-feature copy.** Each species in the curated DB carries a short distinguishing-feature line authored as part of curation. Guidelines: 5–8 words; focuses on visible field marks (color, pattern, size, bill shape, posture). Used in the picker and as a candidate for any future field-guide surfacing.
+
+**Edge cases**
+
+- All three candidates feel wrong to the user: tap "None of these match" → back to viewfinder.
+- User selects a candidate then realizes they misclicked: edit from the card detail in Collection (pending §15 First Sight editability resolution).
+- User wants to cancel entirely: X in top bar.
+- Cloud ID returns fewer than 3 candidates (rare): render however many came back; never pad with low-confidence filler.
 
 ## 7. The bird card
 
