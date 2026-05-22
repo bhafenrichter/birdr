@@ -36,7 +36,7 @@ In scope:
 - Collection browser: grid view, search by name, filter by family/habitat/conservation status, sort by date/name/rarity
 - Explore surface: eBird-powered "what birds are near me," common-species-in-region list, personal global sightings map
 - Daily streak tracker (strict: miss a day, reset)
-- Achievement system across four categories: collection milestones, streak tiers, regional/geographic, family/category collector
+- Achievement system across five categories: collection milestones, streak tiers, regional/geographic, family/category masters, and habitat masters (with Apprentice/Adept/Master sub-tiers on the mastery categories)
 - Free tier with daily ID limit; Weekly and Yearly subscriptions to remove the limit and unlock premium features
 - North American species coverage (~900 species curated)
 - US-only launch (App Store + Play Store, US storefronts)
@@ -119,9 +119,9 @@ The Explore tab does *not* include hotspots in v1 (deferred — fine candidate f
 **Profile tab (~10 screens)**
 
 - Profile home (avatar, total species, current streak chip, lifetime stats)
-- Achievements hub (sections: Collection, Streaks, Regional, Family)
-- Achievement section detail
-- Achievement detail (progress, criteria, unlock date)
+- Achievements hub (5 sections: Collection, Streaks, Regional, Family masters, Habitat masters)
+- Achievement section detail (one per category)
+- Achievement unlock celebration (fullscreen overlay; auto-plays after card unlock when triggered)
 - Streak detail (calendar of capture days)
 - Account settings (email, password, sign out, delete account)
 - Notification settings (streak reminder time, achievement alerts)
@@ -442,7 +442,7 @@ Strict streaks drive engagement but also drive churn after the first reset. Plan
 
 ## 10. Achievements
 
-Four categories, each with multiple tiers. Achievements live in the Achievements hub inside the Profile tab.
+Five categories, each with multiple tiers. Achievements live in the Achievements hub inside the Profile tab. At launch, the catalog contains roughly 120 achievements across all categories. All achievements are visible to all users from day one — no hidden achievements in v1 (candidate for v1.1).
 
 ### 10.1 Collection milestones
 
@@ -460,21 +460,76 @@ Four categories, each with multiple tiers. Achievements live in the Achievements
 
 ### 10.4 Family/category collector
 
-Complete-set achievements mapped 1:1 to the 9 species types from §7.2. Nine achievements at launch:
+Three-tiered achievements per species type, mapping to the 9 user-facing types from §7.2. Each type produces three achievements:
 
-- Songbirds Master
-- Birds of Prey Master
-- Waterfowl Master
-- Wading Birds Master
-- Shorebirds Master
-- Seabirds Master
-- Game Birds Master
-- Woodpeckers Master
-- Aerial Specialists Master
+- **Apprentice** — 25% of species in the type collected
+- **Adept** — 50% of species in the type collected
+- **Master** — 100% of species in the type collected
 
-Each unlocks when the user has collected every species in that type within North America. Lower tiers (e.g., "Songbirds Apprentice" at 25%, "Songbirds Adept" at 50%) likely exist between empty and complete to keep momentum visible — exact tier thresholds to be set during beta.
+Nine types × three tiers = 27 family achievements at launch. Examples:
+
+- Songbirds (87 species in NA): Apprentice at 22, Adept at 44, Master at 87
+- Birds of Prey (33): Apprentice at 8, Adept at 17, Master at 33
+- Game Birds (12): Apprentice at 3, Adept at 6, Master at 12
+
+The sub-tier structure keeps momentum visible for users working through large families (Songbirds in particular) and rewards smaller families with quick early wins.
 
 Family-collector progress is surfaced in the Achievements hub (in Profile), not on individual card footers. The "7" badge on the card design reference is the user's personal sighting count for that specific species (see §7.1).
+
+### 10.5 Habitat collector
+
+Mirroring family collectors, three-tiered achievements per habitat from §7.2. Each of the 9 habitats produces three achievements (Apprentice / Adept / Master) on the same 25% / 50% / 100% schedule.
+
+Nine habitats × three tiers = 27 habitat achievements at launch. Examples:
+
+- Forest Apprentice / Adept / Master
+- Wetlands Apprentice / Adept / Master
+- Cities & towns Apprentice / Adept / Master (typically the fastest to complete — fewer species)
+- Tundra Apprentice / Adept / Master (typically the slowest — small species pool and most users won't travel to spot them)
+
+The Family/Habitat split rewards two different forms of mastery: depth into a taxonomic group (Songbirds) vs. breadth across an ecosystem (Forest). Engaged users naturally pursue both as their collection grows; together the categories give Master-tier users meaningful long-term goals.
+
+### 10.6 Achievement hub UX
+
+Reached from Profile → Achievements. Three screens.
+
+**Hub screen** (default):
+
+1. **Overall progress card** at the top — total unlocked / total achievements with a progress bar (e.g., "14 of 120 · 12% complete")
+2. **Recently unlocked** — list of the 1–3 most recent unlocks with relative timestamps ("Unlocked yesterday")
+3. **Categories** — 5 cards (Collection, Streaks, Regional, Family masters, Habitat masters), each with a category icon, name, "X of Y" count, and a progress bar tinted in the category's accent color
+
+Category accent colors:
+- Collection: sage
+- Streaks: coral
+- Regional: sky blue
+- Family masters: purple
+- Habitat masters: teal (a complementary accent — TBD against the full palette)
+
+**Section detail screen** (tapping a category card):
+
+- Back arrow + category name in the top bar
+- One-line description of the category
+- List of achievements sorted: in-progress at top, locked next, unlocked at the bottom under a divider
+- Each row: status icon (filled check for unlocked, lock for locked, partial-fill for in-progress), name, and either "Earned [date]" / progress bar / criteria
+
+**Achievement detail (inline expansion)** — tapping a row expands it inline rather than navigating to a new screen. Shows the full description, criteria, related achievements (next tier), and a Lottie-animated badge if unlocked. Keeps the screen count small and the interaction snappy.
+
+### 10.7 Unlock celebration
+
+When an achievement unlocks, the user sees a full-screen celebration similar in spirit to the card unlock reveal (§6.7) but shorter and category-themed.
+
+**Visual.** Dark background (~charcoal) with particle bursts in the category's accent color. "ACHIEVEMENT UNLOCKED" small-caps label at top. Large circular badge in the category color with the achievement icon. Achievement name (large), one-line description, and a "Next:" teaser showing the next tier or related achievement (e.g., "Next: 14-day streak — 7 to go"). Continue button at the bottom.
+
+**Timing and pacing.** Total ~3 seconds + user dismissal. Tap-to-skip becomes available after ~0.5s.
+
+**Queue behavior — when multiple achievements fire from one capture.** Auto-queue: after the card unlock reveal's settled state (§6.7 beat 5) dismisses, achievement celebrations play sequentially, one per tap. Order: most "important" first (Master > Adept > Apprentice; major milestone tiers before regional spots). User can dismiss each with a single tap; queue advances. Total time scales with the number of unlocks but each is fast.
+
+**Asynchronous unlocks.** Streak achievements may fire at midnight-rollover when a streak crosses a threshold (not during a capture). In this case, the celebration shows on the user's next app open. If notifications are enabled and the app is backgrounded, a push notification fires ("You unlocked 30-day streak"); tapping the push opens the celebration.
+
+**Haptics and sound.** Light haptic at celebration start; stronger haptic at badge "land" moment. Silent — same audio philosophy as card unlock (§6.7).
+
+**Accessibility.** Respects system Reduce Motion; particles collapse to a static accent and the badge cross-fades in. Tap-to-skip always available.
 
 ## 11. Monetization
 
