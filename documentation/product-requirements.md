@@ -36,7 +36,7 @@ In scope:
 - Collection browser: grid view, search by name, filter by family/habitat/conservation status, sort by date/name/rarity
 - Explore surface: eBird-powered "what birds are near me," common-species-in-region list, personal global sightings map
 - Daily streak tracker (strict: miss a day, reset)
-- Achievement system across five categories: collection milestones, streak tiers, regional/geographic, family/category masters, and habitat masters (with Apprentice/Adept/Master sub-tiers on the mastery categories)
+- Achievement system across five categories: collection milestones, streak tiers, regional/geographic, family/category masters, and habitat masters. Mastery categories use a five-tier exponential progression (Spotter/Apprentice/Adept/Expert/Master) for accessibility.
 - Free tier with daily ID limit; Weekly and Yearly subscriptions to remove the limit and unlock premium features
 - North American species coverage (~900 species curated)
 - US-only launch (App Store + Play Store, US storefronts)
@@ -442,15 +442,29 @@ Strict streaks drive engagement but also drive churn after the first reset. Plan
 
 ## 10. Achievements
 
-Five categories, each with multiple tiers. Achievements live in the Achievements hub inside the Profile tab. At launch, the catalog contains roughly 120 achievements across all categories. All achievements are visible to all users from day one — no hidden achievements in v1 (candidate for v1.1).
+Five categories, each with multiple tiers. Achievements live in the Achievements hub inside the Profile tab. At launch, the catalog contains roughly 160 achievements across all categories. All achievements are visible to all users from day one — no hidden achievements in v1 (candidate for v1.1).
+
+The mastery categories (Family and Habitat) use a five-tier exponential curve (Spotter/Apprentice/Adept/Expert/Master at 5/10/25/50/100%) chosen deliberately for accessibility — a new user earns their first family-master tier (Spotter) within their first few captures of any type, while Master remains a long-term goal. Collection and Streaks similarly include early-game tiers (1 species, 5 species; 3-day streak) so the first week of use generates several unlock moments rather than one big wall at 7 days.
 
 ### 10.1 Collection milestones
 
-10, 25, 50, 100, 250, 500 species collected. A final aspirational tier at 900 (all NA species).
+Nine tiers spanning the casual-to-completionist range. The first two are named for personality; the rest are numeric milestones:
+
+- **First Feather** — 1 species (any successful capture)
+- **Getting Started** — 5 species
+- 10 species
+- 25 species
+- 50 species
+- 100 species
+- 250 species
+- 500 species
+- 900 species (all NA species, aspirational)
+
+The First Feather tier fires on the user's very first successful capture, which means every user who completes the capture flow earns at least one achievement on day one.
 
 ### 10.2 Streak tiers
 
-7-day, 14-day, 30-day, 100-day, 365-day streaks. Lifetime stats; each is a one-time unlock.
+3-day, 7-day, 14-day, 30-day, 100-day, 365-day streaks. Lifetime stats; each is a one-time unlock. The 3-day tier provides a quick early win for users who break their first attempt on day 5 or 6 — they still have something to show for the week.
 
 ### 10.3 Regional/geographic
 
@@ -460,32 +474,33 @@ Five categories, each with multiple tiers. Achievements live in the Achievements
 
 ### 10.4 Family/category collector
 
-Three-tiered achievements per species type, mapping to the 9 user-facing types from §7.2. Each type produces three achievements:
+Five-tiered achievements per species type, mapping to the 9 user-facing types from §7.2. Each type produces five achievements following a roughly exponential curve:
 
-- **Apprentice** — 25% of species in the type collected
-- **Adept** — 50% of species in the type collected
-- **Master** — 100% of species in the type collected
+- **Spotter** — 5% of species in the type collected
+- **Apprentice** — 10% of species
+- **Adept** — 25% of species
+- **Expert** — 50% of species
+- **Master** — 100% of species
 
-Nine types × three tiers = 27 family achievements at launch. Examples:
+Nine types × five tiers = 45 family achievements at launch. Worked examples (with thresholds rounded up to whole species):
 
-- Songbirds (87 species in NA): Apprentice at 22, Adept at 44, Master at 87
-- Birds of Prey (33): Apprentice at 8, Adept at 17, Master at 33
-- Game Birds (12): Apprentice at 3, Adept at 6, Master at 12
+| Family | Species | Spotter (5%) | Apprentice (10%) | Adept (25%) | Expert (50%) | Master (100%) |
+|---|---|---|---|---|---|---|
+| Songbirds | 87 | 4 | 9 | 22 | 44 | 87 |
+| Waterfowl | 48 | 2 | 5 | 12 | 24 | 48 |
+| Birds of prey | 33 | 2 | 3 | 8 | 17 | 33 |
+| Aerial specialists | 15 | 1 | 2 | 4 | 8 | 15 |
+| Game birds | 12 | 1 | 1 | 3 | 6 | 12 |
 
-The sub-tier structure keeps momentum visible for users working through large families (Songbirds in particular) and rewards smaller families with quick early wins.
+For small families, the lowest tiers may share the same 1-species threshold — that's intentional. A new user gets two badges on their first Game Bird capture instead of one. The exponential curve front-loads dopamine: Spotter unlocks early and often; Master remains a long-term goal.
 
 Family-collector progress is surfaced in the Achievements hub (in Profile), not on individual card footers. The "7" badge on the card design reference is the user's personal sighting count for that specific species (see §7.1).
 
 ### 10.5 Habitat collector
 
-Mirroring family collectors, three-tiered achievements per habitat from §7.2. Each of the 9 habitats produces three achievements (Apprentice / Adept / Master) on the same 25% / 50% / 100% schedule.
+Mirroring family collectors, five-tiered achievements per habitat from §7.2. Each of the 9 habitats produces five achievements (Spotter / Apprentice / Adept / Expert / Master) on the same 5% / 10% / 25% / 50% / 100% curve.
 
-Nine habitats × three tiers = 27 habitat achievements at launch. Examples:
-
-- Forest Apprentice / Adept / Master
-- Wetlands Apprentice / Adept / Master
-- Cities & towns Apprentice / Adept / Master (typically the fastest to complete — fewer species)
-- Tundra Apprentice / Adept / Master (typically the slowest — small species pool and most users won't travel to spot them)
+Nine habitats × five tiers = 45 habitat achievements at launch. Habitat populations vary widely — Cities & towns typically completes fastest (small species pool concentrated near most users), while Tundra is one of the slowest (small pool, and most casual users won't travel to spot them). The early-tier unlocks help even slow-moving habitats feel progressed-on.
 
 The Family/Habitat split rewards two different forms of mastery: depth into a taxonomic group (Songbirds) vs. breadth across an ecosystem (Forest). Engaged users naturally pursue both as their collection grows; together the categories give Master-tier users meaningful long-term goals.
 
@@ -523,7 +538,7 @@ When an achievement unlocks, the user sees a full-screen celebration similar in 
 
 **Timing and pacing.** Total ~3 seconds + user dismissal. Tap-to-skip becomes available after ~0.5s.
 
-**Queue behavior — when multiple achievements fire from one capture.** Auto-queue: after the card unlock reveal's settled state (§6.7 beat 5) dismisses, achievement celebrations play sequentially, one per tap. Order: most "important" first (Master > Adept > Apprentice; major milestone tiers before regional spots). User can dismiss each with a single tap; queue advances. Total time scales with the number of unlocks but each is fast.
+**Queue behavior — when multiple achievements fire from one capture.** Auto-queue: after the card unlock reveal's settled state (§6.7 beat 5) dismisses, achievement celebrations play sequentially, one per tap. Order: most "important" first (Master > Expert > Adept > Apprentice > Spotter for mastery; major milestone tiers before regional spots). User can dismiss each with a single tap; queue advances. Total time scales with the number of unlocks but each is fast.
 
 **Asynchronous unlocks.** Streak achievements may fire at midnight-rollover when a streak crosses a threshold (not during a capture). In this case, the celebration shows on the user's next app open. If notifications are enabled and the app is backgrounded, a push notification fires ("You unlocked 30-day streak"); tapping the push opens the celebration.
 
