@@ -133,13 +133,14 @@ Notification preferences, account settings (password change, email), and app pre
 
 **Onboarding & system modals**
 
-- Welcome carousel (first-launch only)
-- Sign in / Sign up / Forgot password
-- Permission explainer (camera, location, notifications — sequential prompts with rationale)
-- Tutorial capture (first-time user only)
-- Hard paywall (triggered when a free user hits the daily ID limit)
-- Soft upsell (accessible anytime from Profile)
-- Achievement unlock celebration overlay
+- Splash (~1s brand moment on first launch and cold app starts)
+- Welcome carousel (first-launch only; 3 slides; skippable)
+- Sign in (OAuth only — Apple, Google)
+- Permission rationale + sequential OS prompts (Camera, Location, Notifications)
+- Permission denied recovery sheets (deep-link to Settings)
+- Tutorial capture (first-time only; pre-staged sample bird; skippable; tutorial card carries a "Sample" badge and is not saved)
+- Hard paywall (triggered when a free user hits the daily ID limit; see §6.12)
+- Achievement unlock celebration overlay (see §10.7)
 
 Total: roughly 30 distinct screens / states across the four tabs and system modals. Sized correctly for a focused v1.
 
@@ -168,11 +169,48 @@ Out of scope for v1 hub (candidates for v1.1+): bird-of-the-day featured species
 
 ### 6.1 First-time user onboarding
 
-1. App launch → splash → welcome carousel (3–4 slides explaining the loop)
-2. Sign up via Supabase auth (email/password + Apple/Google OAuth)
-3. Permission requests with rationale: Camera (required), Location (required), Notifications (optional, recommended)
-4. Tutorial capture using a stock bird image — walks through Photo → ID → Card → Collection
-5. Drop into the Capture tab (camera viewfinder), with a small "Photograph your first bird" coach-mark
+A short, opinionated flow designed to get a new user to their first card unlock in under 90 seconds. Five steps; the welcome carousel and tutorial capture are both skippable for impatient users. Permissions are required.
+
+**1. Splash.** Brief brand moment with the birdr wordmark and binoculars iconography. Auto-advances to the welcome carousel after ~1 second.
+
+**2. Welcome carousel** — three slides, each with a hero visual + headline + supporting copy + pagination dots. "Skip" available top-right on every slide. Slides cover the three product pillars in order:
+
+- **Slide 1 — Identify any bird you spot.** "Take a photo and birdr tells you the species — plus habitat, size, range, conservation status, and what its call sounds like." Hero visual: a captured bird photo with a thin overlay of identification metadata. Leads with the educational/naturalist angle.
+- **Slide 2 — Unlock a card for every species.** "Each species becomes a collectible card with your photo as the hero. Build your personal aviary." Hero visual: the card design (Cardinal style).
+- **Slide 3 — Birding becomes a habit.** "Daily streaks, milestones, and achievements turn every walk into an adventure." Hero visual: the streak flame + a peek at the achievements hub.
+
+Tapping Skip jumps directly to sign-in.
+
+**3. Sign in** — OAuth-only screen. Required buttons in order:
+
+- **"Continue with Apple"** — primary position (dark button, Apple branding). Required by Apple App Store policy for any app that offers third-party sign-in.
+- **"Continue with Google"** — secondary position (outline button, Google branding).
+
+No email/password in v1. Terms and Privacy Policy links at the bottom. The provider returns display name and (Google only) an avatar image; Apple users fall back to a sage-tinted circle with their first initial (see §6.10).
+
+**4. Permissions** — single rationale screen covering all three permissions in one place. Three rows with semantic-colored icons + name + one-line rationale:
+
+- **Camera (required)** — sage accent. "So you can photograph birds for identification."
+- **Location (required)** — sky-blue accent. "To record where you spotted each bird. Used in your personal map and regional achievements."
+- **Notifications (optional)** — coral accent. "Streak reminders and achievement alerts."
+
+Single "Continue" button triggers the OS prompts in sequence (Camera → Location → Notifications). The rationale screen exists primarily to give context before the OS prompts — Apple's prompts are short and don't communicate the value clearly on their own.
+
+**Denied permission handling:**
+
+- *Camera denied*: app remains usable; the Capture button on the hub surfaces a "Camera access needed" sheet with a "Open Settings" deep-link button.
+- *Location denied*: app remains usable; sightings are recorded without location metadata, regional achievements don't progress, and the Explore tab shows a "Location needed for nearby birds" prompt with a Settings deep-link.
+- *Notifications denied*: app fully functional; no streak reminders or unlock notifications. We may re-prompt at strategic moments (e.g., after the 7-day streak achievement) but not in v1.
+
+**5. Tutorial capture (interactive, skippable)** — a pre-staged sample capture experience. The user sees a sample Cardinal photo, a "Try it out" header, and a big saffron Identify button. Tapping it runs the full Identify → reveal animation using the sample data, ending with the user seeing the Cardinal card materialize. A "Sample" or "Tutorial" badge appears on the card so it's not added to the user's real collection. The reveal is at the standard pace — they see the haptic ticks, the particle burst, the banner. Then they see the settled state with mock bonus chips ("Streak +1 → 1 day," "First Feather"). A "Continue" button drops them into the Capture hub. Skip is available top-right.
+
+The point of the tutorial: get the user through one complete loop before they've taken a real photo, so they know what to expect when they do.
+
+**6. Drop into Capture hub** — no coach mark, no overlay, no tooltip. The Capture hub's central saffron button with the binoculars icon is its own affordance. Users who completed the tutorial know what tapping it does; users who skipped will figure it out instantly. The Recent strip is empty; the daily streak prompt reads "Capture today to start your streak."
+
+**Total time** — under 90 seconds for a user who skips the carousel and tutorial. Under 3 minutes for a user who watches everything.
+
+**Returning users.** None of steps 2, 4, 5, or 6 fire for returning users. The app launches straight to the Capture tab.
 
 ### 6.2 Capture → ID → Card
 
@@ -726,6 +764,7 @@ birdr inherits the engineering patterns documented in `documentation/`. Reuse wi
 - React Navigation per `navigation-pattern.md` — four-tab bottom-tab navigator with stack navigators inside each tab
 - Atomic design system per `atomic-design-pattern.md` and `atomic-design-extended-atoms.md`
 - Haptic feedback per `haptic-feedback-pattern.md`
+- Auth: Supabase Auth with Apple and Google OAuth providers only (no email/password in v1)
 - Map rendering: a two-tier strategy (see §18.4) — static pre-rendered illustrated maps for per-card range maps; Mapbox or MapLibre with a custom style approximating the brand palette for interactive maps (Explore, global sightings, per-card sightings)
 
 ### 12.2 Backend
