@@ -220,6 +220,40 @@ Out of scope for v1 hub (candidates for v1.1+): bird-of-the-day featured species
 2. Streak detail screen reached from Profile: current streak, longest streak, calendar of capture days for the past 60 days
 3. If the streak is broken (no successful capture by end of local day), counter resets at the start of the next day
 
+### 6.7 Card unlock reveal
+
+When a successful ID creates a new species card (a "First Sight"), the user sees a five-beat reveal animation. Repeat sightings of an existing species skip the reveal entirely — see §6.2 for the repeat-sighting toast flow.
+
+**Five beats:**
+
+1. **Identifying** (~1.5s) — Captured photo dims to ~50% opacity. A saffron spinner animates above "Identifying..." text. Beat ends when the cloud ID response returns; if the cloud call is slower, the spinner continues until response is back.
+2. **Match found** (~0.5s) — Background fades to near-black. A particle burst in the rarity-tier color fires from the center. Brief light haptic tick.
+3. **Card materializes** (~1s) — The card frame appears center-screen. Bird photo locks into the hero region; other card details ghost in. Particles continue at moderate intensity. Stronger haptic tick.
+4. **First Sight banner** (~1s) — "FIRST SIGHT" small-caps label appears above the card, followed by the species name (e.g., "Northern Cardinal") and the species type underneath (e.g., "Songbird"). Conservation tier is intentionally not surfaced in the banner — it lives in the card's LC/NT/VU/EN/CR footer badge, not in the celebration moment. Card is now fully detailed. Particles peak. "Tap to continue" hint appears after a brief delay.
+5. **Settled state** — Background returns to cream. Card scales down slightly. Bonus chips animate in below the card: streak increment, any family-collector progress, any other achievements unlocked. Two CTAs: "Continue" (back to viewfinder, ready for next shot) or "View card" (deep-link to Collection card detail).
+
+**Pacing.** Total elapsed time roughly 4–5 seconds for a normal LC reveal. Tap-to-skip becomes available after beat 2 — a tap anywhere advances directly to beat 5.
+
+**Rarity scaling.** Same core animation across all conservation tiers, with escalating intensity. Copy and beat structure are identical across tiers; only the visual and tactile dial moves.
+
+| Tier | Particle count | Color saturation | Duration multiplier | Haptic intensity |
+|---|---|---|---|---|
+| LC | Baseline | Saffron / amber | 1.0× | Light |
+| NT | +25% | Saffron with coral hints | 1.1× | Light |
+| VU | +50% | Coral | 1.25× | Medium |
+| EN | +75% | Deep terracotta | 1.4× | Medium |
+| CR | +100% | Burgundy with gold accents | 1.6× | Strong |
+
+Conservation framing (donation prompts, protection info) lives in the card detail screen, not the reveal. The reveal stays pure celebration regardless of tier; education comes after the user has had their moment.
+
+**Audio.** No sound effects in v1. Haptics carry the rhythm.
+
+**Accessibility.** Respects the system "Reduce motion" preference — when enabled, beats 2 and 3 cross-fade instead of animating, particles collapse to a single static accent, and the rarity color is communicated through the card frame alone. Tap-to-skip is always available regardless of motion setting.
+
+**First-time user nuance.** On the user's very first card unlock (tutorial capture or first real capture), the reveal plays at full duration and the "tap to continue" hint is delayed by an extra second — give them time to absorb the moment.
+
+**Implementation notes.** Use React Native Reanimated for card scale/position, Lottie for particle bursts (one Lottie per rarity tier), and the existing haptic-feedback pattern (see `documentation/haptic-feedback-pattern.md`) for the tactile cues at beats 2 and 3.
+
 ## 7. The bird card
 
 The bird card is the central artifact of the app. Each species the user has photographed gets exactly one card per user.
