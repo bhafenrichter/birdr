@@ -34,6 +34,7 @@ In scope:
 - One card per species (Pokédex model); subsequent sightings update a sightings log on the existing card, not a new card
 - Card content: species data + user's photo + first-sight metadata + bird call audio + range map + conservation status badge
 - Collection browser: grid view, search by name, filter by family/habitat/conservation status, sort by date/name/rarity
+- Explore surface: eBird-powered "what birds are near me," common-species-in-region list, personal global sightings map
 - Daily streak tracker (strict: miss a day, reset)
 - Achievement system across four categories: collection milestones, streak tiers, regional/geographic, family/category collector
 - Free tier with daily ID limit; Weekly and Yearly subscriptions to remove the limit and unlock premium features
@@ -42,33 +43,120 @@ In scope:
 
 Out of scope for v1 — planned for later releases:
 
+- **Audio-based identification** (record a bird call → AI identifies it). Deferred to v2.
 - All social features (friends, feeds, leaderboards, comments)
 - Card sharing/export, trading or gifting
 - Multi-region species DB (Europe, Asia, etc.)
 - Localization beyond English
 - Tablet-optimized UI, Apple Watch
-- Nearby rare-bird alerts (would require live eBird integration)
+- Nearby rare-bird alerts (push notifications driven by live eBird data)
 - Stylized/AI-illustrated card variants
 
-## 5. Core user flows
+## 5. Information architecture
 
-### 5.1 First-time user onboarding
+birdr is organized as a four-tab app, with Capture as the default landing tab. This reflects the product pillar that the capture loop *is* the product.
 
-1. App launch → "Welcome to birdr" intro carousel (3-4 screens explaining the loop)
+### 5.1 Tab structure
+
+The bottom tab bar, from left to right:
+
+| Tab | Icon | Purpose |
+|---|---|---|
+| Capture | Binoculars | Camera viewfinder. The default landing tab. (Audio recording reserved for v2.) |
+| Collection | Book | Browse your collected species cards. |
+| Explore | Search / compass | Discover what birds are near you + your global sightings map. |
+| Profile | User | Achievements, streak, subscription, settings. |
+
+The Capture tab is the visual centerpiece of the tab bar — the binoculars icon, possibly raised or accented, anchors the bar and signals the headline action.
+
+### 5.2 Default landing
+
+The app opens directly to the Capture tab (camera viewfinder ready). This minimizes friction for users who open the app specifically to identify something they just spotted.
+
+Exception: First-time users land on the welcome carousel and tutorial flow, then drop into Capture.
+
+### 5.3 Screen inventory by tab
+
+**Capture tab (~7 screens / states)**
+
+- Camera viewfinder (default state for the tab)
+- Photo preview + "Identify" CTA
+- Identifying (loading)
+- ID result: new species card created (full-screen celebration)
+- ID result: existing species sighting added (toast + brief animation, returns to viewfinder)
+- ID result: top-3 picker (low confidence)
+- ID result: try again (very low confidence, with photo guidance)
+
+**Collection tab (~7 screens)**
+
+- Collection grid (default)
+- Search results
+- Filter sheet (bottom sheet — Species type, Habitat, Conservation status, Date range)
+- Sort menu
+- Card detail (full card art + About + range map + footer badges)
+- Card sightings log (every time you've spotted this species)
+- Card per-species map (pins on a map for every sighting of this species)
+
+**Explore tab (~4 screens)**
+
+- Explore map (default) — birds reported near the user, pulled from the eBird "recent observations nearby" API, with map pins per species
+- Common species list — scrollable list of birds frequently seen in the user's region, with a "spotted / not spotted" status overlay derived from the user's collection
+- My global map — the user's personal sightings worldwide
+- Species preview (modal) — tap any bird in the map or list to see a preview card with sighting status; can deep-link to the user's existing card if they've already collected the species
+
+The Explore tab does *not* include hotspots in v1 (deferred — fine candidate for v1.1 if Explore engagement is strong).
+
+**Profile tab (~10 screens)**
+
+- Profile home (avatar, total species, current streak chip, lifetime stats)
+- Achievements hub (sections: Collection, Streaks, Regional, Family)
+- Achievement section detail
+- Achievement detail (progress, criteria, unlock date)
+- Streak detail (calendar of capture days)
+- Account settings (email, password, sign out, delete account)
+- Notification settings (streak reminder time, achievement alerts)
+- App preferences (haptics, units imperial/metric, theme)
+- Subscription management (current plan, restore purchases, upgrade)
+- Help / About / Privacy / Terms / Support
+
+**Onboarding & system modals**
+
+- Welcome carousel (first-launch only)
+- Sign in / Sign up / Forgot password
+- Permission explainer (camera, location, notifications — sequential prompts with rationale)
+- Tutorial capture (first-time user only)
+- Hard paywall (triggered when a free user hits the daily ID limit)
+- Soft upsell (accessible anytime from Profile)
+- Achievement unlock celebration overlay
+
+Total: roughly 30 distinct screens / states across the four tabs and system modals. Sized correctly for a focused v1.
+
+### 5.4 Design rationale
+
+- **Capture as a tab, not a FAB.** Photography is the primary action, not a secondary feature. Putting it in the tab bar — and as the default landing surface — commits to that positioning.
+- **Collection separate from Capture.** Browsing your collection is a contemplative mode, distinct from the "I want to shoot something right now" intent of Capture. Mixing them dilutes both.
+- **Explore as a dedicated tab.** Discovery (what's nearby? what should I look for?) is a different mode from capture or browsing. eBird's "recent observations" API gives this surface real, fresh data without requiring birdr to build a community.
+- **Profile absorbs Achievements + Settings.** Achievements and streaks are personal stats; they live with the user's other personal context. Saves a tab and avoids splitting the "me" surface area.
+
+## 6. Core user flows
+
+### 6.1 First-time user onboarding
+
+1. App launch → splash → welcome carousel (3–4 slides explaining the loop)
 2. Sign up via Supabase auth (email/password + Apple/Google OAuth)
-3. Permission requests with rationale: Camera (required), Location (required), Notifications (optional, recommended for streak reminders)
-4. Sample capture walkthrough using a stock bird image — shows the Photo → ID → Card → Collection arc
-5. Drop into the empty collection view with the CTA "Photograph your first bird"
+3. Permission requests with rationale: Camera (required), Location (required), Notifications (optional, recommended)
+4. Tutorial capture using a stock bird image — walks through Photo → ID → Card → Collection
+5. Drop into the Capture tab (camera viewfinder), with a small "Photograph your first bird" coach-mark
 
-### 5.2 Capture → ID → Card
+### 6.2 Capture → ID → Card
 
-1. User taps capture FAB on the collection screen
-2. Camera opens; user takes a photo or selects from gallery
+1. User is already on the Capture tab (default) or taps it from elsewhere
+2. Camera viewfinder is live; user takes a photo or selects from gallery
 3. Preview screen with an "Identify" button
 4. Upload to backend edge function with image + location
 5. Backend calls cloud vision API, returns ranked species candidates with confidence scores
 6. Branch on top-candidate confidence:
-   - **≥85%:** Auto-accept, show card creation animation, return to collection
+   - **≥85%:** Auto-accept, show card creation animation, return to viewfinder
    - **60–85%:** Show top-3 candidate picker with thumbnails + names; user selects correct species
    - **<60%:** Show "Try again" with photo guidance (lighting, framing, get closer)
 7. On successful ID:
@@ -76,35 +164,42 @@ Out of scope for v1 — planned for later releases:
    - **Existing species:** Sighting count increments, new location added to per-card map, short toast "Spotted again!" (no full card animation, to keep repeat captures lightweight)
 8. Streak counter updates if this is the first successful capture of the day
 
-### 5.3 Browse collection
+### 6.3 Browse collection
 
-1. Collection screen shows captured species as a grid of card thumbnails (image + name + count badge)
+1. User taps the Collection tab → grid of card thumbnails (image + name + count badge)
 2. Search bar at top filters by name
-3. Filter chips below search: Family, Habitat, Conservation Status, Date range
+3. Filter chips below search: Species type, Habitat, Conservation status, Date range
 4. Sort menu: Recently spotted, Alphabetical, Conservation rarity, Family
 5. Tap a card → full-size card detail with all metadata + sightings log + per-card sightings map
-6. Empty state: "Photograph your first bird" with tap-to-capture CTA
+6. Empty state: "Photograph your first bird" with a tap-to-Capture-tab CTA
 
-### 5.4 Achievements
+### 6.4 Explore: what's near me
 
-1. Achievements tab in main navigation
-2. Sections: Collection milestones, Streak tiers, Regional, Family collector
+1. User taps the Explore tab → opens to the Explore map by default
+2. Map centers on the user's current location, showing pins for recent bird observations from eBird (within a configurable radius, default ~25 km)
+3. Tap a pin → species preview modal (photo, name, when/where it was last reported, "Spotted / Not yet" status from user's collection)
+4. Toggle at top switches between three surfaces: Map (nearby), Common species (list), My global map (personal)
+5. From any species preview, user can deep-link to their existing card (if collected) or save it as a target species (v1.1 — for now just close)
+
+### 6.5 Achievements
+
+1. User taps Profile tab → Achievements hub
+2. Sections: Collection milestones, Streaks, Regional, Family collector
 3. Each achievement card shows: name, description, progress (e.g., "7 of 10"), unlock state
 4. Unlocked achievements show date earned; locked ones with progress show the criteria
 5. Unlocking triggers a celebration overlay and an optional push notification
 
-### 5.5 Streaks
+### 6.6 Streaks
 
-1. Current streak shown as a chip in the Collection header (e.g., "🔥 12")
-2. Streak detail screen accessible from profile: current streak, longest streak, calendar of capture days for the past 60 days
+1. Current streak chip shown in the Capture or Collection header (e.g., "🔥 12")
+2. Streak detail screen reached from Profile: current streak, longest streak, calendar of capture days for the past 60 days
 3. If the streak is broken (no successful capture by end of local day), counter resets at the start of the next day
-4. Streaks are private — no leaderboards in v1
 
-## 6. The bird card
+## 7. The bird card
 
 The bird card is the central artifact of the app. Each species the user has photographed gets exactly one card per user.
 
-### 6.1 Card anatomy (from the design reference)
+### 7.1 Card anatomy (from the design reference)
 
 **Top region**
 
@@ -127,7 +222,7 @@ The bird card is the central artifact of the app. Each species the user has phot
 - Conservation status circular badge (left): LC / NT / VU / EN / CR, IUCN-standard color coding
 - Audio play button (center): plays the species' primary call/song
 - Sighting count or family-collector badge (right): displays a number — final semantics TBD (see open questions)
-- Background: illustrated landscape themed by the species' primary habitat (forest, wetland, grassland, desert, coast, urban, mountain)
+- Background: illustrated landscape themed by the species' primary habitat (forest, wetland, grassland, desert, coast, urban, mountain, tundra, freshwater)
 
 **Frame**
 
@@ -136,9 +231,9 @@ The bird card is the central artifact of the app. Each species the user has phot
 
 A subtle framing note on rarity-by-conservation-status: rare cards should celebrate the species' protection (link to conservation info, donation prompts, "you spotted a protected species" copy) rather than treat the bird as a trophy. This keeps the gamification from feeling exploitative.
 
-### 6.2 Taxonomy
+### 7.2 Taxonomy
 
-birdr uses two parallel classification schemes that are surfaced on the card and used throughout the app for filtering, achievements, and visual themeing. These are deliberately user-friendly groupings, not strict scientific taxonomy — for example, "Songbirds" lumps together passerine families (sparrows, warblers, finches, thrushes, jays, blackbirds, wrens) that are taxonomically distinct but visually and behaviorally cohesive for casual users.
+birdr uses two parallel classification schemes that are surfaced on the card and used throughout the app for filtering, achievements, and visual theming. These are deliberately user-friendly groupings, not strict scientific taxonomy — for example, "Songbirds" lumps together passerine families (sparrows, warblers, finches, thrushes, jays, blackbirds, wrens) that are taxonomically distinct but visually and behaviorally cohesive for casual users.
 
 **Species type** — appears as the small tag at the top of the card (e.g., "Songbird"). Nine values:
 
@@ -172,14 +267,14 @@ Each species in the curated DB is assigned exactly one species type and one prim
 
 **Card art implications:** The footer illustration is themed by habitat — nine distinct illustrated scenes to commission (forest, grassland, desert, wetland, freshwater, coast, mountain, tundra, urban). Owner will provide finished art separately.
 
-### 6.3 Data on a card
+### 7.3 Data on a card
 
 **Species-level** (curated DB, shared across all users):
 
 - Common name, scientific name (Latin binomial)
 - Scientific family and order (for reference; not surfaced in UI)
-- Species type (one of the 9 user-facing types in §6.2)
-- Primary habitat (one of the 9 habitats in §6.2); optional secondary habitats array
+- Species type (one of the 9 user-facing types in §7.2)
+- Primary habitat (one of the 9 habitats in §7.2); optional secondary habitats array
 - Conservation status (IUCN: LC / NT / VU / EN / CR)
 - Size range (length; wingspan optional)
 - Editorial description ("About" copy)
@@ -193,9 +288,9 @@ Each species in the curated DB is assigned exactly one species type and one prim
 - Sightings log: list of (date, location, photo) tuples
 - Personal sighting count
 
-## 7. Identification system
+## 8. Identification system
 
-### 7.1 ID provider strategy
+### 8.1 ID provider strategy
 
 v1 uses a cloud vision API for identification. Three candidates to evaluate before locking in:
 
@@ -205,7 +300,7 @@ v1 uses a cloud vision API for identification. Three candidates to evaluate befo
 
 Tentative decision: Start with Gemini Flash for v1 to ship faster; benchmark against Merlin/iNat in parallel; revisit if accuracy or cost becomes a problem.
 
-### 7.2 Confidence threshold UX
+### 8.2 Confidence threshold UX
 
 The cloud API returns ranked candidates with confidence scores. The app dispatches based on the top score:
 
@@ -217,58 +312,58 @@ The cloud API returns ranked candidates with confidence scores. The app dispatch
 
 These thresholds are placeholders. They must be empirically tuned with the actual ID provider on real photos before launch.
 
-### 7.3 Edge cases
+### 8.3 Edge cases
 
 - **No bird in photo:** Confidence will be low → "Try again" flow. v1.1 could add an explicit "not a bird" classifier check.
 - **Multiple birds in photo:** Identify the dominant subject; document the limitation; multi-subject ID is a v2 candidate.
 - **Photo of a photo (cheating):** Not actively prevented in v1. Anti-cheat is over-engineering for a personal collection app with no leaderboards. Revisit when/if social features arrive.
 - **Species not in DB:** Captures outside North America that aren't in our curated DB return low confidence → "Try again" prompt explaining the v1 scope.
 
-### 7.4 Architectural reuse
+### 8.4 Architectural reuse
 
 The cloud ID call is implemented as a Supabase Edge Function per `documentation/EDGE-FUNCTION.md`. The function receives the photo + optional location, calls the vision API, and returns ranked candidates plus species metadata.
 
-## 8. Streaks
+## 9. Streaks
 
-### 8.1 Rules
+### 9.1 Rules
 
 - A "successful capture day" is any day (in the user's local time zone) on which the user creates or updates at least one card — a successful ID, not just opening the app
 - Streak counts consecutive successful capture days
 - If the user misses a day, the streak resets to 0 at the start of the next day
 - Server validates capture timestamps to prevent timezone gaming
 
-### 8.2 UX
+### 9.2 UX
 
-- Current streak chip in the Collection header (e.g., "🔥 12")
-- Streak detail screen: current streak, longest streak, calendar grid of past 60 days
+- Current streak chip in the Capture or Collection header (e.g., "🔥 12")
+- Streak detail screen accessible from the Profile tab: current streak, longest streak, calendar grid of past 60 days
 - Optional evening push notification at a user-configurable time if no capture yet that day (default 6pm local)
 - On streak loss, a non-judgmental morning message: "Your 12-day streak ended yesterday. Today is a new start."
 
-### 8.3 Anti-churn (planned for v1.1)
+### 9.3 Anti-churn (planned for v1.1)
 
 Strict streaks drive engagement but also drive churn after the first reset. Plan to add a "streak revive" reward in v1.1 — earn a one-time freeze after unlocking the 7-day streak achievement.
 
-## 9. Achievements
+## 10. Achievements
 
-Four categories, each with multiple tiers.
+Four categories, each with multiple tiers. Achievements live in the Achievements hub inside the Profile tab.
 
-### 9.1 Collection milestones
+### 10.1 Collection milestones
 
 10, 25, 50, 100, 250, 500 species collected. A final aspirational tier at 900 (all NA species).
 
-### 9.2 Streak tiers
+### 10.2 Streak tiers
 
 7-day, 14-day, 30-day, 100-day, 365-day streaks. Lifetime stats; each is a one-time unlock.
 
-### 9.3 Regional/geographic
+### 10.3 Regional/geographic
 
 - "First spot in [State]" — one per US state (50 achievements)
 - "Bird tour" — collect species in 5, 10, 20 different states
 - "Local expert" — 50 species in one state (rewards depth, not just travel)
 
-### 9.4 Family/category collector
+### 10.4 Family/category collector
 
-Complete-set achievements mapped 1:1 to the 9 species types from §6.2. Nine achievements at launch:
+Complete-set achievements mapped 1:1 to the 9 species types from §7.2. Nine achievements at launch:
 
 - Songbirds Master
 - Birds of Prey Master
@@ -284,58 +379,64 @@ Each unlocks when the user has collected every species in that type within North
 
 The "7" badge on the card design reference likely represents the user's progress in the family-collector achievement for that species' type (e.g., 7 of 33 woodpeckers collected). This is the working assumption — confirm in design review.
 
-## 10. Monetization
+## 11. Monetization
 
-### 10.1 Tiers
+### 11.1 Tiers
 
-- **Free:** N daily ID attempts (N to be set during beta; suggested starting point: 3/day). Full access to existing collection and achievements; capture is blocked once the daily limit is hit.
+- **Free:** N daily ID attempts (N to be set during beta; suggested starting point: 3/day). Full access to existing collection, achievements, and Explore; capture is blocked once the daily limit is hit.
 - **Weekly subscription:** Unlimited IDs, all features. Suggested price ~$2.99/wk — to be validated.
 - **Yearly subscription:** Unlimited IDs, all features. Suggested price ~$29.99/yr — ~50–65% savings vs. weekly. To be validated.
 
-### 10.2 Premium features beyond unlimited IDs
+### 11.2 Premium features beyond unlimited IDs
 
 To strengthen subscription value beyond the ID limit:
 
 - Custom card themes (alternate frame styles, footer art variants)
 - Export card as image (personal use; sharing UX comes in v2)
 - Detailed analytics on personal collection (busiest park, most active month, etc.)
-- Early access to new features (e.g., region expansions)
+- Early access to new features (e.g., region expansions, audio ID)
 
 These are subscription perks, not in-app cosmetic purchases. v1 keeps the pricing model simple: one paywall, two billing periods.
 
-### 10.3 Implementation
+### 11.3 Implementation
 
 Use RevenueCat per `documentation/subscription-pattern.md`. Store API keys in ConfigCat per `documentation/configcat-pattern.md`. Track purchase events in PostHog per `documentation/posthog-pattern.md`.
 
-## 11. Technical architecture
+## 12. Technical architecture
 
 birdr inherits the engineering patterns documented in `documentation/`. Reuse without modification where possible.
 
-### 11.1 Frontend
+### 12.1 Frontend
 
 - React Native + Expo (managed workflow)
 - TypeScript
-- React Navigation per `navigation-pattern.md`
+- React Navigation per `navigation-pattern.md` — four-tab bottom-tab navigator with stack navigators inside each tab
 - Atomic design system per `atomic-design-pattern.md` and `atomic-design-extended-atoms.md`
 - Haptic feedback per `haptic-feedback-pattern.md`
+- Map rendering: `react-native-maps` (Apple Maps on iOS, Google Maps on Android) for Explore and per-card sightings maps
 
-### 11.2 Backend
+### 12.2 Backend
 
 - Supabase (auth, Postgres, edge functions, storage)
 - Edge function for bird ID per `EDGE-FUNCTION.md`
 - Edge function for server-side streak validation
+- Edge function for proxying eBird API calls (so the eBird API key isn't shipped to clients)
 - User photo storage per `upload-pattern.md`
 
-### 11.3 Services
+### 12.3 Services
 
 - Sentry — error tracking (`sentry-pattern.md`)
 - PostHog — product analytics (`posthog-pattern.md`)
 - ConfigCat — feature flags and remote config (`configcat-pattern.md`)
 - RevenueCat — subscriptions (`subscription-pattern.md`)
+- **eBird API (Cornell Lab)** — recent observations near user and common species in region for the Explore tab. Requires API key + agreement; check commercial use terms.
+- Cloud vision API (Gemini Flash or equivalent) — bird ID
 
-### 11.4 Database schema (high level)
+### 12.4 Database schema (high level)
 
-- `species` — curated bird DB, ~900 rows (includes `species_type` and `primary_habitat` enums from §6.2)
+Server-side:
+
+- `species` — curated bird DB, ~900 rows (includes `species_type` and `primary_habitat` enums from §7.2)
 - `species_assets` — references to audio, illustrations, range maps
 - `users` — Supabase auth users
 - `customer_accounts` — backend customer records keyed by Supabase user_id
@@ -343,10 +444,11 @@ birdr inherits the engineering patterns documented in `documentation/`. Reuse wi
 - `cards` — per-user-per-species aggregate (user_id, species_id, first_seen_at, last_seen_at, sighting_count, hero_photo_url)
 - `streaks` — per-user (user_id, current_streak, longest_streak, last_capture_date)
 - `achievements` — per-user (user_id, achievement_id, unlocked_at, progress)
+- `ebird_cache` — short-TTL cache of eBird responses keyed by (lat_rounded, lon_rounded, query_type) to limit external API hits
 
 A note on the schema: `sightings.lat/lon` should be stored as precise coordinates but a separate `display_location` field (named place, fuzzed location) should be added now even though v1 doesn't use it publicly. This avoids a painful migration when social features arrive in v2.
 
-### 11.5 E2E testing
+### 12.5 E2E testing
 
 Maestro per `e2e-testing-pattern.md`. Critical flows to cover at launch:
 
@@ -356,12 +458,13 @@ Maestro per `e2e-testing-pattern.md`. Critical flows to cover at launch:
 - Repeat capture of an existing species updates the sightings log
 - Streak increments on first daily capture
 - Streak resets after a missed day (with mocked time)
+- Explore tab loads nearby observations (mocked eBird response)
 - Subscription paywall and RevenueCat sandbox purchase
 - Collection search and filter
 
-## 12. Data sources and curation
+## 13. Data sources and curation
 
-### 12.1 Custom curated DB
+### 13.1 Custom curated DB
 
 The 900-species North American bird DB is the highest-effort pre-launch task. Strategy:
 
@@ -373,34 +476,45 @@ The 900-species North American bird DB is the highest-effort pre-launch task. St
 
 Estimated effort: 2–3 focused months for one person, less with assistance.
 
-### 12.2 Asset hosting
+### 13.2 eBird API for the Explore tab
 
-Static assets (audio, range maps, illustrations) hosted on Supabase storage with CDN. Avoid in-app bundling unless total size stays under ~50 MB.
+The Explore tab pulls live data from the eBird API:
 
-## 13. Privacy and permissions
+- `recent observations nearby` (radius default ~25 km from user's current location)
+- `common species in region` (subnational regions for the US)
 
-### 13.1 Permissions
+eBird requires an API key and has terms of use that distinguish non-commercial from commercial use. The legal review for commercial use must happen before launch. If commercial terms are not workable, fall back options include: (a) iNaturalist's public observations API, (b) curated static "common species by state" data shipped with the app and updated periodically.
+
+All eBird responses are cached server-side with a short TTL (e.g., 15–30 minutes) to control external API volume and stay within rate limits.
+
+### 13.3 Asset hosting
+
+Static assets (audio, range maps, illustrations, habitat backgrounds) hosted on Supabase storage with CDN. Avoid in-app bundling unless total size stays under ~50 MB.
+
+## 14. Privacy and permissions
+
+### 14.1 Permissions
 
 - **Camera:** Required. Requested with a clear rationale on the permission prompt.
 - **Photo Library:** Optional. For importing existing photos.
 - **Location:** Required for v1. Requested as "When in Use," never "Always."
 - **Notifications:** Optional, recommended for streak reminders and achievement unlocks.
 
-### 13.2 Data handling
+### 14.2 Data handling
 
 - User photos stored in Supabase storage, scoped to the user's account
 - Precise GPS coordinates stored alongside each sighting (no fuzzing in v1 since nothing is publicly shared)
 - App Privacy disclosures: "Precise Location," "Photos," "User Content"
 - Account deletion flow per App Store requirements
 
-### 13.3 Future-proofing for social
+### 14.3 Future-proofing for social
 
 When v2 introduces social features, public-facing sighting locations must be fuzzed (round to nearest named place ≥1 km radius) to protect users from accidentally revealing home addresses. The schema should support both `precise_lat/lon` (private) and `display_location` (public, fuzzed) from v1.
 
-## 14. Open questions
+## 15. Open questions
 
 1. **Card "7" badge semantics:** Is it per-species sighting count, family-collector progress, or both layered? Confirm in design review.
-2. **Audio button UX:** Single tap-to-play, or expandable selector for song/call/alarm-call?
+2. **Audio button UX on card:** Single tap-to-play, or expandable selector for song/call/alarm-call?
 3. **Card flip vs. detail screen:** Does the card flip to reveal a sightings log, or is the log a separate detail view?
 4. **First Sight permanence:** Frozen forever, or editable?
 5. **ID provider final pick:** Lock Gemini Flash or evaluate Merlin/iNat ToS for commercial use?
@@ -409,8 +523,12 @@ When v2 introduces social features, public-facing sighting locations must be fuz
 8. **Onboarding length:** How many tutorial screens before dropping into the app?
 9. **Notification defaults:** Default reminder time, user customization scope
 10. **At the daily ID limit for free users:** Hard block + paywall, or a soft "preview" of what they would have caught?
+11. **Explore radius default:** 25 km is a guess. Should users be able to adjust it? Does urban vs. rural location warrant different defaults?
+12. **eBird commercial terms:** Confirm commercial-use viability before building Explore on top of it. Identify fallback if blocked.
+13. **Capture tab when leaving viewfinder:** When the user navigates away from Capture mid-flow and returns, do they land on the viewfinder fresh, or resume where they left off?
+14. **Explore "target species" save:** Should v1 include a "save as target" interaction on Explore species, or is that a v1.1 add?
 
-## 15. Success metrics
+## 16. Success metrics
 
 **Primary**
 
@@ -425,8 +543,9 @@ When v2 introduces social features, public-facing sighting locations must be fuz
 - Streak length distribution (especially 7-day and 30-day milestones)
 - ID accuracy distribution: % of captures that auto-accept vs. show picker vs. fail
 - Cost per ID (cloud API spend ÷ total IDs)
+- Explore tab engagement: % of weekly actives who open Explore at least once
 
-## 16. Risks and mitigations
+## 17. Risks and mitigations
 
 | Risk | Likelihood | Impact | Mitigation |
 |---|---|---|---|
@@ -436,14 +555,17 @@ When v2 introduces social features, public-facing sighting locations must be fuz
 | Strict streak drives churn after first reset | H | M | Plan "streak revive" reward in v1.1 |
 | App Store rejection over location data | L | H | Conservative privacy disclosure; consider fuzzing earlier if Apple pushes back |
 | Non-bird photos clutter the ID model | L | L | Confidence threshold + "try again" handles this naturally |
-| Casual NA-only DB feels limiting to global users | M | L | Geofence App Store to US for v1 (already planned) |
+| NA-only DB feels limiting to global users | M | L | Geofence App Store to US for v1 (already planned) |
+| eBird API commercial terms block Explore | L | H | Confirm terms early; have fallback (iNat or static data) ready |
+| eBird API rate limits or downtime | M | M | Server-side caching with short TTL; degrade gracefully on outage |
 
 ---
 
 **Next steps**
 
-1. Resolve the open questions in §14 (especially the card "7" badge and ID provider pick)
+1. Resolve the open questions in §15 (especially the card "7" badge, ID provider pick, and eBird commercial terms)
 2. Begin DB curation work in parallel with engineering scaffolding
-3. Stand up the Supabase project (auth, schema migration, edge functions stub)
+3. Stand up the Supabase project (auth, schema migration, edge function stubs for ID + eBird proxy)
 4. Build the capture → ID → card vertical slice as the first engineering milestone
-5. Beta test with 20–50 casual bird watchers before public launch
+5. Wire up the Explore tab with eBird as the second milestone
+6. Beta test with 20–50 casual bird watchers before public launch
