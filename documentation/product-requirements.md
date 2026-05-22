@@ -97,15 +97,17 @@ The capture flow, launched from the hub's central button as a fullscreen modal e
 
 Closing the capture flow (X in the top corner, or back gesture) returns the user to the Capture hub with the tab bar restored.
 
-**Collection tab (~7 screens)**
+**Collection tab (~9 screens)**
 
-- Collection grid (default)
+- Collection grid — Spotted view (default; chronological sections)
+- Collection grid — All North America view (habitat-grouped Pokédex)
 - Search results
 - Filter sheet (bottom sheet — Species type, Habitat, Conservation status, Date range)
 - Sort menu
-- Card detail (full card art + About + range map + footer badges)
-- Card sightings log (every time you've spotted this species)
-- Card per-species map (pins on a map for every sighting of this species)
+- Card detail (single scrollable screen; spotted version with user data)
+- Card detail (single scrollable screen; unspotted/locked version with canonical info)
+- Full sightings log (all entries for a species)
+- Per-species sightings map (full-screen interactive map)
 
 **Explore tab (~4 screens)**
 
@@ -192,12 +194,32 @@ Out of scope for v1 hub (candidates for v1.1+): bird-of-the-day featured species
 
 ### 6.3 Browse collection
 
-1. User taps the Collection tab → grid of card thumbnails (image + name + count badge)
-2. Search bar at top filters by name
-3. Filter chips below search: Species type, Habitat, Conservation status, Date range
-4. Sort menu: Recently spotted, Alphabetical, Conservation rarity, Family
-5. Tap a card → full-size card detail with all metadata + sightings log + per-card sightings map
-6. Empty state: "Photograph your first bird" with a tap-to-Capture-tab CTA
+The Collection tab opens to a segmented control at the top: **Spotted** (the user's own collection) or **All North America** (the full Pokédex of 900 NA species). Each tab shows its count, e.g., "Spotted · 47" / "All North America · 900". Spotted is the default and the surface most users live in; All North America is the aspirational, opt-in browse.
+
+**Spotted view (default)**
+
+1. Grid of card thumbnails — 3 columns, full yellow frame on each, bird photo as the body, species name at the bottom, optional sighting count badge (★N) for species with more than one sighting
+2. Default sort: **Most recently spotted** (newest first)
+3. Section headers based on capture recency. The exact headers adapt to collection size:
+   - For collections under ~30 species: "Recent" (last 7 days) and "Earlier"
+   - For larger collections: "This week," "This month," "Earlier this year," "Older"
+4. Search bar above the grid filters by species name
+5. Filter chips below search: Species type, Habitat, Conservation status, Date range
+6. Sort menu (accessible from a small affordance in the filter row): Recently spotted (default), Alphabetical, Conservation rarity, Family
+7. Tap a card → opens Card detail (§6.9)
+
+**All North America view (Pokédex)**
+
+1. Full catalog of all 900 NA species. Spotted species render as normal thumbnails; unspotted species render as locked silhouettes (dashed border, lock icon, no name visible)
+2. Grouped by habitat (the 9 habitats from §7.2) with per-group progress in the section header: "Forests · 15 of 92," "Wetlands · 4 of 33," "Cities & towns · 8 of 23," etc.
+3. Section headers are tappable to collapse/expand each habitat — helps manage the visual weight of 900 cells
+4. Tapping a spotted thumbnail → Card detail (§6.9, spotted variant)
+5. Tapping a locked silhouette → Card detail (§6.9, unspotted variant) — shows canonical info, no personal data, with a "Photograph this species" CTA that switches to the Capture tab
+
+**Common elements**
+
+- **Sighting count badge** (★N) appears on thumbnails for species the user has spotted more than once. Single-sighting cards don't show the badge — keeps the grid quiet.
+- **Empty state** (no captures yet, Spotted view): hero illustration of binoculars + "Photograph your first bird" copy + a CTA that switches to the Capture tab. The All North America toggle is hidden on the empty state to avoid leading new users into an overwhelming view.
 
 ### 6.4 Explore: what's near me
 
@@ -292,6 +314,39 @@ When the cloud ID returns a top-candidate confidence in the 60–85% range, the 
 - User wants to cancel entirely: X in top bar.
 - Cloud ID returns fewer than 3 candidates (rare): render however many came back; never pad with low-confidence filler.
 
+### 6.9 Card detail screen
+
+Reached by tapping any card thumbnail from the Collection grid. Single scrollable screen — no tabs, no card flip in v1. Discoverable, easy to skim.
+
+**Top app bar.** Back arrow on the left, species common name in the center, action menu (...) on the right.
+
+**Sections, in order, top to bottom**
+
+1. **The card itself** — the full Cardinal-style card (frame color by rarity, taxonomy tag, habitat pill, hero photo, About copy, First Sight metadata, footer badges with conservation status / audio play / personal sighting count). Two interactive elements live on the card:
+   - **Habitat pill** — tap to flip the hero region to the species' illustrated range map (see §7.1, "Habitat pill flip")
+   - **Audio badge** — tap to play the species' call
+2. **Quick stats trio** — three small metric cards in a row:
+   - Sightings (e.g., 7)
+   - First spotted (e.g., Jan 15)
+   - Last spotted (e.g., Yesterday)
+3. **Recent sightings** — the 2–3 most recent entries in the user's sightings log for this species. Each row: small photo thumbnail, date + time, location label, chevron. "View all N sightings" link at the top right opens the full sightings log screen.
+4. **Your sightings map** — interactive Mapbox-styled map (per §18.3) with coral pins for every personal sighting of this species. Tap a pin to surface a small sighting preview (date, location, photo).
+
+There is intentionally no separate "Range" section on this screen — the range map is reached via the habitat pill flip on the card itself (§7.1). This keeps the card the central artifact and the detail screen short.
+
+**Action menu (...)** — v1 contains only:
+- "Report incorrect ID" (for when the user thinks the species is wrong)
+
+Card sharing/export is deferred to v2 (per §4). Delete or edit of First Sight metadata is pending §15 resolution.
+
+**Unspotted variant** — reached by tapping a locked silhouette in the All North America view. Same screen structure with content swapped:
+- Canonical species illustration (from the curated DB) in place of the user's photo
+- The card frame and footer still render, but the personal sighting count badge reads "★ 0"
+- No quick stats (no captures yet — collapsed or hidden)
+- Range and habitat info shown as on the spotted version
+- No sightings log, no personal map
+- Sticky bottom CTA: "Photograph this species" — switches to the Capture tab
+
 ## 7. The bird card
 
 The bird card is the central artifact of the app. Each species the user has photographed gets exactly one card per user.
@@ -302,11 +357,25 @@ The bird card is the central artifact of the app. Each species the user has phot
 
 - Family/order tag (small, e.g., "Songbird") top-left
 - Common name (large, bold) below the family tag
-- Habitat pill top-right (e.g., "Forests") with location pin icon
+- Habitat pill top-right (e.g., "Forests") with location pin icon — **tappable on the Card detail screen** to flip the hero region to the species' range map (see "Habitat pill flip" below)
 
 **Hero region**
 
 - User's photo cropped to the bird, framed by the same color as the card border
+- Tapping the habitat pill flips this region in place to reveal the species' illustrated range map (see "Habitat pill flip" below)
+
+**Habitat pill flip (Card detail only)**
+
+Tapping the habitat pill on the Card detail screen triggers a 3D flip animation (Y-axis, ~500ms with a soft ease) on the hero region:
+
+- Front state: the user's photo of the bird (default)
+- Back state: the species' illustrated range map (the asset from §13.3)
+
+The pill itself swaps to an active visual state on the back side (filled dark background with the saffron pill text) so users can clearly see they're on the "range view." A small "Range" label and a one-word range-summary caption (e.g., "Year-round," "Summer only," "Winter only") overlay the map for context.
+
+Tap the pill again to flip back to the bird photo. The interaction is gated to the Card detail screen — on Collection grid thumbnails and Capture hub recents, the pill is informational only and not tappable; tapping the thumbnail still opens the full Card detail.
+
+This replaces what would otherwise be a separate "Range" section on the Card detail screen, keeping the card itself the central artifact and the detail screen tighter.
 
 **Body region** (three labeled fields)
 
