@@ -118,19 +118,18 @@ Closing the capture flow (X in the top corner, or back gesture) returns the user
 
 The Explore tab does *not* include hotspots in v1 (deferred — fine candidate for v1.1 if Explore engagement is strong).
 
-**Profile tab (~11 screens)**
+**Profile tab (~6 screens)**
 
-- Profile home (identity block, stats trio, subscription banner for free users, quick-link rows to Achievements / Streak / Sightings map)
-- Settings (grouped list: Account / Preferences / Support; sign out at bottom)
-- Account detail (email, password, sign out, delete account)
+- Profile home (single combined screen: identity, stats trio, subscription banner/row, activity links, support links, sign out, delete account)
 - Subscription screen (current plan + tier picker + features for free users; manage / restore for subscribers)
 - Hard paywall (same content as Subscription screen but presented as a fullscreen modal when a free user hits the daily ID limit)
-- Notification preferences (streak reminder time + on/off, achievement alerts on/off)
-- App preferences (haptics, units imperial/metric, appearance)
 - Achievements hub (5 sections: Collection, Streaks, Regional, Family masters, Habitat masters)
 - Achievement section detail (one per category)
 - Streak detail (current streak, longest streak, capture days total, past-4-weeks calendar)
-- Help & FAQ / Send feedback / About-Privacy-Terms
+- Delete account confirmation (two-step destructive flow)
+- Help & FAQ / Send feedback / About-Privacy-Terms (web view or simple content screen)
+
+Notification preferences, account settings (password change, email), and app preferences (haptics, units, appearance) are out of scope for v1. v1 ships with fixed sensible defaults — see §6.10 for the list.
 
 **Onboarding & system modals**
 
@@ -354,61 +353,64 @@ Card sharing/export is deferred to v2 (per §4). Delete or edit of First Sight m
 - No sightings log, no personal map
 - Sticky bottom CTA: "Photograph this species" — switches to the Capture tab
 
-### 6.10 Profile home and settings
+### 6.10 Profile home
 
-The Profile tab opens directly to the Profile home — a calm identity surface, not a dashboard. Settings live one tap away behind a gear icon in the top right.
+For v1, Profile is a single combined screen — no separate Settings page. Everything the user can configure or access about themselves lives in one scrollable surface. This keeps the v1 surface minimal and matches the casual-first product pillar.
 
-**Profile home**
+**Top bar.** Title "Profile" on the left. No gear icon (no separate Settings screen in v1).
 
-Top bar: title "Profile" on the left, settings gear icon on the right.
-
-Sections (top to bottom):
+**Sections, in order, top to bottom**
 
 1. **Identity block** — circular avatar + display name + "Birding since [month year]"
-   - Avatar source: the OAuth provider's profile image (Google or Apple, pulled at sign-in). If no provider avatar is present (e.g., Apple's "Hide my email" + no Gravatar-style image), fall back to a sage-tinted circle with the user's first initial.
+   - Avatar source: the OAuth provider's profile image (Google sign-in returns one; Apple sign-in does not). If no provider avatar is present, fall back to a sage-tinted circle with the user's first initial.
    - Display name: the user's first name (from OAuth profile or email-derived). No handles in v1; users are not searchable.
 2. **Stats trio** — three color-tinted tiles in a single row:
    - **Species** (sage tint, sage number) — total distinct species collected
    - **Streak** (coral tint, coral number) — current streak count
    - **Captures** (neutral tint) — lifetime count of successful captures including repeats
-3. **Subscription banner (free users only)** — saffron-tinted card with a bolt icon, "Try birdr+" headline, "Unlimited captures, member perks" subline, and a dark-pill "Upgrade" CTA. Disappears entirely for subscribers; replaced by a small "Member" indicator near the avatar.
-4. **Quick links** — three rows each linking to a sub-screen:
+3. **Subscription** — visual depends on plan:
+   - Free: saffron-tinted card ("Try birdr+" headline, "Unlimited captures, member perks" subline, dark-pill "Upgrade" CTA).
+   - Subscriber: smaller "birdr+ Member · Manage" row, neutral background. Tapping opens the Subscription screen in manage mode.
+4. **Activity** — three rows each linking to a sub-screen:
    - Achievements (icon: trophy; meta: "14 of 160 unlocked")
    - Streak history (icon: flame; meta: "Current: 12 · Longest: 28")
    - Sightings map (icon: map pin; meta: "134 captures · 3 states")
+5. **Support** — three rows under a "SUPPORT" section header:
+   - Help & FAQ — opens an in-app web view to support content
+   - Send feedback — opens a mailto: to support address (or an in-app form in v1.1)
+   - About — version number, credits, links to Privacy and Terms
+6. **Account actions** — two standalone rows at the bottom:
+   - **Sign out** — destructive-leaning text (red on white). Confirmation alert before sign-out completes.
+   - **Delete account** — destructive text. Opens the Delete account confirmation flow (see below).
 
-No edit-profile flow in v1 — display name and avatar are managed via the OAuth provider. (A v1.1 candidate: a "display name override" field if users want a birding pseudonym.)
+No edit-profile flow in v1 — display name and avatar are managed via the OAuth provider. (v1.1 candidate: a "display name override" field if users want a birding pseudonym.)
 
-**Settings**
+**Defaults for things not exposed in v1 settings**
 
-Reached via the gear icon. Grouped list, three groups, sign out at the bottom:
+The following behaviors are fixed in v1 with sensible defaults and not user-configurable. All are v1.1 candidates when a Preferences surface is introduced:
 
-**Account group**
-- Account — opens Account detail (email shown as meta; password change, delete account)
-- Subscription — opens Subscription screen; meta shows "Free" or "Member" status
+- **Streak reminder push notification time** — 6pm local. On if notifications are enabled at OS level; off otherwise. No per-user time picker.
+- **Haptics** — always on. Users can disable via OS-level reduce motion / disable haptics setting.
+- **Units** — Imperial (US launch). No metric toggle.
+- **Appearance** — follows the system light/dark setting. No in-app override.
 
-**Preferences group**
-- Notifications — opens Notification preferences (streak reminder time picker, achievement alerts toggle, push enable/disable per category)
-- Haptics — toggle row (on/off)
-- Units — Imperial / Metric segmented choice
-- Appearance — System / Light / Dark segmented choice (defers to system default in v1; full theme support is a v1.1 candidate)
+### 6.11 Delete account flow
 
-**Support group**
-- Help & FAQ — opens an in-app web view to support content
-- Send feedback — opens a mailto: to support address (or an in-app form in v1.1)
-- About — version number, credits, links to Privacy and Terms
+Required by App Store policy. Two-step destructive confirmation to prevent accidental deletion.
 
-**Sign out** — standalone destructive-leaning row at the bottom (red text on white, confirmation alert).
+1. User taps "Delete account" on Profile home.
+2. **Step 1 alert**: "Delete your account? This will permanently delete your account, all your collected species cards, sightings, photos, achievements, and streak history. This cannot be undone." With "Cancel" and "Continue" buttons.
+3. **Step 2 alert** (if user continued): "Type DELETE to confirm" — text input field. The "Delete account" button stays disabled until the user types DELETE exactly.
+4. On confirm: the client calls a Supabase Edge Function that revokes the user's auth tokens, deletes all of the user's rows from `users`, `customer_accounts`, `sightings`, `cards`, `streaks`, and `achievements`, and removes all user-uploaded photos from storage.
+5. User is signed out and returned to the welcome screen.
 
-**Streak detail**
+No grace period or soft-delete in v1 — deletion is immediate and irreversible. (v1.1 candidate: 30-day grace period with the option to restore from a "deletion pending" state, which is friendlier to users who change their mind.)
 
-Reached from Profile home → Streak history quick link. See §6.6 for the full spec. The screen lives within the Profile tab navigation stack; tab bar remains visible.
-
-**Subscription screen and hard paywall**
+### 6.12 Subscription screen and hard paywall
 
 Same screen content, two presentation modes:
 
-- **Subscription screen** — reached from Profile home banner, Settings → Subscription, or any other in-app upsell. Has the standard nav header with back arrow. For free users, shows the tier picker (Yearly recommended with "BEST VALUE" badge, then Weekly) + included features list + Restore purchases link. For subscribers, shows current plan, renewal date, manage (deep-link to RevenueCat or App Store/Play subscription management), and restore purchases.
+- **Subscription screen** — reached from the Profile home subscription banner (free) or row (subscriber), or any other in-app upsell. Has the standard nav header with back arrow. For free users, shows the tier picker (Yearly recommended with "BEST VALUE" badge, then Weekly) + included features list + Restore purchases link. For subscribers, shows current plan, renewal date, manage (deep-link to RevenueCat or App Store/Play subscription management), and restore purchases.
 - **Hard paywall** — same content, presented as a fullscreen modal (no tab bar, close X in the corner instead of a back arrow). Triggered when a free user taps the central Capture button on the Capture hub while at zero remaining daily ID quota. Dismissing the modal returns to the Capture hub; subscribing dismisses it and immediately re-opens the capture flow.
 
 The Capture hub displays the daily quota indicator ("2 of 3 captures left today") so users aren't surprised by the paywall. The Capture button is not disabled at zero quota — tapping it surfaces the paywall, not a silent no-op.
@@ -702,14 +704,12 @@ These are subscription perks, not in-app cosmetic purchases. v1 keeps the pricin
 
 ### 11.3 Paywall entry points
 
-The paywall surfaces in two primary places (see §6.10 for screen details):
+The paywall surfaces in two places (see §6.10 and §6.12 for screen details):
 
-1. **Profile home subscription banner** — soft, always-visible nudge for free users. Tapping opens the Subscription screen (standard back-arrow navigation).
+1. **Profile home subscription banner / row** — soft, always-visible nudge. For free users, a saffron upgrade banner. For subscribers, a smaller "Manage" row. Both open the Subscription screen.
 2. **Hard paywall at daily limit** — when a free user taps the central Capture button on the Capture hub while at zero remaining daily ID quota, the Subscription content presents as a fullscreen modal with an X close. This is the highest-converting moment because the user is in the middle of trying to capture something.
 
-Secondary surface: Settings → Subscription row, mainly for subscribers managing their plan (restore purchases, change tier, view renewal). Free users tapping this row see the same Subscription screen.
-
-No Capture hub soft nudge at the quota limit beyond the daily quota indicator itself — the Capture button remains tappable and surfaces the hard paywall on tap.
+No separate Settings → Subscription entry in v1 (no settings page). No Capture hub soft nudge at the quota limit beyond the daily quota indicator itself — the Capture button remains tappable and surfaces the hard paywall on tap.
 
 ### 11.4 Implementation
 
@@ -829,7 +829,7 @@ Static assets (audio, range maps, illustrations, habitat backgrounds) hosted on 
 - User photos stored in Supabase storage, scoped to the user's account
 - Precise GPS coordinates stored alongside each sighting (no fuzzing in v1 since nothing is publicly shared)
 - App Privacy disclosures: "Precise Location," "Photos," "User Content"
-- Account deletion flow per App Store requirements
+- Account deletion flow per App Store requirements — accessible from Profile home as a destructive action with a two-step confirmation; immediate hard delete, no grace period in v1 (see §6.11)
 
 ### 14.3 Future-proofing for social
 
