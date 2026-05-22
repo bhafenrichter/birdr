@@ -87,12 +87,13 @@ The Capture tab itself:
 
 The capture flow, launched from the hub's central button as a fullscreen modal experience without the tab bar:
 
-- Camera viewfinder (fullscreen, tab bar hidden)
-- Photo preview + "Identify" CTA
-- Identifying (loading)
-- ID result: new species card created (full-screen celebration)
+- Camera viewfinder (fullscreen, tab bar hidden; X close, daily quota chip, flash toggle, zoom pills 1×/2×/3×, shutter — see §6.13)
+- Camera permission denied recovery (bottom sheet with "Open Settings" deep-link — see §6.13)
+- Photo preview + "Identify" CTA (full-bleed photo, Retake/Identify actions — see §6.14)
+- Identifying (loading; first beat of card unlock reveal — see §6.7)
+- ID result: new species card created (full-screen celebration — see §6.7)
 - ID result: existing species sighting added (toast + brief animation, returns to viewfinder)
-- ID result: top-3 picker (low confidence)
+- ID result: top-3 picker (low confidence — see §6.8)
 - ID result: try again (very low confidence, with photo guidance)
 
 Closing the capture flow (X in the top corner, or back gesture) returns the user to the Capture hub with the tab bar restored.
@@ -454,6 +455,69 @@ Same screen content, two presentation modes:
 - **Hard paywall** — same content, presented as a fullscreen modal (no tab bar, close X in the corner instead of a back arrow). Triggered when a free user taps the central Capture button on the Capture hub while at zero remaining daily ID quota. Dismissing the modal returns to the Capture hub; subscribing dismisses it and immediately re-opens the capture flow.
 
 The Capture hub displays the daily quota indicator ("2 of 3 captures left today") so users aren't surprised by the paywall. The Capture button is not disabled at zero quota — tapping it surfaces the paywall, not a silent no-op.
+
+### 6.13 Live camera viewfinder
+
+The viewfinder is the fullscreen camera surface inside the capture flow, reached by tapping the central capture button on the Capture hub. The tab bar is hidden — this is a focus mode. All UI is dark/translucent so controls stay legible against any background.
+
+**Layout**
+
+- **Top bar** (subtle dark gradient overlay so controls are readable):
+  - **X close** (left) — dark translucent pill, exits the camera, returns to the Capture hub. No confirmation (no work in progress).
+  - **Daily quota chip** (center) — pill with bolt icon and "X of Y today" text. Visible to free users only; subscribers don't see it at all.
+  - **Flash toggle** (right) — cycles Off / Auto / On with the icon reflecting current state.
+- **Live camera feed** fills the screen.
+- **Corner brackets** in the center hint at framing. Light, small, not a strict crop — users can shoot off-center. Appear on tap-to-focus and stay visible at low opacity.
+- **Zoom controls** — three pill buttons (1× / 2× / 3×) just above the shutter at ~110px from the bottom. Current zoom highlighted in saffron. Pinch-to-zoom gesture also supported; the pills update to reflect the pinch level.
+- **Shutter button** (centered, ~24px from bottom) — large white circle with a thick white ring border. Standard camera shutter affordance.
+
+**Explicitly not in v1:**
+
+- Gallery picker (capture is live-only; retroactive identification of existing photos is a v1.1 candidate)
+- Front/back camera switch (back camera always — front camera is useless for birding)
+- Manual exposure / ISO / white balance controls
+- Burst mode
+- Last-capture thumbnail
+- AI-powered bird-detection overlay (boxes drawn around detected subjects) — v1.1 candidate dependent on ID provider capabilities
+
+**Interactions**
+
+- **Tap-to-focus** — tapping anywhere on the live feed sets focus and exposure to that point. A yellow circle briefly appears at the tap location, then fades over ~500ms.
+- **Pinch zoom** — gesture across the live feed zooms continuously. Smooth animated; the pill buttons highlight the nearest preset (1× / 2× / 3×).
+- **Volume buttons** — hardware volume keys trigger the shutter (iOS standard).
+- **Tap shutter** — captures the frame. Brief white flash overlay (~100ms), strong haptic tick, transition to the photo preview (§6.14).
+
+**Camera permission denied recovery**
+
+If Camera permission is denied during onboarding or revoked later in iOS/Android settings, opening the Capture flow shows a dimmed placeholder (no live feed) with a bottom sheet rising from the bottom of the screen:
+
+- Title: "Camera access needed"
+- Body: "birdr uses your camera to identify the birds you photograph. Without it, you can browse your collection, but you can't capture new species."
+- Primary action: **Open Settings** — deep-link to iOS/Android app-permission settings
+- Secondary action: **Not now** — dismisses the sheet, returns to Capture hub
+
+The sheet is bottom-anchored (not modal-centered) so users can drag-to-dismiss in addition to tapping Not now.
+
+### 6.14 Photo preview
+
+After tapping the shutter, the user lands on the photo preview screen — the gate between "I took a photo" and "send to identify."
+
+**Layout**
+
+- **Top bar** (same dark gradient as viewfinder):
+  - **X close** (left) — discards photo, returns to viewfinder
+  - **"Looks good?"** small title (center) — friendly check-in
+- **Captured photo** fills the screen below the top bar
+- **Bottom shelf** (24px from bottom, full-width with padding):
+  - **Retake** (left, secondary) — translucent dark pill button with refresh icon, ~30% width
+  - **Identify** (right, primary) — saffron pill button with sparkles icon, ~70% width
+
+**Interactions**
+
+- Tap **Retake** or **X** — discards the photo, returns to the live viewfinder. No confirmation needed.
+- Tap **Identify** — uploads to the cloud ID edge function, transitions to Beat 1 of the card unlock reveal (§6.7).
+
+No editing tools in v1 (no crop, rotate, brightness adjustment). The cloud ID works with whatever the user shot; cropping and basic enhancement are v1.1 polish candidates if accuracy testing during beta shows a meaningful improvement from pre-processing.
 
 ## 7. The bird card
 
@@ -895,16 +959,15 @@ When v2 introduces social features, public-facing sighting locations must be fuz
 ## 15. Open questions
 
 1. **Audio button UX on card:** Single tap-to-play, or expandable selector for song/call/alarm-call?
-2. **Card flip vs. detail screen:** Does the card flip to reveal a sightings log, or is the log a separate detail view?
-3. **First Sight permanence:** Frozen forever, or editable?
-4. **ID provider final pick:** Lock Gemini Flash or evaluate Merlin/iNat ToS for commercial use?
-5. **Onboarding length:** How many tutorial screens before dropping into the app?
-6. **Notification defaults:** Default reminder time, user customization scope
-7. **Explore radius default:** 25 km is a guess. Should users be able to adjust it? Does urban vs. rural location warrant different defaults?
-8. **eBird commercial terms:** Confirm commercial-use viability before building Explore on top of it. Identify fallback if blocked.
-9. **Capture tab when launching camera mid-session:** When the user has the camera modal open and dismisses it, do they return to a fresh hub or the previous in-progress capture? (Working answer: dismiss = abandon; return to fresh hub.)
-10. **Explore "target species" save:** Should v1 include a "save as target" interaction on Explore species, or is that a v1.1 add?
-11. **Rarity gradient exact stops:** Working defaults are LC=saffron, NT=light orange, VU=coral, EN=terracotta, CR=burgundy. Validate against the full palette and the look of common species frames.
+2. **First Sight permanence:** Frozen forever, or editable?
+3. **ID provider final pick:** Locked at "TBD — engineering decision pending." Candidates: Gemini Flash, Cornell Merlin (commercial terms TBD), iNaturalist CV (commercial terms TBD), custom fine-tuned model.
+4. **Onboarding length:** How many tutorial screens before dropping into the app?
+5. **Notification defaults:** Default reminder time, user customization scope
+6. **Explore radius default:** 25 km is a guess. Should users be able to adjust it? Does urban vs. rural location warrant different defaults?
+7. **eBird commercial terms:** Confirm commercial-use viability before building Explore on top of it. Identify fallback if blocked.
+8. **Capture tab when launching camera mid-session:** When the user has the camera modal open and dismisses it, do they return to a fresh hub or the previous in-progress capture? (Working answer: dismiss = abandon; return to fresh hub.)
+9. **Explore "target species" save:** Should v1 include a "save as target" interaction on Explore species, or is that a v1.1 add?
+10. **Rarity gradient exact stops:** Working defaults are LC=saffron, NT=light orange, VU=coral, EN=terracotta, CR=burgundy. Validate against the full palette and the look of common species frames.
 
 ## 16. Success metrics
 
