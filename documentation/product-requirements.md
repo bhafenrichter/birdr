@@ -37,7 +37,7 @@ In scope:
 - Explore surface: eBird-powered "what birds are near me," common-species-in-region list, personal global sightings map
 - Daily streak tracker (strict: miss a day, reset)
 - Achievement system across five categories: collection milestones, streak tiers, regional/geographic, family/category masters, and habitat masters. Mastery categories use a five-tier exponential progression (Spotter/Apprentice/Adept/Expert/Master) for accessibility.
-- Free tier with daily ID limit; Weekly and Yearly subscriptions to remove the limit and unlock premium features
+- Free tier with 3 daily ID attempts; Weekly ($3.99) and Yearly ($29.99) subscriptions to remove the cap (no free trial in v1)
 - North American species coverage (~900 species curated)
 - US-only launch (App Store + Play Store, US storefronts)
 
@@ -448,7 +448,9 @@ No grace period or soft-delete in v1 — deletion is immediate and irreversible.
 
 Same screen content, two presentation modes:
 
-- **Subscription screen** — reached from the Profile home subscription banner (free) or row (subscriber), or any other in-app upsell. Has the standard nav header with back arrow. For free users, shows the tier picker (Yearly recommended with "BEST VALUE" badge, then Weekly) + included features list + Restore purchases link. For subscribers, shows current plan, renewal date, manage (deep-link to RevenueCat or App Store/Play subscription management), and restore purchases.
+- **Subscription screen** — reached from the Profile home subscription banner (free) or row (subscriber), or any other in-app upsell. Has the standard nav header with back arrow.
+   - For free users: shows the tier picker (Yearly $29.99 with "BEST VALUE" badge first, Weekly $3.99 below) + the "Unlimited captures" value prop + a forward-looking "And more coming soon" pitch + Restore purchases link.
+   - For subscribers: shows current plan, renewal date, "Manage subscription" (deep-link to RevenueCat customer portal or App Store/Play subscription management), and Restore purchases.
 - **Hard paywall** — same content, presented as a fullscreen modal (no tab bar, close X in the corner instead of a back arrow). Triggered when a free user taps the central Capture button on the Capture hub while at zero remaining daily ID quota. Dismissing the modal returns to the Capture hub; subscribing dismisses it and immediately re-opens the capture flow.
 
 The Capture hub displays the daily quota indicator ("2 of 3 captures left today") so users aren't surprised by the paywall. The Capture button is not disabled at zero quota — tapping it surfaces the paywall, not a silent no-op.
@@ -725,20 +727,36 @@ When an achievement unlocks, the user sees a full-screen celebration similar in 
 
 ### 11.1 Tiers
 
-- **Free:** N daily ID attempts (N to be set during beta; suggested starting point: 3/day). Full access to existing collection, achievements, and Explore; capture is blocked once the daily limit is hit.
-- **Weekly subscription:** Unlimited IDs, all features. Suggested price ~$2.99/wk — to be validated.
-- **Yearly subscription:** Unlimited IDs, all features. Suggested price ~$29.99/yr — ~50–65% savings vs. weekly. To be validated.
+| Tier | Price | What it gets you |
+|---|---|---|
+| **Free** | $0 | 3 ID attempts per day. Full access to existing collection, achievements, Explore, streaks, and the entire app surface except capture beyond the daily cap. |
+| **Weekly** | $3.99/wk | Unlimited IDs. All v1 features. |
+| **Yearly** | $29.99/yr | Unlimited IDs. All v1 features. ~$2.50/month — ~58% cheaper per month than weekly. |
 
-### 11.2 Premium features beyond unlimited IDs
+**No free trial in v1.** The free tier itself is the trial — users can experience the full product loop with 3 captures per day and decide to upgrade when the cap becomes friction. Both Apple and Google support adding a free trial later as a subscription configuration change without an app release.
 
-To strengthen subscription value beyond the ID limit:
+**Pricing rationale.**
+- The yearly price matches Picture Bird (closest competitor) at $29.99/yr.
+- The weekly price is set above Picture Bird's tier strategy would suggest (cheaper than their $5.99 but priced enough that yearly clearly wins as the value pick).
+- The 3/day limit matches Picture Bird and is aggressive — most engaged users hit it within their first real birding outing. This is the central conversion driver in v1.
 
-- Custom card themes (alternate frame styles, footer art variants)
-- Export card as image (personal use; sharing UX comes in v2)
-- Detailed analytics on personal collection (busiest park, most active month, etc.)
-- Early access to new features (e.g., region expansions, audio ID)
+The daily cap is enforced server-side per §11.3 — the client surfaces it as a friendly counter on the Capture hub ("2 of 3 captures left today") and as a hard paywall when the user tries to exceed it.
 
-These are subscription perks, not in-app cosmetic purchases. v1 keeps the pricing model simple: one paywall, two billing periods.
+### 11.2 What the subscription unlocks
+
+In v1, the subscription does one thing: **removes the daily ID cap.** Subscribers get unlimited captures; free users get 3/day. That's the v1 promise.
+
+Coming in later releases as they ship — surfaced to subscribers as "early access" and to free users as "upgrade to unlock":
+
+- Custom card themes (alternate frame styles, footer art variants) — v1.1
+- Detailed personal-collection analytics (busiest park, most active month, regional breakdowns) — v1.1
+- Streak revive (one-time freeze to save a broken streak) — v1.1
+- Audio sound recognition (record bird calls to identify) — v2
+- Card export as image (personal use, social sharing) — v2
+
+The simplicity of the v1 promise (one feature: unlimited captures) is intentional. It avoids a long bullet list of features that aren't yet built and instead positions the subscription as a clean trade: unlimited use for the casual price of a coffee per month.
+
+For users who pay primarily to support indie development rather than for the cap removal, the subscription marketing copy includes a brief "supports a small team building birdr" framing — common in casual hobby app subscriptions.
 
 ### 11.3 Paywall entry points
 
@@ -880,16 +898,13 @@ When v2 introduces social features, public-facing sighting locations must be fuz
 2. **Card flip vs. detail screen:** Does the card flip to reveal a sightings log, or is the log a separate detail view?
 3. **First Sight permanence:** Frozen forever, or editable?
 4. **ID provider final pick:** Lock Gemini Flash or evaluate Merlin/iNat ToS for commercial use?
-5. **Daily free ID limit (N):** Suggested 3/day — needs validation during beta
-6. **Subscription pricing:** Weekly and yearly final prices — competitive analysis pending
-7. **Onboarding length:** How many tutorial screens before dropping into the app?
-8. **Notification defaults:** Default reminder time, user customization scope
-9. **At the daily ID limit for free users:** Hard block + paywall, or a soft "preview" of what they would have caught?
-10. **Explore radius default:** 25 km is a guess. Should users be able to adjust it? Does urban vs. rural location warrant different defaults?
-11. **eBird commercial terms:** Confirm commercial-use viability before building Explore on top of it. Identify fallback if blocked.
-12. **Capture tab when launching camera mid-session:** When the user has the camera modal open and dismisses it, do they return to a fresh hub or the previous in-progress capture? (Working answer: dismiss = abandon; return to fresh hub.)
-13. **Explore "target species" save:** Should v1 include a "save as target" interaction on Explore species, or is that a v1.1 add?
-14. **Rarity gradient exact stops:** Working defaults are LC=saffron, NT=light orange, VU=coral, EN=terracotta, CR=burgundy. Validate against the full palette and the look of common species frames.
+5. **Onboarding length:** How many tutorial screens before dropping into the app?
+6. **Notification defaults:** Default reminder time, user customization scope
+7. **Explore radius default:** 25 km is a guess. Should users be able to adjust it? Does urban vs. rural location warrant different defaults?
+8. **eBird commercial terms:** Confirm commercial-use viability before building Explore on top of it. Identify fallback if blocked.
+9. **Capture tab when launching camera mid-session:** When the user has the camera modal open and dismisses it, do they return to a fresh hub or the previous in-progress capture? (Working answer: dismiss = abandon; return to fresh hub.)
+10. **Explore "target species" save:** Should v1 include a "save as target" interaction on Explore species, or is that a v1.1 add?
+11. **Rarity gradient exact stops:** Working defaults are LC=saffron, NT=light orange, VU=coral, EN=terracotta, CR=burgundy. Validate against the full palette and the look of common species frames.
 
 ## 16. Success metrics
 
