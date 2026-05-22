@@ -71,21 +71,30 @@ The Capture tab is the visual centerpiece of the tab bar — the binoculars icon
 
 ### 5.2 Default landing
 
-The app opens directly to the Capture tab (camera viewfinder ready). This minimizes friction for users who open the app specifically to identify something they just spotted.
+The app opens to the Capture tab — but the tab itself is a **stats and motivation hub**, not the camera. Tapping a large central capture button inside the hub launches the camera as a separate fullscreen screen (with the tab bar hidden). This decouples "I have the app open" from "the camera is hot" — softer first impression, and a natural surface for the streak and capture stats that would otherwise be buried in Profile.
 
-Exception: First-time users land on the welcome carousel and tutorial flow, then drop into Capture.
+Exception: First-time users land on the welcome carousel and tutorial flow, then drop into the Capture hub.
 
 ### 5.3 Screen inventory by tab
 
-**Capture tab (~7 screens / states)**
+**Capture tab (~2 screens) and capture flow (~5 screens)**
 
-- Camera viewfinder (default state for the tab)
+The Capture tab itself:
+
+- Capture hub (default for the tab) — streak prominently displayed, today's capture status, recent captures preview, daily ID quota for free users, big central capture button
+- (Future) Bird-of-the-day card surfacing today's featured species
+
+The capture flow, launched from the hub's central button as a fullscreen modal experience without the tab bar:
+
+- Camera viewfinder (fullscreen, tab bar hidden)
 - Photo preview + "Identify" CTA
 - Identifying (loading)
 - ID result: new species card created (full-screen celebration)
 - ID result: existing species sighting added (toast + brief animation, returns to viewfinder)
 - ID result: top-3 picker (low confidence)
 - ID result: try again (very low confidence, with photo guidance)
+
+Closing the capture flow (X in the top corner, or back gesture) returns the user to the Capture hub with the tab bar restored.
 
 **Collection tab (~7 screens)**
 
@@ -133,10 +142,24 @@ Total: roughly 30 distinct screens / states across the four tabs and system moda
 
 ### 5.4 Design rationale
 
-- **Capture as a tab, not a FAB.** Photography is the primary action, not a secondary feature. Putting it in the tab bar — and as the default landing surface — commits to that positioning.
+- **Capture as a tab, not a FAB.** Photography is the primary action, not a secondary feature. Putting it in the tab bar commits to that positioning.
+- **Capture hub, not the camera directly.** Opening to a live camera every time is jarring. The hub gives the streak, capture stats, and motivation a home, and signals "you're about to start a focused activity" before the lens turns on.
+- **Camera as a fullscreen modal without the tab bar.** Hiding the tabs during capture creates a focus mode — visually and ergonomically, the user knows they're in a different state.
 - **Collection separate from Capture.** Browsing your collection is a contemplative mode, distinct from the "I want to shoot something right now" intent of Capture. Mixing them dilutes both.
 - **Explore as a dedicated tab.** Discovery (what's nearby? what should I look for?) is a different mode from capture or browsing. eBird's "recent observations" API gives this surface real, fresh data without requiring birdr to build a community.
 - **Profile absorbs Achievements + Settings.** Achievements and streaks are personal stats; they live with the user's other personal context. Saves a tab and avoids splitting the "me" surface area.
+
+### 5.5 Capture hub content (v1)
+
+The Capture hub is a calm, motivational surface — not a busy dashboard. Proposed elements, in priority order:
+
+1. **Streak chip** — current streak count, prominent. Visual treatment driven by a custom animation (per design direction).
+2. **Today's capture status** — "Capture today to keep your streak" if no capture yet; "Streak safe ✓" after first capture of the day.
+3. **Central capture button** — large circular button, branded; tapping launches the camera fullscreen modal.
+4. **Daily ID quota** (free tier only) — "2 of 3 captures left today" with subtle upgrade nudge once limit is hit.
+5. **Recent captures preview** — horizontal scroll of the user's last 3–5 cards, tappable to deep-link into Collection card detail.
+
+Out of scope for v1 hub (candidates for v1.1+): bird-of-the-day featured species, weather/conditions, target species suggestions from Explore.
 
 ## 6. Core user flows
 
@@ -150,19 +173,21 @@ Total: roughly 30 distinct screens / states across the four tabs and system moda
 
 ### 6.2 Capture → ID → Card
 
-1. User is already on the Capture tab (default) or taps it from elsewhere
-2. Camera viewfinder is live; user takes a photo or selects from gallery
-3. Preview screen with an "Identify" button
-4. Upload to backend edge function with image + location
-5. Backend calls cloud vision API, returns ranked species candidates with confidence scores
-6. Branch on top-candidate confidence:
-   - **≥85%:** Auto-accept, show card creation animation, return to viewfinder
+1. User is on the Capture tab (the hub) — sees their streak, today's status, recent captures, and a large central capture button
+2. User taps the central capture button → the camera launches as a fullscreen modal screen (tab bar hidden, X close in top corner)
+3. Camera viewfinder is live; user takes a photo or selects from gallery
+4. Preview screen with an "Identify" button
+5. Upload to backend edge function with image + location
+6. Backend calls cloud vision API, returns ranked species candidates with confidence scores
+7. Branch on top-candidate confidence:
+   - **≥85%:** Auto-accept, show card creation animation
    - **60–85%:** Show top-3 candidate picker with thumbnails + names; user selects correct species
    - **<60%:** Show "Try again" with photo guidance (lighting, framing, get closer)
-7. On successful ID:
-   - **New species:** Card is created with a celebratory "First Sight!" animation
-   - **Existing species:** Sighting count increments, new location added to per-card map, short toast "Spotted again!" (no full card animation, to keep repeat captures lightweight)
-8. Streak counter updates if this is the first successful capture of the day
+8. On successful ID:
+   - **New species:** Card is created with a celebratory "First Sight!" animation, then user can dismiss back to the Capture hub or open the full card
+   - **Existing species:** Sighting count increments, new location added to per-card map, short toast "Spotted again!" — returns to viewfinder ready for the next shot
+9. Streak counter updates if this is the first successful capture of the day
+10. Closing the capture flow (X) returns to the Capture hub with the streak chip and today's status reflecting any new capture
 
 ### 6.3 Browse collection
 
@@ -413,7 +438,7 @@ birdr inherits the engineering patterns documented in `documentation/`. Reuse wi
 - React Navigation per `navigation-pattern.md` — four-tab bottom-tab navigator with stack navigators inside each tab
 - Atomic design system per `atomic-design-pattern.md` and `atomic-design-extended-atoms.md`
 - Haptic feedback per `haptic-feedback-pattern.md`
-- Map rendering: `react-native-maps` (Apple Maps on iOS, Google Maps on Android) for Explore and per-card sightings maps
+- Map rendering: a two-tier strategy (see §18.4) — static pre-rendered illustrated maps for per-card range maps; Mapbox or MapLibre with a custom style approximating the brand palette for interactive maps (Explore, global sightings, per-card sightings)
 
 ### 12.2 Backend
 
@@ -487,7 +512,18 @@ eBird requires an API key and has terms of use that distinguish non-commercial f
 
 All eBird responses are cached server-side with a short TTL (e.g., 15–30 minutes) to control external API volume and stay within rate limits.
 
-### 13.3 Asset hosting
+### 13.3 Range map asset pipeline
+
+Each of the ~900 species needs a range map illustrated in the brand's field-guide aesthetic. Hand-illustrating 900 maps is prohibitive, so the pipeline is:
+
+1. Hand-illustrate one base map of North America in the brand style (sage greens, golden west, blue water, thin state borders). Stored as a high-resolution SVG template.
+2. For each species, fetch the range polygon from eBird, IUCN, or BirdLife International.
+3. A scripted job overlays the range polygon onto the base map as a warm coral fill at ~60% opacity with feathered edges, exports the result as PNG (and SVG where feasible).
+4. Generated assets are stored in Supabase storage and referenced by `species_assets.range_map_url`.
+
+This produces one consistent base across all species while keeping the per-species generation tractable.
+
+### 13.4 Asset hosting
 
 Static assets (audio, range maps, illustrations, habitat backgrounds) hosted on Supabase storage with CDN. Avoid in-app bundling unless total size stays under ~50 MB.
 
@@ -558,6 +594,82 @@ When v2 introduces social features, public-facing sighting locations must be fuz
 | NA-only DB feels limiting to global users | M | L | Geofence App Store to US for v1 (already planned) |
 | eBird API commercial terms block Explore | L | H | Confirm terms early; have fallback (iNat or static data) ready |
 | eBird API rate limits or downtime | M | M | Server-side caching with short TTL; degrade gracefully on outage |
+
+## 18. Visual design language
+
+The visual direction is "modern field guide" — warm, naturalist, illustrated, with the polish of a contemporary app but the personality of an old paper bird book. This aesthetic was established by the Cardinal card design and the illustrated North America map references.
+
+### 18.1 Color palette
+
+Drawn from the brand's map illustrations. All UI colors should derive from this palette:
+
+| Role | Color | Approximate hex | Where it appears |
+|---|---|---|---|
+| Primary (brand) | Sage / moss green | ~#639922 / #3B6D11 | Tab active state, primary buttons, key headers, map land fills |
+| Accent gold | Saffron / amber yellow | ~#EF9F27 / #FAC775 | Card frame for LC rarity, streak chip, highlights, capture button |
+| Warm accent | Coral / terracotta | ~#D85A30 / #993C1D | Range map overlays, EN/CR rarity frames, streak flame, urgent CTAs |
+| Cool secondary | Robin-egg sky blue | ~#85B7EB / #B5D4F4 | Water on maps, info accents, gentle backgrounds |
+| Surface | Cream / off-white | ~#FAF7F0 | Page backgrounds, card body fills |
+| Text primary | Deep charcoal | ~#2C2C2A | Body text, titles |
+| Text secondary | Warm gray | ~#5F5E5A | Captions, helper text |
+
+Hex codes are anchors, not final tokens. The production design system will lock exact values once dark-mode variants and accessibility contrast checks are done.
+
+### 18.2 Card frame rarity system
+
+Conservation status drives the card's border color. Each tier ties to one swatch in the palette:
+
+| IUCN | Frame color |
+|---|---|
+| LC (Least Concern) | Saffron yellow (current Cardinal example) |
+| NT (Near Threatened) | Light orange |
+| VU (Vulnerable) | Coral |
+| EN (Endangered) | Deep terracotta |
+| CR (Critically Endangered) | Burgundy / deep red |
+
+Rare-tier cards should also surface the protection framing (link to conservation info) so the visual rarity reads as reverence, not trophy.
+
+### 18.3 Map aesthetic and strategy
+
+Per the map references, the aesthetic is illustrated/watercolor with sage and gold terrain, sky-blue water, and coral range overlays. The product has three map use cases with different feasibility profiles, so v1 uses a two-tier strategy:
+
+**Tier 1 — Static illustrated maps (full aesthetic)**
+
+- Per-card range maps. One per species, generated via the asset pipeline in §13.3.
+- Why static: the field-guide watercolor feel doesn't survive arbitrary zoom/pan. Static images keep the aesthetic perfect at the one zoom level that matters.
+
+**Tier 2 — Custom-styled interactive maps (palette only)**
+
+- Explore tab map (nearby observations from eBird)
+- Per-card personal sightings map (where the user has spotted this species)
+- Global sightings map (in Profile)
+- Implementation: Mapbox GL or MapLibre with a custom style tuned to the brand palette. Land = sage gradient, water = robin-egg, pins = coral. No roads, no labels except major place names.
+- Why this trade-off: maintaining hand-painted watercolor at every zoom level across all of North America is prohibitive. The custom style gets us 80% of the aesthetic at 20% of the cost.
+
+### 18.4 Typography (working direction)
+
+A friendly geometric sans for UI and body, with a slightly editorial display sans for card titles and big numbers. Concrete recommendations to validate:
+
+- UI / body: Inter, DM Sans, or Söhne — neutral, modern, highly legible at small sizes
+- Card titles ("Cardinal"): a slightly weightier display sans like Söhne Breit, Söhne, or a custom treatment
+- Numerals: tabular figures for stats and timers (Inter and DM Sans both have these)
+- No serif in v1 — saves a font load and avoids a "vintage taxidermy" feel
+
+Two weights, semibold for headings, regular for body. (Following the existing atomic design pattern docs.)
+
+### 18.5 Iconography
+
+Outline-style icons throughout (matching the binoculars-icon direction for the Capture tab). Candidate icon sets:
+
+- Tabler (5800+ outline icons, generous license)
+- Lucide (clean, modern, well-maintained)
+- Phosphor (multiple weights, very designer-friendly)
+
+The four tab icons (Capture, Collection, Explore, Profile) and the conservation-status badges may warrant a custom-drawn pass for personality.
+
+### 18.6 Habitat footer illustrations
+
+Nine habitat scenes (forest, grassland, desert, wetland, freshwater, coast, mountain, tundra, urban) are needed for the card footer backgrounds. Owner will provide finished art. Style direction: same watercolor field-guide aesthetic as the maps, simplified to read at small sizes on the card.
 
 ---
 
