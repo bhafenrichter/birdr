@@ -118,18 +118,19 @@ Closing the capture flow (X in the top corner, or back gesture) returns the user
 
 The Explore tab does *not* include hotspots in v1 (deferred — fine candidate for v1.1 if Explore engagement is strong).
 
-**Profile tab (~10 screens)**
+**Profile tab (~11 screens)**
 
-- Profile home (avatar, total species, current streak chip, lifetime stats)
+- Profile home (identity block, stats trio, subscription banner for free users, quick-link rows to Achievements / Streak / Sightings map)
+- Settings (grouped list: Account / Preferences / Support; sign out at bottom)
+- Account detail (email, password, sign out, delete account)
+- Subscription screen (current plan + tier picker + features for free users; manage / restore for subscribers)
+- Hard paywall (same content as Subscription screen but presented as a fullscreen modal when a free user hits the daily ID limit)
+- Notification preferences (streak reminder time + on/off, achievement alerts on/off)
+- App preferences (haptics, units imperial/metric, appearance)
 - Achievements hub (5 sections: Collection, Streaks, Regional, Family masters, Habitat masters)
 - Achievement section detail (one per category)
-- Achievement unlock celebration (fullscreen overlay; auto-plays after card unlock when triggered)
-- Streak detail (calendar of capture days)
-- Account settings (email, password, sign out, delete account)
-- Notification settings (streak reminder time, achievement alerts)
-- App preferences (haptics, units imperial/metric, theme)
-- Subscription management (current plan, restore purchases, upgrade)
-- Help / About / Privacy / Terms / Support
+- Streak detail (current streak, longest streak, capture days total, past-4-weeks calendar)
+- Help & FAQ / Send feedback / About-Privacy-Terms
 
 **Onboarding & system modals**
 
@@ -240,8 +241,14 @@ The Collection tab opens to a segmented control at the top: **Spotted** (the use
 ### 6.6 Streaks
 
 1. Current streak chip shown in the Capture or Collection header (e.g., "🔥 12")
-2. Streak detail screen reached from Profile: current streak, longest streak, calendar of capture days for the past 60 days
+2. Streak detail screen reached from Profile → Streak history. Surfaces:
+   - Current streak (large, with flame iconography over a coral-tinted background)
+   - Longest streak (stat tile)
+   - Capture days total (stat tile — lifetime count of days the user has captured at least once)
+   - Calendar grid of the past 4 weeks with capture days highlighted in coral; today carries a dashed outline if the user hasn't captured yet
+   - Dynamic bottom prompt: "Capture today to keep it going" (if not yet captured today) or "Streak safe" (if captured)
 3. If the streak is broken (no successful capture by end of local day), counter resets at the start of the next day
+4. No streak history list or all-time heatmap in v1 — the current beat is what matters
 
 ### 6.7 Card unlock reveal
 
@@ -346,6 +353,65 @@ Card sharing/export is deferred to v2 (per §4). Delete or edit of First Sight m
 - Range and habitat info shown as on the spotted version
 - No sightings log, no personal map
 - Sticky bottom CTA: "Photograph this species" — switches to the Capture tab
+
+### 6.10 Profile home and settings
+
+The Profile tab opens directly to the Profile home — a calm identity surface, not a dashboard. Settings live one tap away behind a gear icon in the top right.
+
+**Profile home**
+
+Top bar: title "Profile" on the left, settings gear icon on the right.
+
+Sections (top to bottom):
+
+1. **Identity block** — circular avatar + display name + "Birding since [month year]"
+   - Avatar source: the OAuth provider's profile image (Google or Apple, pulled at sign-in). If no provider avatar is present (e.g., Apple's "Hide my email" + no Gravatar-style image), fall back to a sage-tinted circle with the user's first initial.
+   - Display name: the user's first name (from OAuth profile or email-derived). No handles in v1; users are not searchable.
+2. **Stats trio** — three color-tinted tiles in a single row:
+   - **Species** (sage tint, sage number) — total distinct species collected
+   - **Streak** (coral tint, coral number) — current streak count
+   - **Captures** (neutral tint) — lifetime count of successful captures including repeats
+3. **Subscription banner (free users only)** — saffron-tinted card with a bolt icon, "Try birdr+" headline, "Unlimited captures, member perks" subline, and a dark-pill "Upgrade" CTA. Disappears entirely for subscribers; replaced by a small "Member" indicator near the avatar.
+4. **Quick links** — three rows each linking to a sub-screen:
+   - Achievements (icon: trophy; meta: "14 of 160 unlocked")
+   - Streak history (icon: flame; meta: "Current: 12 · Longest: 28")
+   - Sightings map (icon: map pin; meta: "134 captures · 3 states")
+
+No edit-profile flow in v1 — display name and avatar are managed via the OAuth provider. (A v1.1 candidate: a "display name override" field if users want a birding pseudonym.)
+
+**Settings**
+
+Reached via the gear icon. Grouped list, three groups, sign out at the bottom:
+
+**Account group**
+- Account — opens Account detail (email shown as meta; password change, delete account)
+- Subscription — opens Subscription screen; meta shows "Free" or "Member" status
+
+**Preferences group**
+- Notifications — opens Notification preferences (streak reminder time picker, achievement alerts toggle, push enable/disable per category)
+- Haptics — toggle row (on/off)
+- Units — Imperial / Metric segmented choice
+- Appearance — System / Light / Dark segmented choice (defers to system default in v1; full theme support is a v1.1 candidate)
+
+**Support group**
+- Help & FAQ — opens an in-app web view to support content
+- Send feedback — opens a mailto: to support address (or an in-app form in v1.1)
+- About — version number, credits, links to Privacy and Terms
+
+**Sign out** — standalone destructive-leaning row at the bottom (red text on white, confirmation alert).
+
+**Streak detail**
+
+Reached from Profile home → Streak history quick link. See §6.6 for the full spec. The screen lives within the Profile tab navigation stack; tab bar remains visible.
+
+**Subscription screen and hard paywall**
+
+Same screen content, two presentation modes:
+
+- **Subscription screen** — reached from Profile home banner, Settings → Subscription, or any other in-app upsell. Has the standard nav header with back arrow. For free users, shows the tier picker (Yearly recommended with "BEST VALUE" badge, then Weekly) + included features list + Restore purchases link. For subscribers, shows current plan, renewal date, manage (deep-link to RevenueCat or App Store/Play subscription management), and restore purchases.
+- **Hard paywall** — same content, presented as a fullscreen modal (no tab bar, close X in the corner instead of a back arrow). Triggered when a free user taps the central Capture button on the Capture hub while at zero remaining daily ID quota. Dismissing the modal returns to the Capture hub; subscribing dismisses it and immediately re-opens the capture flow.
+
+The Capture hub displays the daily quota indicator ("2 of 3 captures left today") so users aren't surprised by the paywall. The Capture button is not disabled at zero quota — tapping it surfaces the paywall, not a silent no-op.
 
 ## 7. The bird card
 
@@ -634,7 +700,18 @@ To strengthen subscription value beyond the ID limit:
 
 These are subscription perks, not in-app cosmetic purchases. v1 keeps the pricing model simple: one paywall, two billing periods.
 
-### 11.3 Implementation
+### 11.3 Paywall entry points
+
+The paywall surfaces in two primary places (see §6.10 for screen details):
+
+1. **Profile home subscription banner** — soft, always-visible nudge for free users. Tapping opens the Subscription screen (standard back-arrow navigation).
+2. **Hard paywall at daily limit** — when a free user taps the central Capture button on the Capture hub while at zero remaining daily ID quota, the Subscription content presents as a fullscreen modal with an X close. This is the highest-converting moment because the user is in the middle of trying to capture something.
+
+Secondary surface: Settings → Subscription row, mainly for subscribers managing their plan (restore purchases, change tier, view renewal). Free users tapping this row see the same Subscription screen.
+
+No Capture hub soft nudge at the quota limit beyond the daily quota indicator itself — the Capture button remains tappable and surfaces the hard paywall on tap.
+
+### 11.4 Implementation
 
 Use RevenueCat per `documentation/subscription-pattern.md`. Store API keys in ConfigCat per `documentation/configcat-pattern.md`. Track purchase events in PostHog per `documentation/posthog-pattern.md`.
 
