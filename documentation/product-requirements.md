@@ -246,7 +246,7 @@ The bird card is the central artifact of the app. Each species the user has phot
 
 - Conservation status circular badge (left): LC / NT / VU / EN / CR, IUCN-standard color coding
 - Audio play button (center): plays the species' primary call/song
-- Sighting count or family-collector badge (right): displays a number — final semantics TBD (see open questions)
+- Personal sighting count badge (right): displays the number of times the user has personally photographed this species. Small star icon + number (e.g., "★ 7"). Tracks engagement with the bird itself rather than family collection progress.
 - Background: illustrated landscape themed by the species' primary habitat (forest, wetland, grassland, desert, coast, urban, mountain, tundra, freshwater)
 
 **Frame**
@@ -402,7 +402,7 @@ Complete-set achievements mapped 1:1 to the 9 species types from §7.2. Nine ach
 
 Each unlocks when the user has collected every species in that type within North America. Lower tiers (e.g., "Songbirds Apprentice" at 25%, "Songbirds Adept" at 50%) likely exist between empty and complete to keep momentum visible — exact tier thresholds to be set during beta.
 
-The "7" badge on the card design reference likely represents the user's progress in the family-collector achievement for that species' type (e.g., 7 of 33 woodpeckers collected). This is the working assumption — confirm in design review.
+Family-collector progress is surfaced in the Achievements hub (in Profile), not on individual card footers. The "7" badge on the card design reference is the user's personal sighting count for that specific species (see §7.1).
 
 ## 11. Monetization
 
@@ -549,20 +549,20 @@ When v2 introduces social features, public-facing sighting locations must be fuz
 
 ## 15. Open questions
 
-1. **Card "7" badge semantics:** Is it per-species sighting count, family-collector progress, or both layered? Confirm in design review.
-2. **Audio button UX on card:** Single tap-to-play, or expandable selector for song/call/alarm-call?
-3. **Card flip vs. detail screen:** Does the card flip to reveal a sightings log, or is the log a separate detail view?
-4. **First Sight permanence:** Frozen forever, or editable?
-5. **ID provider final pick:** Lock Gemini Flash or evaluate Merlin/iNat ToS for commercial use?
-6. **Daily free ID limit (N):** Suggested 3/day — needs validation during beta
-7. **Subscription pricing:** Weekly and yearly final prices — competitive analysis pending
-8. **Onboarding length:** How many tutorial screens before dropping into the app?
-9. **Notification defaults:** Default reminder time, user customization scope
-10. **At the daily ID limit for free users:** Hard block + paywall, or a soft "preview" of what they would have caught?
-11. **Explore radius default:** 25 km is a guess. Should users be able to adjust it? Does urban vs. rural location warrant different defaults?
-12. **eBird commercial terms:** Confirm commercial-use viability before building Explore on top of it. Identify fallback if blocked.
-13. **Capture tab when leaving viewfinder:** When the user navigates away from Capture mid-flow and returns, do they land on the viewfinder fresh, or resume where they left off?
-14. **Explore "target species" save:** Should v1 include a "save as target" interaction on Explore species, or is that a v1.1 add?
+1. **Audio button UX on card:** Single tap-to-play, or expandable selector for song/call/alarm-call?
+2. **Card flip vs. detail screen:** Does the card flip to reveal a sightings log, or is the log a separate detail view?
+3. **First Sight permanence:** Frozen forever, or editable?
+4. **ID provider final pick:** Lock Gemini Flash or evaluate Merlin/iNat ToS for commercial use?
+5. **Daily free ID limit (N):** Suggested 3/day — needs validation during beta
+6. **Subscription pricing:** Weekly and yearly final prices — competitive analysis pending
+7. **Onboarding length:** How many tutorial screens before dropping into the app?
+8. **Notification defaults:** Default reminder time, user customization scope
+9. **At the daily ID limit for free users:** Hard block + paywall, or a soft "preview" of what they would have caught?
+10. **Explore radius default:** 25 km is a guess. Should users be able to adjust it? Does urban vs. rural location warrant different defaults?
+11. **eBird commercial terms:** Confirm commercial-use viability before building Explore on top of it. Identify fallback if blocked.
+12. **Capture tab when launching camera mid-session:** When the user has the camera modal open and dismisses it, do they return to a fresh hub or the previous in-progress capture? (Working answer: dismiss = abandon; return to fresh hub.)
+13. **Explore "target species" save:** Should v1 include a "save as target" interaction on Explore species, or is that a v1.1 add?
+14. **Rarity gradient exact stops:** Working defaults are LC=saffron, NT=light orange, VU=coral, EN=terracotta, CR=burgundy. Validate against the full palette and the look of common species frames.
 
 ## 16. Success metrics
 
@@ -646,26 +646,25 @@ Per the map references, the aesthetic is illustrated/watercolor with sage and go
 - Implementation: Mapbox GL or MapLibre with a custom style tuned to the brand palette. Land = sage gradient, water = robin-egg, pins = coral. No roads, no labels except major place names.
 - Why this trade-off: maintaining hand-painted watercolor at every zoom level across all of North America is prohibitive. The custom style gets us 80% of the aesthetic at 20% of the cost.
 
-### 18.4 Typography (working direction)
+### 18.4 Typography
 
-A friendly geometric sans for UI and body, with a slightly editorial display sans for card titles and big numbers. Concrete recommendations to validate:
+**Plus Jakarta Sans** (Google Fonts, free, OFL) for the entire app — body, UI, and display. Used at multiple weights:
 
-- UI / body: Inter, DM Sans, or Söhne — neutral, modern, highly legible at small sizes
-- Card titles ("Cardinal"): a slightly weightier display sans like Söhne Breit, Söhne, or a custom treatment
-- Numerals: tabular figures for stats and timers (Inter and DM Sans both have these)
-- No serif in v1 — saves a font load and avoids a "vintage taxidermy" feel
+- Regular (400) for body copy and supporting text
+- Medium (500) for titles, section headers, button labels, card names ("Cardinal")
+- Tabular figures enabled globally so stat numbers (streak count, sighting count, species totals) stay vertically aligned
 
-Two weights, semibold for headings, regular for body. (Following the existing atomic design pattern docs.)
+Plus Jakarta Sans was chosen for its slightly warm, friendly character that complements the field-guide aesthetic without becoming twee. No serif in v1 — saves a font load and avoids a "vintage taxidermy" feel.
 
 ### 18.5 Iconography
 
-Outline-style icons throughout (matching the binoculars-icon direction for the Capture tab). Candidate icon sets:
+**Lucide** (free, ISC license) as the primary icon set. Outline-only style, consistent with the field-guide aesthetic. Used for tab bar, action buttons, list affordances, settings.
 
-- Tabler (5800+ outline icons, generous license)
-- Lucide (clean, modern, well-maintained)
-- Phosphor (multiple weights, very designer-friendly)
+Candidates for custom-drawn treatment (out of scope for v1, candidates for v1.1 polish):
 
-The four tab icons (Capture, Collection, Explore, Profile) and the conservation-status badges may warrant a custom-drawn pass for personality.
+- The four tab icons (Capture, Collection, Explore, Profile) — a custom binoculars / book / compass / user set would add personality
+- Conservation status badges — IUCN codes lend themselves to a custom badge treatment that reads more credibly than generic shapes
+- The streak chip / flame — Brandon is providing a custom animation for this
 
 ### 18.6 Habitat footer illustrations
 
