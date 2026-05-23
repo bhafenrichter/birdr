@@ -74,3 +74,10 @@ android/local.properties
 .supabase/
 supabase/.branches/
 supabase/.temp/
+
+# ---- Scripts / data pipeline ----
+scripts/node_modules/
+data/
+scripts/.env
+scripts/.env.*
+!scripts/.env.example
