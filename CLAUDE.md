@@ -4,9 +4,9 @@ This file orients Claude Code (or any agent) on the birdr project. It captures w
 
 ## Project at a glance
 
-birdr is a mobile app for casual bird watchers. The core loop: take a photo of a bird → cloud AI identifies the species → the photo becomes a polished collectible card (Pokémon-style) that joins the user's personal Pokédex. Engagement layers on top: streaks, achievements across 5 categories, an Explore tab for what's around the user, and a Profile tab.
+birdr is a mobile app for casual bird watchers. The core loop: take a photo of a bird → cloud AI identifies the species → the photo becomes a polished collectible card (Pokémon-style) that joins the user's personal Pokédex. Engagement layers on top: streaks, achievements across 4 categories, an Explore tab for what's around the user, and a Profile tab.
 
-Current state: **product spec complete, engineering not yet started.** No code exists in `app/` or `functions/` yet — they are empty placeholders. The product spec is fully documented (~1100 lines) in [`documentation/product-requirements.md`](./documentation/product-requirements.md).
+Current state: **product spec and technical design complete, engineering not yet started.** No code exists in `app/` or `functions/` yet — they are empty placeholders. The product spec and technical architecture are fully documented in [`documentation/product-requirements.md`](./documentation/product-requirements.md) (§12 covers the full technical design).
 
 The PRD is the source of truth. This file is meta-context — it points you at the PRD and captures engineering-level decisions, conventions, and what to do next.
 
@@ -17,16 +17,26 @@ birdr/
 ├── app/                    # Mobile app (React Native + Expo)        ← empty
 ├── functions/              # Supabase Edge Functions (Deno)          ← empty
 ├── documentation/          # PRD + reusable engineering pattern docs ← populated
+│   └── design/             # Hi-fi HTML/CSS/JS design prototypes (reference, not production code)
 ├── CLAUDE.md               # This file
 ├── README.md
 └── .gitignore
 ```
 
-`documentation/` contains the PRD plus 14 reusable engineering pattern docs from a previous project. They cover auth, navigation, atomic design, haptics, analytics (PostHog), error tracking (Sentry), feature flags (ConfigCat), subscriptions (RevenueCat), edge functions, E2E testing (Maestro), and uploads. They have been pre-screened for relevance — every doc in there applies to birdr. **Use them.** They contain copy-paste-ready code examples that should be reused with light adaptation.
+`documentation/` contains the PRD plus reusable engineering pattern docs from a previous project. They cover auth, navigation, atomic design, haptics, analytics (PostHog), subscriptions (RevenueCat), edge functions, and uploads. **Use them.** They contain copy-paste-ready code examples that should be reused with light adaptation.
+
+`documentation/design/` contains hi-fi HTML/CSS/JS design prototypes from Claude Design. These are **reference files** — match their visual output in React Native, don't copy their internal structure. Key files:
+- `tokens.jsx` — design tokens (colors, shadows, font config)
+- `card.jsx` — BirdCard + BirdCardThumb components
+- `chrome.jsx` — TabBar, PrimaryButton, SegmentedControl, Pill, etc.
+- `screens-*.jsx` — screen layouts for each tab
+- `screenshots/` — visual reference images
+
+Note: Pattern docs for Sentry, ConfigCat, and Maestro exist in `documentation/` but are **not used in v1** — ignore them.
 
 ## Read order for first session
 
-1. **`documentation/product-requirements.md`** — read fully. It's the only document that is canonical.
+1. **`documentation/product-requirements.md`** — read fully. §12 has the complete technical architecture (schema, edge functions, indexes, caching, IoC provider pattern).
 2. **`documentation/README.md`** — the index of pattern docs. Skim it to know what's available.
 3. This file (CLAUDE.md) — for engineering-specific conventions and roadmap.
 4. Individual pattern docs **as you need them** for specific work (auth flow, subscription wiring, etc.).
@@ -48,203 +58,235 @@ These decisions are made. Don't re-litigate without surfacing to the human first
 **Backend (`functions/`)**
 - Supabase: Auth, Postgres, Edge Functions (Deno), Storage
 - Supabase Auth providers: **Apple and Google OAuth only** (no email/password in v1)
-- Edge Function pattern per `documentation/EDGE-FUNCTION.md` — photo+location in, ranked species candidates out
-- Server-side streak validation (timezone-tamper-resistant)
+- Three edge functions (see §12.2 of PRD for full specs):
+  - `identify-bird` — quota check → GPT-4o vision API → return species candidates
+  - `confirm-sighting` — persist sighting → lazy streak update → scoped achievement evaluation → return full state
+  - `explore-species` — lat/lon → state resolution → species list with seasonality + spotted status
+  - `delete-account` — hard delete all user data, photos, and auth record
+- Bird ID provider: **GPT-4o** via IoC adapter pattern (`BirdIdProvider` interface). Swappable via env var.
+- Auth: Apple + Google OAuth only. Profile + streaks rows created via DB trigger on `auth.users` insert. All edge functions extract user from JWT — no client-sent user IDs trusted.
+- Server-side streak validation (lazy — no cron job, computed on capture)
 - Server-side daily ID quota enforcement (the cap is the gate; client is just UX)
+- Photo upload to Supabase storage happens **after** bird is confirmed, not before
 
 **Services**
-- Sentry — error tracking (`sentry-pattern.md`)
 - PostHog — product analytics (`posthog-pattern.md`)
-- ConfigCat — feature flags + remote config (`configcat-pattern.md`)
 - RevenueCat — subscriptions (`subscription-pattern.md`)
-- eBird API — for Explore tab; **aggregate species frequency endpoints only**, no real-time observations feed in v1
+- OpenAI API (GPT-4o) — bird identification via vision API
 
-**Brand**
-- Color palette: sage primary, saffron accent, coral warmth, robin-egg blue, cream surfaces, charcoal text (see PRD §18.1)
-- Card frame color = IUCN rarity tier (LC=saffron, NT=light orange, VU=coral, EN=terracotta, CR=burgundy)
-- Map style for interactive maps: hand-tuned Mapbox/MapLibre custom style approximating the brand palette
-- Per-species range maps: static illustrated PNG/SVG assets generated via the pipeline in §13.3 (hand-illustrated base + scripted range overlay)
+**Not in v1** (pattern docs exist but ignore them):
+- Sentry (error tracking) — deferred
+- ConfigCat (feature flags) — deferred
+- Maestro (E2E testing) — deferred
+- eBird API (runtime) — no live API dependency; Explore tab served from our own `species_regions` table
+- Range maps — deferred until licensing sorted
+- Regional/geographic achievements — deferred to v2
+
+**Brand (Vivid/Mint theme — v1 default)**
+- Primary: teal `#008D8F`, gradient to `#5DC79C`
+- Surfaces: pale mint `#EAF5E5`, paper `#DDEED7`, card body `#FBF9EF`
+- Accent: warm amber `#FFB347`
+- Coral: vermillion `#E84B4B` (streaks, destructive)
+- Sky: cyan-teal `#4FBDC0`
+- Ink: dark teal-charcoal `#1B3937`
+- Card frame color = IUCN rarity tier (LC=`#EFC027`, NT=`#E89A3B`, VU=`#D85A30`, EN=`#A53A1F`, CR=`#6B1A12`)
+- Full token reference in `documentation/design/tokens.jsx` and PRD §18.1
+- Map style: Mapbox/MapLibre with teal-sage gradient land, cyan-teal water, coral pins
 
 ## Tech stack — open (surface to human before deciding)
-
-**Cloud ID provider — biggest open technical decision.** Candidates:
-- Gemini Flash (Google) — fast, cheap (~$0.01–$0.03/call), strong general vision. Likely the cost/accuracy sweet spot.
-- Cornell Lab Merlin — bird-specialized, gold-standard accuracy. Commercial API not openly available; requires partnership.
-- iNaturalist Computer Vision — bird-specialized, strong accuracy. ToS restricts commercial use; legal review needed.
-- Custom fine-tuned model — train on iNaturalist Open Dataset. Highest accuracy ceiling, lowest unit cost at scale, but adds months of pre-launch ML work.
-
-This decision affects unit economics, accuracy, and the engineering scope of `functions/`. The human wants a thorough evaluation. Don't lock this without input.
 
 **Mapbox vs MapLibre.** Both can render the custom brand-styled tiles. Mapbox is more polished, has a small per-MAU fee. MapLibre is fully open-source, no fees, slightly rougher edges. Decision depends on free-tier birdr economics. Surface to human.
 
 **App Store name and final brand name.** Currently "birdr" as working title. Trademark and store-name availability not yet checked. Don't ship anything user-facing assuming the name is final.
 
+## Database schema (quick reference)
+
+Full schema with columns, types, and indexes is in PRD §12.4. Here's the summary:
+
+**11 tables/views total:**
+
+| Table | Type | Purpose |
+|---|---|---|
+| `species_types` | Lookup | Bird type categories (9 types) |
+| `habitats` | Lookup | Habitat categories (9 habitats) |
+| `species` | Reference | ~900 NA bird species |
+| `species_audio` | Reference | Audio file refs per species |
+| `species_regions` | Reference | State-level seasonality + frequency (~45k rows, hydrated from eBird bulk downloads) |
+| `species_illustrations` | Reference | Illustration refs per species |
+| `profiles` | User data | Extends auth.users — display name, daily quota |
+| `sightings` | User data | Every successful capture |
+| `streaks` | User data | Current streak state (no history table) |
+| `user_achievements` | User data | Progress + unlock state per achievement |
+| `cards` | View | Derived from sightings — first/last seen, count, hero photo |
+
+**Key design decisions:**
+- `species_types` and `habitats` are separate lookup tables (not enums on species)
+- `cards` is a Postgres view, not a table — hero photo is always the first sighting photo
+- Streak logic is lazy (no cron job) — computed on capture
+- Achievement definitions (~105) live in app/edge function code, not in the DB. Categories: collection milestones (9), streak tiers (6), family masters (45), habitat masters (45).
+- `species_regions` is hydrated from eBird bulk downloads during development (see §13.2) — no runtime eBird API dependency
+- `display_location` on sightings is added now for v2 social prep
+
+**Device caching:** Species, species_types, habitats, species_audio, species_illustrations cached on-device after first launch. Sightings invalidated on capture with pagination. Everything else reads from Supabase directly.
+
+## Edge functions (quick reference)
+
+Full specs in PRD §12.2.
+
+**Capture flow (two functions):**
+1. `identify-bird` — receives image bytes + lat/lon. Checks quota, calls GPT-4o via IoC adapter, returns candidates. ≥85% → auto-accept. 60-85% → top-3 picker. <60% → retry. Quota consumed regardless.
+2. `confirm-sighting` — receives confirmed species + uploaded photo path. Inserts sighting, updates streak (lazy), evaluates achievements (scoped to what changed). Returns full state for client animations.
+
+**Explore:**
+3. `explore-species` — receives lat/lon. Resolves to state code, queries `species_regions` joined to species + user sightings. Returns shaped list with seasonality + spotted status.
+
 ## Engineering roadmap (suggested phase order)
 
-Numbered phases that can roughly be tackled in order. Many can be parallelized — the human wants async progress, so when a phase blocks on a decision, work the next-unblocked phase rather than waiting.
+Many can be parallelized. When a phase blocks, work the next-unblocked phase.
 
-**Phase 0 — Project scaffolding (low-risk, do first)**
-
-- Expo init the mobile app in `app/` with TypeScript template
-- Initialize Supabase project; wire up auth, Postgres, edge functions
-- Configure Sentry, PostHog, ConfigCat, RevenueCat per their pattern docs
+**Phase 0 — Project scaffolding**
+- Expo init in `app/` with TypeScript template
+- Initialize Supabase project; wire up auth, Postgres, edge functions, storage buckets
+- Configure PostHog, RevenueCat per their pattern docs
 - Set up React Navigation with the four-tab structure
 - Stub the four tab screens with placeholder content
-- Wire up the provider hierarchy per the pattern doc order (Sentry > Navigation > PostHog > Auth > Config > Subscription > HapticFeedback > App)
+- Wire up provider hierarchy: Navigation → PostHog → Auth → RevenueCat → HapticFeedback → App
 - Add Plus Jakarta Sans and Lucide icons
-- Set up Maestro for E2E testing per `e2e-testing-pattern.md`
 
-**Phase 1 — Database schema and core data model**
+**Phase 1 — Database schema**
+- Create all tables per §12.4 (species_types, habitats, species, species_audio, species_regions, species_illustrations, profiles, sightings, streaks, user_achievements)
+- Create the `cards` view
+- Create all indexes per the index summary in §12.4
+- Set up RLS policies
+- Set up Supabase storage buckets for user photos and species assets
 
-Per PRD §12.4, the core tables are:
+**Phase 2 — Species DB hydration**
+- Run the hydration script per §13.2 (Clements taxonomy CSV → species table, eBird bar charts → species_regions)
+- Seed species_types and habitats lookup tables
+- This is partially manual curation work (about_text, distinguishing_feature, species_type/habitat mapping)
 
-- `species` (~900 NA species; includes species_type and primary_habitat enums)
-- `species_assets` (audio, range maps, illustrations)
-- `users` (Supabase auth users)
-- `customer_accounts` (backend customer records keyed by user_id)
-- `sightings` (per-capture event with photo_url, captured_at, lat, lon, named_location)
-- `cards` (per-user-per-species aggregate; first_seen_at, last_seen_at, sighting_count, hero_photo_url)
-- `streaks` (current/longest/last_capture_date)
-- `achievements` (achievement_id, unlocked_at, progress)
-- `ebird_cache` (short-TTL cache of eBird responses)
+**Phase 3 — Auth flow**
+- Per `documentation/authentication-pattern.md`. Apple + Google OAuth only.
+- Welcome carousel → sign in → permission rationale → drop into Capture hub
+- See PRD §6.1 for the full onboarding spec.
 
-Important schema notes:
-- `sightings.lat/lon` precise; add a `display_location` field now even though v1 doesn't use it publicly (avoids painful migration when social features arrive in v2 — see PRD §14.3)
-- Daily ID quota enforced server-side; track in `customer_accounts` or a dedicated `daily_quota` table
-
-**Phase 2 — Auth flow**
-
-Per `documentation/authentication-pattern.md`. Apple + Google OAuth only. Sign-in screen as the entry point after the welcome carousel; permission rationale screen after sign-in. See PRD §6.1 for the full onboarding spec.
-
-**Phase 3 — The vertical slice: Capture → Cloud ID → Card**
-
-This is the headline loop. Build it end-to-end as the first real feature, even if it's ugly:
-
+**Phase 4 — The vertical slice: Capture → Cloud ID → Card**
+This is the headline loop. Build it end-to-end:
 1. Capture hub screen with shutter button and daily quota indicator
-2. Camera viewfinder (per PRD §6.13) — fullscreen modal, hides tab bar
-3. Photo preview (per §6.14)
-4. Upload to cloud ID edge function
-5. Branch on confidence (per §6.2 step 7 and §6.8)
-6. Card unlock reveal animation (per §6.7) — 5 beats, Reanimated + Lottie
-7. New card persisted in `cards` table; sighting in `sightings`
+2. Camera viewfinder (fullscreen modal, hides tab bar)
+3. Photo preview
+4. Call `identify-bird` edge function with image bytes
+5. Branch on confidence (auto-accept / top-3 picker / retry)
+6. On confirm: upload photo to Supabase storage, call `confirm-sighting`
+7. Card unlock reveal animation (5 beats, Reanimated + Lottie)
+8. Achievement celebrations queue
 
-Once this works end-to-end, the rest of the app is connecting the dots.
+**Phase 5 — Collection grid + card detail**
+- Per PRD §6.3 and §6.9.
+- Habitat pill flip interaction (§7.1) — but flips to illustration/info, NOT range map (deferred from v1)
 
-**Phase 4 — Collection grid + card detail**
+**Phase 6 — Streaks**
+- Per PRD §6.6 and §9. Server-side lazy validation.
+- Streak detail screen: current, longest, total days, 60-day calendar (derived from sightings)
+- Push notification at 6pm local if no capture yet
 
-Per PRD §6.3 and §6.9. Includes the habitat pill flip interaction (§7.1) that swaps the hero photo with the species range map on tap.
+**Phase 7 — Achievements**
+- Per PRD §10. 4 categories, ~105 total (regional deferred to v2).
+- Achievement definitions in app code as TypeScript constants
+- Achievement evaluation in `confirm-sighting` edge function
+- Achievement hub UI in Profile tab
 
-**Phase 5 — Streaks**
+**Phase 8 — Subscription + paywall**
+- Per RevenueCat pattern doc and PRD §11.
+- Hard paywall when `identify-bird` returns `402 quota_exceeded`
+- Subscription banner on Profile home for free users
 
-Per PRD §6.6 and §9. Server-side validation. Daily streak reminder push notification at 6pm local (default; no user customization in v1).
+**Phase 9 — Explore**
+- Per PRD §6.4. Two modes: Near me + My map (Region removed from v1).
+- Near me served by `explore-species` edge function (state-level, our own data)
+- My map is user's sightings on an interactive map (Mapbox/MapLibre)
 
-**Phase 6 — Achievements**
+**Phase 10 — Profile + delete account**
+- Per PRD §6.10 and §6.11. Single combined screen.
 
-Per PRD §10. 5 categories, ~160 total achievements. The 5-tier mastery progression (Spotter/Apprentice/Adept/Expert/Master at 5/10/25/50/100%) applies to both family and habitat masters.
-
-**Phase 7 — Subscription + paywall**
-
-Per RevenueCat pattern doc and PRD §11. Hard paywall when free user hits the 3/day cap; subscription banner on Profile home for free users.
-
-**Phase 8 — Explore**
-
-Per PRD §6.4. Three modes: Near me, Region, My map. **No real-time observation feed in v1** — uses eBird aggregate species frequency data only.
-
-**Phase 9 — Profile + delete account**
-
-Per PRD §6.10 and §6.11. Single combined screen — no separate settings page in v1.
-
-**Phase 10 — Polish + beta**
-
-E2E test coverage for critical flows. Beta with 20–50 casual bird watchers before public launch.
+**Phase 11 — Polish + beta**
+- Beta with 20–50 casual bird watchers before public launch.
 
 ## Things to know that aren't obvious from the PRD
 
-The PRD is detailed but a few things are worth pulling forward for engineering:
+**The capture flow lives outside the tab bar.** Camera launches as a fullscreen modal — tab bar hidden, X close in the corner. Stack-on-top-of-tabs navigation pattern — see `documentation/navigation-pattern.md`.
 
-**The capture flow lives outside the tab bar.** When the user taps the central capture button on the Capture hub, the camera launches as a fullscreen modal — tab bar hidden, X close in the corner. Same goes for the photo preview and the card unlock reveal. Returning to the Capture hub restores the tab bar. Engineering-wise this is a stack-on-top-of-tabs navigation pattern — see `documentation/navigation-pattern.md` for the conditional flow pattern.
+**Photo upload timing.** The photo is NOT uploaded when the user hits "Identify." The image bytes go directly to `identify-bird`. Only after the species is confirmed does the client upload to Supabase storage, then call `confirm-sighting` with the storage path. This avoids storing photos for failed/rejected IDs.
 
-**The daily quota is server-enforced, not just client.** The Capture hub displays "X of 3 captures left today" as UX, but the actual gate is on the cloud ID edge function — it returns a 402-style "quota exceeded" if a free user is over their limit. The client surfaces the hard paywall on receipt of that error. This is the tamper-resistant gate.
+**The daily quota is server-enforced, not just client.** The `identify-bird` edge function returns `402 quota_exceeded` when a free user is over their limit. The client surfaces the hard paywall on receipt of that error.
 
-**The card unlock reveal has rarity-aware intensity scaling** (PRD §6.7). Same core animation, different particle counts / colors / durations / haptic strengths based on conservation tier. Implementation: one Lottie per rarity tier (5 files), Reanimated for card scale/position, haptic-feedback-pattern doc for the tactile cues.
+**Achievement evaluation is scoped.** On a repeat species capture, only streak tiers are checked. On a First Sight, collection milestones + the relevant family tier + the relevant habitat tier are also checked. Not all 105 every time.
 
-**Multi-unlock achievements queue and auto-play** (PRD §10.7). After the card reveal completes, achievement celebrations play sequentially with tap-to-dismiss. Priority order: Master > Expert > Adept > Apprentice > Spotter, then non-mastery achievements (streak, collection milestone, regional first).
+**Transaction safety in confirm-sighting.** Sighting insert + streak update are in a single transaction. Achievement evaluation runs after commit — if it fails, the sighting is still valid.
 
-**Streak rollover achievements fire asynchronously.** When a user crosses a streak threshold at midnight (server time, user-local), there's no in-app moment. Push notification fires; tapping it opens the celebration on next launch. Server-side cron job needed (or scheduled edge function) at user-local midnight.
+**Streak logic is lazy.** No cron job. The streak resets implicitly when the next capture detects a gap in `last_capture_date`. The "your streak ended" morning push notification reads state but doesn't mutate.
 
-**The species DB needs ~160 achievement targets baked in.** When implementing achievements, the criteria for each tier (Spotter=5%, Apprentice=10%, etc.) need to compute against the actual species count per family/habitat. Don't hardcode the thresholds — compute them from the curated DB so they stay accurate as the DB evolves.
+**The species DB needs computed achievement thresholds.** Family/habitat mastery tiers (Spotter=5%, etc.) compute against actual species counts per type/habitat. Don't hardcode — compute from the DB.
 
-**The habitat pill on the card detail is interactive.** Tapping it flips the hero region (3D Y-axis, ~500ms) from the user's photo to the species range map. The pill swaps to an active state when on the back. This is a Reanimated animation — see PRD §7.1.
-
-**Asset pipelines you'll need to coordinate with the human:**
-
-- 1 hand-illustrated base North America map (for range map generation)
-- A scripted process to overlay eBird/BirdLife range polygons onto the base map per species (~900 outputs)
+**Asset pipelines to coordinate with the human:**
 - 9 habitat scene illustrations (forest, grassland, desert, wetland, freshwater, coast, mountain, tundra, urban)
 - A Mapbox or MapLibre custom style file tuned to the brand palette
-- ~900 species DB entries: taxonomy, conservation status, size, About copy (~2-3 sentences), distinguishing-feature line (5-8 words; for the top-3 picker), audio call sourcing
+- ~900 species DB entries: taxonomy, conservation status, size, About copy, distinguishing-feature line, audio call sourcing
 - 5 Lottie files for the rarity-tier card reveal particles
 - 1 Lottie for the achievement unlock burst
-
-The human is providing some of these (habitat scenes, possibly the base map). The DB curation is the single biggest content task — estimated 2–3 focused months.
 
 ## Product principles (these inform technical decisions)
 
 From PRD §3:
 
-1. **The capture loop is the product.** Everything else serves it. If a feature breaks the loop, kill the feature.
-2. **Real data, real credibility.** No fictional species, no hallucinated facts. IUCN conservation status, real bird audio (xeno-canto), accurate ranges.
-3. **Casual-first.** A user who opens the app once a week should still feel rewarded. The 5-tier mastery curve is designed for this; so is the strict-streak + 3-day-tier accessibility.
-4. **Personal, not social.** v1 is a private museum. No friends, feeds, leaderboards, sharing, or comments.
+1. **The capture loop is the product.** Everything else serves it.
+2. **Real data, real credibility.** No fictional species, no hallucinated facts.
+3. **Casual-first.** A user who opens the app once a week should still feel rewarded.
+4. **Personal, not social.** v1 is a private museum.
 
 ## Conventions
 
-**Commits.** Use conventional-style commit messages with detailed body. Look at `git log --oneline` for the style — short subject line + structured body explaining intent, what changed, and why.
+**Commits.** Use conventional-style commit messages with detailed body.
 
-**TestID on every component.** Atomic design system requirement. E2E tests depend on it.
+**TestID on every component.** Atomic design system requirement.
 
-**No silent failures.** Cloud calls (ID, eBird, payment) need explicit error states surfaced to the user — see PRD §6.13 (camera permission), §11.3 (paywall), §13.2 (eBird).
+**No silent failures.** Cloud calls (ID, payment) need explicit error states surfaced to the user.
 
-**Respect Reduce Motion.** Card unlock reveal and achievement celebrations both have reduced-motion variants per §6.7 and §10.7. Particle bursts collapse to static accents; flip animations cross-fade.
+**Respect Reduce Motion.** Card unlock reveal and achievement celebrations both have reduced-motion variants.
 
-**Server is source of truth.** Daily quotas, streak validity, achievement unlocks all validated server-side. Client renders state but doesn't gate.
+**Server is source of truth.** Daily quotas, streak validity, achievement unlocks all validated server-side.
 
-**Branch on tags, not strings.** Conservation status, species type, habitat — all are enums in the DB. Don't switch on display strings.
+**Branch on tags, not strings.** Conservation status, species type, habitat — all are enums in the DB.
 
 ## What NOT to decide unilaterally
 
-These are open product/UX decisions that the human owns:
-
-- Cloud ID provider final pick
 - Specific pixel values for the brand palette (current hexes in §18.1 are anchors, not final tokens)
-- Pricing changes — pricing is locked at $3.99/wk and $29.99/yr; don't quietly tune
+- Pricing changes — pricing is locked at $3.99/wk and $29.99/yr
 - Anything in PRD §15 Open questions
-- Anything that changes a behavior the PRD specifies as locked (4-tab nav, OAuth-only, 5-tier mastery, etc.)
+- Anything that changes a behavior the PRD specifies as locked
 
 ## PRD §15 Open questions reference
 
-These are explicit unknowns from the PRD that may surface as you build. Don't decide them without checking in:
-
 1. Audio button UX on card — single tap vs expandable selector
-2. First Sight permanence — frozen or editable
-3. ID provider final pick (above)
+2. First Sight permanence — frozen or editable (v1: frozen, uses first photo)
+3. ~~ID provider final pick~~ — **decided: GPT-4o via IoC adapter**
 4. Onboarding length — tutorial screens count
 5. Notification defaults — reminder time + customization scope
-6. Explore "Near me" scope — fixed county vs adjustable
-7. eBird aggregate API commercial terms
+6. ~~Explore "Near me" scope~~ — **decided: state-level for v1**
+7. ~~eBird aggregate API commercial terms~~ — **resolved: no runtime API dependency, bulk download hydration only**
 8. Capture tab when launching camera mid-session — fresh hub or resume
-9. Explore "target species" save — v1 or v1.1
+9. Explore "target species" save — deferred to v1.1
 10. Rarity gradient exact stops
 
 ## When in doubt
 
-Read the PRD section that's most relevant to what you're building. If it's still unclear, ask the human via PR comment or chat. Do not make a guess and ship it.
+Read the PRD section that's most relevant to what you're building. If it's still unclear, ask the human. Do not make a guess and ship it.
 
 ## Asynchronous work guidance
 
 The human is iterating on product in parallel with engineering. They want background progress. So:
 
-- Pick work that's unblocked. If Phase 3 is blocked on the ID provider decision, work Phase 4 or 5.
+- Pick work that's unblocked.
 - Commit early, commit often. Many small commits beat one giant PR.
 - Surface decisions via TODO comments tagged `// TODO(birdr): decide [thing]` so the human can find them.
 - Keep `app/CLAUDE.md` and `functions/CLAUDE.md` (when they exist) updated with sub-project-specific context as you scaffold.
@@ -252,6 +294,19 @@ The human is iterating on product in parallel with engineering. They want backgr
 
 ---
 
-**Last updated:** 2026-05-22
+**Last updated:** 2026-05-23
 
-**Next session pickup point:** Phase 0 — Project scaffolding. Start with `app/` (Expo init) and `functions/` (Supabase project init).
+**Next session pickup point:** Phase 0 — Project scaffolding, Phase 1 — Database schema, and Phase 2 — Species DB hydration are all unblocked and can be worked in parallel.
+
+## Parallelizable work streams
+
+The following can be run as independent sessions (separate terminals). Each session should work on its own git branch and be given one of these prompts:
+
+### Stream A — Supabase schema + edge functions
+Scope: Phase 1 + edge function stubs. Branch: `feat/supabase-schema`
+
+### Stream B — Expo app scaffolding
+Scope: Phase 0 (app side only). Branch: `feat/app-scaffold`
+
+### Stream C — Species DB hydration script
+Scope: Phase 2. Branch: `feat/species-hydration`

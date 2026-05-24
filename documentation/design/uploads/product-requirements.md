@@ -32,9 +32,9 @@ In scope:
 
 - Photograph a bird → AI identification → species card creation
 - One card per species (Pokédex model); subsequent sightings update a sightings log on the existing card, not a new card
-- Card content: species data + user's photo + first-sight metadata + conservation status badge (bird call audio and range map deferred from v1)
+- Card content: species data + user's photo + first-sight metadata + bird call audio + range map + conservation status badge
 - Collection browser: grid view, search by name, filter by family/habitat/conservation status, sort by date/name/rarity
-- Explore surface: research-based "Near me" list of species expected in the user's area (powered by curated DB), plus personal global sightings map ("My map"). No real-time crowdsourced data in v1 — that's a v1.1 layer.
+- Explore surface: research-based "Near me" and "Region" lists of species expected in the user's area (powered by eBird aggregate species frequency + curated DB), plus personal global sightings map. No real-time crowdsourced data in v1 — that's a v1.1 layer.
 - Daily streak tracker (strict: miss a day, reset)
 - Achievement system across five categories: collection milestones, streak tiers, regional/geographic, family/category masters, and habitat masters. Mastery categories use a five-tier exponential progression (Spotter/Apprentice/Adept/Expert/Master) for accessibility.
 - Free tier with 3 daily ID attempts; Weekly ($3.99) and Yearly ($29.99) subscriptions to remove the cap (no free trial in v1)
@@ -72,9 +72,7 @@ The Capture tab is the visual centerpiece of the tab bar — the binoculars icon
 
 ### 5.2 Default landing
 
-The app opens to the Capture tab — a **minimal, focused launch screen**, not the camera. The hub shows the birdr wordmark, a large central capture button, and a short tagline. Tapping the capture button launches the camera as a separate fullscreen screen (with the tab bar hidden).
-
-The design is intentionally stripped down — no stats, no streak chip, no collection progress, no recent captures. The capture button is the single affordance. This keeps the first impression clean and puts all focus on the core action.
+The app opens to the Capture tab — but the tab itself is a **stats and motivation hub**, not the camera. Tapping a large central capture button inside the hub launches the camera as a separate fullscreen screen (with the tab bar hidden). This decouples "I have the app open" from "the camera is hot" — softer first impression, and a natural surface for the streak and capture stats that would otherwise be buried in Profile.
 
 Exception: First-time users land on the welcome carousel and tutorial flow, then drop into the Capture hub.
 
@@ -84,7 +82,8 @@ Exception: First-time users land on the welcome carousel and tutorial flow, then
 
 The Capture tab itself:
 
-- Capture hub (default for the tab) — birdr wordmark + notification bell top row, large central teal capture button with subtle pulse animation, "Find a bird" headline + tagline below. Minimal by design — no stats, no streak, no recents.
+- Capture hub (default for the tab) — streak prominently displayed, today's capture status, recent captures preview, daily ID quota for free users, big central capture button
+- (Future) Bird-of-the-day card surfacing today's featured species
 
 The capture flow, launched from the hub's central button as a fullscreen modal experience without the tab bar:
 
@@ -111,23 +110,26 @@ Closing the capture flow (X in the top corner, or back gesture) returns the user
 - Full sightings log (all entries for a species)
 - Per-species sightings map (full-screen interactive map)
 
-**Explore tab (~3 screens)**
+**Explore tab (~4 screens)**
 
-- Near me (default) — location selector + research-based list of species expected in the user's area, with spotted/not-yet status overlay
-- My map — the user's personal sightings on the brand-styled interactive map
-- Species preview (modal) — tap any species row to see a preview with species info and sighting status
+- Near me (default) — research-based list of species expected in the user's immediate area (~50 mi / county), with status overlay from the user's collection
+- Region — broader list of species common in the user's state or larger biogeographic region
+- My map — the user's personal sightings worldwide on the brand-styled illustrated map
+- Species preview (modal) — tap any species in the lists or pin on My map to see a preview with species info and sighting status
 
-Two modes only (Near me + My map). Region mode removed from v1. No real-time crowdsourced observation feed — all data served from our own `species_regions` table.
+All three modes use only research-grade data sources in v1 — no real-time crowdsourced observation feed. This is a deliberate v1 choice (see §6.4): with a small early user base, real-time data would be sparse and unreliable. Live "recent observations" and a "Get directions to this sighting" deep-link are v1.1+ candidates.
 
 The Explore tab does *not* include hotspots or "save as target" in v1 (both deferred to v1.1+).
 
-**Profile tab (~5 screens)**
+**Profile tab (~6 screens)**
 
 - Profile home (single combined screen: identity, stats trio, subscription banner/row, activity links, support links, sign out, delete account)
 - Subscription screen (current plan + tier picker + features for free users; manage / restore for subscribers)
 - Hard paywall (same content as Subscription screen but presented as a fullscreen modal when a free user hits the daily ID limit)
-- Achievements hub (hero progress card + Unlocked/In progress sections with icon-left, progress-right rows)
-- Delete account confirmation (two-step destructive flow via bottom sheet)
+- Achievements hub (5 sections: Collection, Streaks, Regional, Family masters, Habitat masters)
+- Achievement section detail (one per category)
+- Streak detail (current streak, longest streak, capture days total, past-4-weeks calendar)
+- Delete account confirmation (two-step destructive flow)
 - Help & FAQ / Send feedback / About-Privacy-Terms (web view or simple content screen)
 
 Notification preferences, account settings (password change, email), and app preferences (haptics, units, appearance) are out of scope for v1. v1 ships with fixed sensible defaults — see §6.10 for the list.
@@ -148,7 +150,7 @@ Total: roughly 30 distinct screens / states across the four tabs and system moda
 ### 5.4 Design rationale
 
 - **Capture as a tab, not a FAB.** Photography is the primary action, not a secondary feature. Putting it in the tab bar commits to that positioning.
-- **Capture hub, not the camera directly.** Opening to a live camera every time is jarring. The hub signals "you're about to start a focused activity" before the lens turns on. Kept deliberately minimal — just the capture button — so the focus is on the action, not stats.
+- **Capture hub, not the camera directly.** Opening to a live camera every time is jarring. The hub gives the streak, capture stats, and motivation a home, and signals "you're about to start a focused activity" before the lens turns on.
 - **Camera as a fullscreen modal without the tab bar.** Hiding the tabs during capture creates a focus mode — visually and ergonomically, the user knows they're in a different state.
 - **Collection separate from Capture.** Browsing your collection is a contemplative mode, distinct from the "I want to shoot something right now" intent of Capture. Mixing them dilutes both.
 - **Explore as a dedicated tab.** Discovery (what's nearby? what should I look for?) is a different mode from capture or browsing. eBird's "recent observations" API gives this surface real, fresh data without requiring birdr to build a community.
@@ -156,62 +158,66 @@ Total: roughly 30 distinct screens / states across the four tabs and system moda
 
 ### 5.5 Capture hub content (v1)
 
-The Capture hub is intentionally minimal — the capture button is the only affordance.
+The Capture hub is a calm, motivational surface — not a busy dashboard. Proposed elements, in priority order:
 
-1. **Top row** — birdr wordmark (left) + notification bell (right)
-2. **Central capture button** — large circular teal button with sage gradient fill, binoculars icon, subtle radial pulse animation and dashed ring
-3. **Bottom copy** — "Find a bird" headline + short tagline ("Tap the binoculars to take a photo — birdr will tell you what you've spotted.")
+1. **Streak chip** — current streak count, prominent. Visual treatment driven by a custom animation (per design direction).
+2. **Today's capture status** — "Capture today to keep your streak" if no capture yet; "Streak safe ✓" after first capture of the day.
+3. **Central capture button** — large circular button, branded; tapping launches the camera fullscreen modal.
+4. **Daily ID quota** (free tier only) — "2 of 3 captures left today" with subtle upgrade nudge once limit is hit.
+5. **Recent captures preview** — horizontal scroll of the user's last 3–5 cards, tappable to deep-link into Collection card detail.
 
-No streak chip, no daily quota indicator, no recent captures strip, no collection progress. These stats live in Profile and Collection. The hub is pure intent — "I want to find a bird."
-
-Out of scope for v1 hub (candidates for v1.1+): bird-of-the-day, weather/conditions, target species suggestions, recent captures strip.
+Out of scope for v1 hub (candidates for v1.1+): bird-of-the-day featured species, weather/conditions, target species suggestions from Explore.
 
 ## 6. Core user flows
 
 ### 6.1 First-time user onboarding
 
-Eight screens, designed to get a new user to their first card unlock in under 3 minutes. The welcome carousel and tutorial are both skippable. Permissions are required. See `documentation/design/screens-onboarding.jsx` for the design reference.
+A short, opinionated flow designed to get a new user to their first card unlock in under 90 seconds. Five steps; the welcome carousel and tutorial capture are both skippable for impatient users. Permissions are required.
 
-**1. Splash.** Brand moment — sage/teal gradient background with concentric rings, birdr wordmark (52px, ExtraBold), binoculars icon in a frosted rounded-square, tagline "a field guide that grows." Auto-advances after ~1 second.
+**1. Splash.** Brief brand moment with the birdr wordmark and binoculars iconography. Auto-advances to the welcome carousel after ~1 second.
 
-**2. Welcome · Identify (slide 1 of 3).** Hero visual: camera-style framing on a sample bird with an inline "Northern Cardinal · 97% match" identification banner. Accent label (saffronDeep): "INSTANT IDENTIFICATION". Headline: "Identify any bird you spot." Sub copy describes the AI identification + species info. Skip top-right. Pagination dots + Next button bottom.
+**2. Welcome carousel** — three slides, each with a hero visual + headline + supporting copy + pagination dots. "Skip" available top-right on every slide. Slides cover the three product pillars in order:
 
-**3. Welcome · Collect (slide 2 of 3).** Hero visual: fanned stack of collectible bird cards (Cardinal style). Accent label: "YOUR COLLECTION". Headline: "Unlock a card for every species." Sub copy about building a personal aviary.
+- **Slide 1 — Identify any bird you spot.** "Take a photo and birdr tells you the species — plus habitat, size, range, conservation status, and what its call sounds like." Hero visual: a captured bird photo with a thin overlay of identification metadata. Leads with the educational/naturalist angle.
+- **Slide 2 — Unlock a card for every species.** "Each species becomes a collectible card with your photo as the hero. Build your personal aviary." Hero visual: the card design (Cardinal style).
+- **Slide 3 — Birding becomes a habit.** "Daily streaks, milestones, and achievements turn every walk into an adventure." Hero visual: the streak flame + a peek at the achievements hub.
 
-**4. Welcome · Achievements (slide 3 of 3).** Hero visual: full-width achievement rows (achievement earned + family progress + regional), matching the card-unlock layout. Accent label: "ACHIEVEMENTS". Headline: "Achievements that pull you outside." Sub copy about collection milestones and mastery tiers. "Get started" button replaces "Next."
+Tapping Skip jumps directly to sign-in.
 
-**5. Sign in** — Hero section: sage-gradient binoculars icon in rounded-square with two card-thumb peeks rotated on either side. Accent label, headline "Welcome to birdr", sub copy. OAuth buttons:
+**3. Sign in** — OAuth-only screen. Required buttons in order:
 
-- **"Continue with Apple"** — dark button, Apple branding. Required by Apple App Store policy.
-- **"Continue with Google"** — outline button, Google branding.
+- **"Continue with Apple"** — primary position (dark button, Apple branding). Required by Apple App Store policy for any app that offers third-party sign-in.
+- **"Continue with Google"** — secondary position (outline button, Google branding).
 
-No email/password in v1. Terms and Privacy Policy links at the bottom.
+No email/password in v1. Terms and Privacy Policy links at the bottom. The provider returns display name and (Google only) an avatar image; Apple users fall back to a sage-tinted circle with their first initial (see §6.10).
 
-**6. Permissions** — single rationale screen with check toggles on each row. Camera + Location pre-checked (sage gradient fill, sage border on row). Notifications unchecked (outline). Three rows:
+**4. Permissions** — single rationale screen covering all three permissions in one place. Three rows with semantic-colored icons + name + one-line rationale:
 
-- **Camera (required)** — sage accent, pre-checked. "So you can photograph birds for identification."
-- **Location (required)** — sky accent, pre-checked. "To record where you spotted each bird."
-- **Notifications (optional)** — coral accent, unchecked. "Streak reminders and achievement alerts."
+- **Camera (required)** — sage accent. "So you can photograph birds for identification."
+- **Location (required)** — sky-blue accent. "To record where you spotted each bird. Used in your personal map and regional achievements."
+- **Notifications (optional)** — coral accent. "Streak reminders and achievement alerts."
 
-Helper copy: "Tap each permission to grant access." Primary sage gradient "Continue" button triggers OS prompts in sequence.
+Single "Continue" button triggers the OS prompts in sequence (Camera → Location → Notifications). The rationale screen exists primarily to give context before the OS prompts — Apple's prompts are short and don't communicate the value clearly on their own.
 
 **Denied permission handling:**
 
-- *Camera denied*: app remains usable; the Capture button on the hub surfaces a "Camera access needed" sheet with an "Open Settings" deep-link button.
-- *Location denied*: app remains usable; sightings recorded without location metadata, Explore tab shows "Location needed" prompt with Settings deep-link.
-- *Notifications denied*: app fully functional; no streak reminders or unlock notifications.
+- *Camera denied*: app remains usable; the Capture button on the hub surfaces a "Camera access needed" sheet with a "Open Settings" deep-link button.
+- *Location denied*: app remains usable; sightings are recorded without location metadata, regional achievements don't progress, and the Explore tab shows a "Location needed for nearby birds" prompt with a Settings deep-link.
+- *Notifications denied*: app fully functional; no streak reminders or unlock notifications. We may re-prompt at strategic moments (e.g., after the 7-day streak achievement) but not in v1.
 
-**7. Tutorial · Try it out (skippable)** — sample Cardinal photo displayed with a "SAMPLE" badge. "Try it out" header. Big sage primary "Identify" button. Tapping it runs the identify → reveal animation using sample data. Skip available top-right.
+**5. Tutorial capture (interactive, skippable)** — a pre-staged sample capture experience. The user sees a sample Cardinal photo, a "Try it out" header, and a big saffron Identify button. Tapping it runs the full Identify → reveal animation using the sample data, ending with the user seeing the Cardinal card materialize. A "Sample" or "Tutorial" badge appears on the card so it's not added to the user's real collection. The reveal is at the standard pace — they see the haptic ticks, the particle burst, the banner. Then they see the settled state with mock bonus chips ("Streak +1 → 1 day," "First Feather"). A "Continue" button drops them into the Capture hub. Skip is available top-right.
 
-**8. Tutorial · Reveal** — the card unlock animation plays on the sample Cardinal. "Sample" tag rotated on the card. Below the card: two achievement rows matching the real unlock layout ("+1 day streak" + "First Feather"). "Start birding" CTA drops into the Capture hub. The tutorial card is NOT added to the user's real collection.
+The point of the tutorial: get the user through one complete loop before they've taken a real photo, so they know what to expect when they do.
 
-**Total time** — under 90 seconds for a user who skips carousel and tutorial. Under 3 minutes for a user who watches everything.
+**6. Drop into Capture hub** — no coach mark, no overlay, no tooltip. The Capture hub's central saffron button with the binoculars icon is its own affordance. Users who completed the tutorial know what tapping it does; users who skipped will figure it out instantly. The Recent strip is empty; the daily streak prompt reads "Capture today to start your streak."
 
-**Returning users.** None of steps 2–8 fire for returning users. The app launches straight to the Capture hub. Controlled by `profiles.is_onboarded`.
+**Total time** — under 90 seconds for a user who skips the carousel and tutorial. Under 3 minutes for a user who watches everything.
+
+**Returning users.** None of steps 2, 4, 5, or 6 fire for returning users. The app launches straight to the Capture tab.
 
 ### 6.2 Capture → ID → Card
 
-1. User is on the Capture tab (the hub) — sees the birdr wordmark and a large central capture button
+1. User is on the Capture tab (the hub) — sees their streak, today's status, recent captures, and a large central capture button
 2. User taps the central capture button → the camera launches as a fullscreen modal screen (tab bar hidden, X close in top corner)
 3. Camera viewfinder is live; user takes a photo or selects from gallery
 4. Preview screen with an "Identify" button
@@ -233,7 +239,7 @@ The Collection tab opens to a segmented control at the top: **Spotted** (the use
 
 **Spotted view (default)**
 
-1. Grid of card thumbnails — 3 columns. Each thumbnail is a mini-card: photo in a tier-color framed unit on top (the frame wraps just the photo, with rounded corners), cream details panel below with family tag (small, inkSoft), species name (bold, 2-line clamp), tier badge (colored pill with tier code), and sighting count (star icon + count in gold). The whole thumbnail has a tier-color border and subtle shadow. See `documentation/design/card.jsx` `BirdCardThumb` for reference.
+1. Grid of card thumbnails — 3 columns, full yellow frame on each, bird photo as the body, species name at the bottom, optional sighting count badge (★N) for species with more than one sighting
 2. Default sort: **Most recently spotted** (newest first)
 3. Section headers based on capture recency. The exact headers adapt to collection size:
    - For collections under ~30 species: "Recent" (last 7 days) and "Earlier"
@@ -245,11 +251,11 @@ The Collection tab opens to a segmented control at the top: **Spotted** (the use
 
 **All North America view (Pokédex)**
 
-1. Full catalog of all 900 NA species. Spotted species render as normal thumbnails; unspotted species render as locked thumbnails (muted line border, lock icon + "Not yet" label in details panel, species name visible in muted ink)
+1. Full catalog of all 900 NA species. Spotted species render as normal thumbnails; unspotted species render as locked silhouettes (dashed border, lock icon, no name visible)
 2. Grouped by habitat (the 9 habitats from §7.2) with per-group progress in the section header: "Forests · 15 of 92," "Wetlands · 4 of 33," "Cities & towns · 8 of 23," etc.
 3. Section headers are tappable to collapse/expand each habitat — helps manage the visual weight of 900 cells
 4. Tapping a spotted thumbnail → Card detail (§6.9, spotted variant)
-5. Tapping a locked thumbnail → Card detail (§6.9, unspotted variant) — shows card with "?" photo placeholder, species name visible, bottom sheet with range/location info
+5. Tapping a locked silhouette → Card detail (§6.9, unspotted variant) — shows canonical info, no personal data, with a "Photograph this species" CTA that switches to the Capture tab
 
 **Common elements**
 
@@ -258,57 +264,62 @@ The Collection tab opens to a segmented control at the top: **Spotted** (the use
 
 ### 6.4 Explore
 
-The Explore tab serves two modes: **Near me** (species expected in the user's area) and **My map** (personal sightings). All data served from our own `species_regions` table — no runtime eBird dependency. See `documentation/design/screens-explore.jsx` for the design reference.
+The Explore tab is structured around a single principle for v1: **research-based data only.** With a small early user base, any feed that depends on what users are posting (whether birdr users or even eBird's broader live community) will feel sparse and unreliable. Explore instead uses eBird's published aggregate species frequency data, BirdLife/Cornell range data, our curated DB's habitat and seasonality info — all of which give complete, reliable answers for "what bird species are likely to be here" without depending on anyone posting anything today.
 
-The tab opens to a segmented control at the top: **Near me** (default) | **My map**.
+The tab opens to a segmented control at the top: **Near me** (default), **Region**, **My map**.
 
 **Near me (default)**
 
-A list of species expected in the user's area (state-level, from `species_regions`). Powered by the `explore-species` edge function.
+A list of species expected in the user's immediate area (roughly county-level scope, ~50 mi). Powered by eBird sub-regional species frequency data + the curated DB's range/habitat info.
 
-- **Header**: "Near me" title (32px, ExtraBold) + map icon button top-right
-- **Location selector**: tappable button with sky-tint icon, "Location" label, current location name (e.g., "Asheville, NC"), chevron-down. No season header.
-- **Species rows**: each row contains:
-  - Reference illustration thumbnail (54px, rounded 12)
-  - Species name (15px, bold) + family tag below (12px, inkSoft)
-  - Status badge right-aligned: "Spotted" (sageTint background, sageDeep text, check icon) or "Not yet" (saffronTint background, saffronDeep text)
-- **Order**: all species in a flat list — spotted and unspotted mixed, no "chase mode" section divider
+- Contextual header: "Spring near Asheville, NC · 47 species expected"
+- Each row: reference illustration, species name, species type, seasonality ("Year-round" / "Summer only" / "Winter visitor"), sighting status (sage check for Spotted, gray "Not yet" for unspotted)
+- Order: **unspotted species first** (chase mode), spotted species below under a divider
+- Filter icon top-right opens a sheet for: species type filter, season toggle (current season vs. year-round)
 - Tap a row → species preview modal
+
+**Region**
+
+Same row format as Near me but with broader scope — species common in the user's state or larger biogeographic region. Used for trip planning and seasonal discovery beyond the immediate area.
+
+- Contextual header: "Common in North Carolina · 245 species"
+- Same ordering (unspotted first), same filter affordances, same row format
 
 **My map**
 
-The user's personal sightings on the brand-styled interactive map (Mapbox/MapLibre custom style per §18.3).
+The user's personal sightings worldwide on the brand-styled illustrated map (Mapbox custom style per §18.3).
 
-- Stats trio across the top: Captures / Species / Habitats
+- Stats trio across the top: Captures / Species / States
 - Coral pins for each sighting; clusters with counts when zoomed out
 - Tap a single pin → personal sighting detail (date, location, photo, species — deep-links to Collection card detail)
 - Tap a cluster → smooth-zoom in to expand it
-- Empty state for new users: friendly illustrated map with "Your sightings will appear here once you start capturing" overlay + CTA to switch to Capture tab
+- Empty state for new users (no captures yet): friendly illustrated map of North America with a "Your sightings will appear here once you start capturing" overlay + CTA to switch to Capture tab
 
 **Species preview modal**
 
-Triggered by tapping a row in Near me. Bottom sheet with drag handle.
+Triggered by tapping a row in Near me / Region. Bottom sheet with drag handle.
 
 - Hero: reference illustration + species name + species type
-- Habitat pill (informational only)
-- Status badge: "Spotted" (sage check) or "Not yet" (saffron)
-- Body: About copy from curated DB
+- Habitat pill (no flip interaction here — that's specific to Card detail)
+- Status badge: "Spotted" (sage with check) or "Not yet" (saffron)
+- Body: seasonality summary, About copy from curated DB
 - Actions:
   - **View my card** (sage primary) — if user has spotted the species; deep-links to Collection card detail
-  - For unspotted species: info-only, with a "Close" affordance.
+  - For unspotted species: info-only, with a "Close" affordance. No "Add to target" in v1 (deferred).
 
 **Empty / error states**
 
-- *Location permission denied* — "Explore needs your location to show what's near you" with an Open Settings deep-link. My map renders with last-known location or a continental default.
-- *Explore data unavailable* — Near me shows a brief retry banner if the `explore-species` edge function fails. Data is served from our own `species_regions` table, so this should be rare (Supabase outage only).
+- *Location permission denied* — "Explore needs your location to show what's near you" with an Open Settings deep-link. Region and My map render with last-known location or a continental default.
+- *eBird API unavailable* — Near me / Region show a brief retry banner; if persistent, fall back to a state-level static species list embedded in the app (last-known-good cache).
+- *No species expected at user's location* — virtually never happens for North America; if it does, copy reads "We don't have nearby data for this location yet — try Region."
 
 **Deferred to v1.1+**
 
-- Region mode (broader state/bioregion scope)
-- Real-time "Live" observations layer
-- "Get directions" deep-link
+- Real-time "Live" observations layer (third-party crowdsourced data once we trust density and terms)
+- "Get directions" deep-link from the species preview (requires real-time observation lat/lng)
 - "Add to target species" / wishlist
 - eBird hotspots layer
+- Region size filter (county / state / multi-state custom radius)
 
 ### 6.5 Achievements
 
@@ -340,10 +351,7 @@ When a successful ID creates a new species card (a "First Sight"), the user sees
 2. **Match found** (~0.5s) — Background fades to near-black. A particle burst in the rarity-tier color fires from the center. Brief light haptic tick.
 3. **Card materializes** (~1s) — The card frame appears center-screen. Bird photo locks into the hero region; other card details ghost in. Particles continue at moderate intensity. Stronger haptic tick.
 4. **First Sight banner** (~1s) — "FIRST SIGHT" small-caps label appears above the card, followed by the species name (e.g., "Northern Cardinal") and the species type underneath (e.g., "Songbird"). Conservation tier is intentionally not surfaced in the banner — it lives in the card's LC/NT/VU/EN/CR footer badge, not in the celebration moment. Card is now fully detailed. Particles peak. "Tap to continue" hint appears after a brief delay.
-5. **Settled state** — Background stays dark (`#16181A`). Card (250px wide) centered. Title block left-aligned above the card: "FIRST SIGHT" small-caps label + species name (bold) + family tag. Below the card: two horizontal achievement rows on translucent white surfaces:
-   - **Achievement earned** — e.g., "First Feather · 1 of 9 collection milestones" with colored icon block
-   - **Family progress** — e.g., "Songbirds · Adept" with sage progress bar showing "3 more to unlock"
-   Streak is mentioned as a small inline note (e.g., "+1 day"), not its own row. Two CTAs: "Continue" (back to viewfinder) or "View card" (deep-link to Collection card detail).
+5. **Settled state** — Background returns to cream. Card scales down slightly. Bonus chips animate in below the card: streak increment, any family-collector progress, any other achievements unlocked. Two CTAs: "Continue" (back to viewfinder, ready for next shot) or "View card" (deep-link to Collection card detail).
 
 **Pacing.** Total elapsed time roughly 4–5 seconds for a normal LC reveal. Tap-to-skip becomes available after beat 2 — a tap anywhere advances directly to beat 5.
 
@@ -408,37 +416,34 @@ When the cloud ID returns a top-candidate confidence in the 60–85% range, the 
 
 Reached by tapping any card thumbnail from the Collection grid. Single scrollable screen — no tabs, no card flip in v1. Discoverable, easy to skim.
 
-**Card-centered design.** The BirdCard is the page. See `documentation/design/screens-collection.jsx` for the design reference.
+**Top app bar.** Back arrow on the left, species common name in the center, action menu (...) on the right.
 
-**Top app bar.** Back arrow on the left. Swipe chevrons (circular sage-gradient buttons with white chevron strokes) float on left/right edges for navigating between cards in the collection.
+**Sections, in order, top to bottom**
 
-**Layout:**
+1. **The card itself** — the full Cardinal-style card (frame color by rarity, taxonomy tag, habitat pill, hero photo, About copy, First Sight metadata, footer badges with conservation status / audio play / personal sighting count). Two interactive elements live on the card:
+   - **Habitat pill** — tap to flip the hero region to the species' illustrated range map (see §7.1, "Habitat pill flip")
+   - **Audio badge** — tap to play the species' call
+2. **Quick stats trio** — three small metric cards in a row:
+   - Sightings (e.g., 7)
+   - First spotted (e.g., Jan 15)
+   - Last spotted (e.g., Yesterday)
+3. **Recent sightings** — the 2–3 most recent entries in the user's sightings log for this species. Each row: small photo thumbnail, date + time, location label, chevron. "View all N sightings" link at the top right opens the full sightings log screen.
+4. **Your sightings map** — interactive Mapbox-styled map (per §18.3) with coral pins for every personal sighting of this species. Tap a pin to surface a small sighting preview (date, location, photo).
 
-1. **Background** — warm paper surface (`paper` token)
-2. **BirdCard centered** (250px wide) — the full collectible card (tier-color frame, family/name, habitat pill, hero photo, Size/About/First Sight body, habitat footer with conservation + audio + sighting badges). The card has the glossy sheen overlay. This IS the content — no separate sections below it.
-3. **Bottom sheet (peek state)** — native bottom sheet peeks at the bottom of the screen:
-   - Drag handle
-   - Summary line: "Last spotted [date] · [location] · [N] sightings"
-   - "Swipe up for sightings · habitat · range" affordance text
-4. **Bottom sheet (expanded state)** — card dims and scales down. Sheet slides up to reveal:
-   - Recent sightings list (photo thumbnail, date, location per row)
-   - Personal sightings map (Mapbox/MapLibre, coral pins)
-
-No quick stats trio, no separate sections — everything is either on the card or in the sheet.
+There is intentionally no separate "Range" section on this screen — the range map is reached via the habitat pill flip on the card itself (§7.1). This keeps the card the central artifact and the detail screen short.
 
 **Action menu (...)** — v1 contains only:
 - "Report incorrect ID" (for when the user thinks the species is wrong)
 
-Card sharing/export is deferred to v2 (per §4).
+Card sharing/export is deferred to v2 (per §4). Delete or edit of First Sight metadata is pending §15 resolution.
 
-**Unspotted/locked variant** — reached by tapping a locked card in the All North America view:
-
-- **Question mark placeholder** in the hero photo area (hatched background pattern with large "?" character), not a silhouette
-- Species name visible (muted ink color) — the user can see what species it is
-- The card frame and footer still render, but personal sighting count is hidden
-- **Bottom sheet** shows "Where to find them" info: illustrated range map (sage-tinted land, coral range overlay) with a "Summer breeder · Eastern US" style caption
-- No "Photograph this species" CTA
-- Same swipe chevrons for navigating
+**Unspotted variant** — reached by tapping a locked silhouette in the All North America view. Same screen structure with content swapped:
+- Canonical species illustration (from the curated DB) in place of the user's photo
+- The card frame and footer still render, but the personal sighting count badge reads "★ 0"
+- No quick stats (no captures yet — collapsed or hidden)
+- Range and habitat info shown as on the spotted version
+- No sightings log, no personal map
+- Sticky bottom CTA: "Photograph this species" — switches to the Capture tab
 
 ### 6.10 Profile home
 
@@ -451,16 +456,17 @@ For v1, Profile is a single combined screen — no separate Settings page. Every
 1. **Identity block** — circular avatar + display name + "Birding since [month year]"
    - Avatar source: the OAuth provider's profile image (Google sign-in returns one; Apple sign-in does not). If no provider avatar is present, fall back to a sage-tinted circle with the user's first initial.
    - Display name: the user's first name (from OAuth profile or email-derived). No handles in v1; users are not searchable.
-2. **Stats trio** — three color-tinted tiles in a single row, each with a colored border:
-   - **Species** (sageTint background, sage border, sageDeep number) — total distinct species collected
-   - **Streak** (coralTint background, coral border, coralDeep number) — current streak count
-   - **Captures** (neutral tint, ink border) — lifetime count of successful captures including repeats
+2. **Stats trio** — three color-tinted tiles in a single row:
+   - **Species** (sage tint, sage number) — total distinct species collected
+   - **Streak** (coral tint, coral number) — current streak count
+   - **Captures** (neutral tint) — lifetime count of successful captures including repeats
 3. **Subscription** — visual depends on plan:
-   - Free: sage-gradient banner with Crown icon, "Try birdr+" headline, "Unlimited captures · Member perks · From $2.50/mo" subline, glassmorphic "Upgrade" button (translucent white, blurred). Sage-tinted shadow.
+   - Free: saffron-tinted card ("Try birdr+" headline, "Unlimited captures, member perks" subline, dark-pill "Upgrade" CTA).
    - Subscriber: smaller "birdr+ Member · Manage" row, neutral background. Tapping opens the Subscription screen in manage mode.
-4. **Activity** — two rows each linking to a sub-screen:
-   - Achievements (icon: trophy on saffron tint; meta: "14 of 160")
-   - Sightings map (icon: map pin on sky tint; meta: "134 captures · 6 habitats")
+4. **Activity** — three rows each linking to a sub-screen:
+   - Achievements (icon: trophy; meta: "14 of 160 unlocked")
+   - Streak history (icon: flame; meta: "Current: 12 · Longest: 28")
+   - Sightings map (icon: map pin; meta: "134 captures · 3 states")
 5. **Support** — three rows under a "SUPPORT" section header:
    - Help & FAQ — opens an in-app web view to support content
    - Send feedback — opens a mailto: to support address (or an in-app form in v1.1)
@@ -482,13 +488,12 @@ The following behaviors are fixed in v1 with sensible defaults and not user-conf
 
 ### 6.11 Delete account flow
 
-Required by App Store policy. Two-step destructive confirmation to prevent accidental deletion. Presented as a native bottom sheet via `react-native-true-sheet`.
+Required by App Store policy. Two-step destructive confirmation to prevent accidental deletion.
 
 1. User taps "Delete account" on Profile home.
-2. **Bottom sheet rises** with two-step confirmation:
-   - **Step 1**: "Delete your account? This will permanently delete your account, all your collected species cards, sightings, photos, achievements, and streak history. This cannot be undone." With "Cancel" and "Continue" buttons.
-   - **Step 2** (if user continued): "Type DELETE to confirm" — text input field. The "Delete account" button stays disabled until the user types DELETE exactly. Sheet uses `keyboardMode` to handle the input gracefully.
-4. On confirm: the client calls the `delete-account` edge function (see §12.2), which deletes all of the user's rows from `profiles`, `sightings`, `streaks`, and `user_achievements`, removes all user-uploaded photos from storage, and deletes the auth user record.
+2. **Step 1 alert**: "Delete your account? This will permanently delete your account, all your collected species cards, sightings, photos, achievements, and streak history. This cannot be undone." With "Cancel" and "Continue" buttons.
+3. **Step 2 alert** (if user continued): "Type DELETE to confirm" — text input field. The "Delete account" button stays disabled until the user types DELETE exactly.
+4. On confirm: the client calls a Supabase Edge Function that revokes the user's auth tokens, deletes all of the user's rows from `users`, `customer_accounts`, `sightings`, `cards`, `streaks`, and `achievements`, and removes all user-uploaded photos from storage.
 5. User is signed out and returned to the welcome screen.
 
 No grace period or soft-delete in v1 — deletion is immediate and irreversible. (v1.1 candidate: 30-day grace period with the option to restore from a "deletion pending" state, which is friendlier to users who change their mind.)
@@ -567,54 +572,55 @@ After tapping the shutter, the user lands on the photo preview screen — the ga
 
 No editing tools in v1 (no crop, rotate, brightness adjustment). The cloud ID works with whatever the user shot; cropping and basic enhancement are v1.1 polish candidates if accuracy testing during beta shows a meaningful improvement from pre-processing.
 
-### 6.15 App Store rating prompt
-
-After the card unlock reveal (§6.7) and any achievement celebrations (§10.7) have finished for a First Sight, the app may request an App Store / Play Store rating.
-
-**Trigger:** Every 3rd First Sight (new species). The app tracks a `first_sight_count` locally (not server-side) and shows the prompt when `first_sight_count % 3 == 0`.
-
-**Timing:** The prompt appears after the user taps "Continue" or "View card" on the settled state (beat 5) and after all queued achievement celebrations have been dismissed. Never during the reveal or celebrations — let the user have their moment first.
-
-**Implementation:** Use the native `SKStoreReviewController` (iOS) / In-App Review API (Android) via a React Native wrapper (e.g., `react-native-store-review`). These APIs handle rate-limiting automatically — iOS limits the prompt to 3 times per 365 days regardless of how often the app requests it, and the OS may silently suppress it. The app should call it every 3rd First Sight and let the OS decide whether to actually show it.
-
-**Why after a First Sight:** This is the peak emotional moment — the user just discovered a new species, saw the celebration, and is feeling good about the app. Asking for a rating here converts at the highest rate.
-
 ## 7. The bird card
 
 The bird card is the central artifact of the app. Each species the user has photographed gets exactly one card per user.
 
-### 7.1 Card anatomy
+### 7.1 Card anatomy (from the design reference)
 
-See `documentation/design/card.jsx` for the production-reference component. The card has a glossy collectible feel — tier-colored frame, cream interior, illustrated habitat footer.
+**Top region**
 
-**Outer frame** — tier-color border (see §18.2 for hex values) wrapping the entire card. Border width ~3.8% of card width. Rounded corners ~7% of card width. Medium shadow. **Glossy sheen overlay**: diagonal `linear-gradient` highlight (bright top-left → neutral mid → shadow bottom-right) using `mix-blend-mode: overlay`, plus a specular gloss band along the top edge.
+- Family/order tag (small, e.g., "Songbird") top-left
+- Common name (large, bold) below the family tag
+- Habitat pill top-right (e.g., "Forests") with location pin icon — **tappable on the Card detail screen** to flip the hero region to the species' range map (see "Habitat pill flip" below)
 
-**Header region** (inside cream body, padded)
+**Hero region**
 
-- **Family tag** (top-left) — small text (~4% of card width), ink color, 85% opacity. e.g., "Songbird"
-- **Species name** (below family) — large bold text (~8.5% of card width), ExtraBold weight, tight letter spacing. e.g., "Cardinal"
-- **Habitat pill** (top-right) — outline style: white fill, ink border (1.5px), ink text, pin icon. e.g., "Forests". Informational only in v1 (not tappable).
+- User's photo cropped to the bird, framed by the same color as the card border
+- Tapping the habitat pill flips this region in place to reveal the species' illustrated range map (see "Habitat pill flip" below)
 
-**Hero photo region**
+**Habitat pill flip (Card detail only)**
 
-- User's photo with tier-color inner frame border (~1.4% width). Aspect ratio 4:3. Rounded corners.
-- **Locked variant**: hatched background pattern (45deg stripes) with large "?" character in inkFaint.
+Tapping the habitat pill on the Card detail screen triggers a 3D flip animation (Y-axis, ~500ms with a soft ease) on the hero region:
 
-**Body region** (three labeled text fields, below photo)
+- Front state: the user's photo of the bird (default)
+- Back state: the species' illustrated range map (the asset from §13.3)
 
-- **Size:** e.g., "Approx. 8.3 – 9 inches (21 – 23 cm)"
-- **About:** 2–3 sentence editorial description from the curated DB
-- **First Sight:** Date + location of the user's first sighting. Hidden on locked cards.
+The pill itself swaps to an active visual state on the back side (filled dark background with the saffron pill text) so users can clearly see they're on the "range view." A small "Range" label and a one-word range-summary caption (e.g., "Year-round," "Summer only," "Winter only") overlay the map for context.
 
-**Footer region** — illustrated habitat scene strip (full width, ~32% of card height) with three circular badges overlaid at the bottom:
+Tap the pill again to flip back to the bird photo. The interaction is gated to the Card detail screen — on Collection grid thumbnails and Capture hub recents, the pill is informational only and not tappable; tapping the thumbnail still opens the full Card detail.
 
-- **Conservation badge** (left) — circular, IUCN badge color background (see §18.2), white border + shadow, tier code in white ExtraBold text
-- **Audio badge** (center) — circular, sage primary gradient fill, white border + shadow, white music-note icon. Audio deferred from v1 but badge renders as a placeholder.
-- **Sighting count badge** (right) — circular, gold (`#C28847`) background, white border + shadow, white star icon. Small dark circle at bottom-right with the count number. Hidden on locked cards.
+This replaces what would otherwise be a separate "Range" section on the Card detail screen, keeping the card itself the central artifact and the detail screen tighter.
 
-**Card body interior color**: `#FBF9EF` (warm cream, constant across themes).
+**Body region** (three labeled fields)
 
-Conservation framing: rare-tier cards should celebrate the species' protection rather than treat the bird as a trophy.
+- **Size:** Approximate length, imperial + metric
+- **About:** Short editorial description, ~2–3 sentences, from the curated DB
+- **First Sight:** Date + location label of the user's first sighting of this species
+
+**Footer region**
+
+- Conservation status circular badge (left): LC / NT / VU / EN / CR, IUCN-standard color coding
+- Audio play button (center): plays the species' primary call/song
+- Personal sighting count badge (right): displays the number of times the user has personally photographed this species. Small star icon + number (e.g., "★ 7"). Tracks engagement with the bird itself rather than family collection progress.
+- Background: illustrated landscape themed by the species' primary habitat (forest, wetland, grassland, desert, coast, urban, mountain, tundra, freshwater)
+
+**Frame**
+
+- Border color reflects conservation rarity: LC = green/yellow, NT = yellow, VU = orange, EN = red, CR = deep red
+- Adds visual variety to the collection grid without per-species custom art
+
+A subtle framing note on rarity-by-conservation-status: rare cards should celebrate the species' protection (link to conservation info, donation prompts, "you spotted a protected species" copy) rather than treat the bird as a trophy. This keeps the gamification from feeling exploitative.
 
 ### 7.2 Taxonomy
 
@@ -794,28 +800,29 @@ The Family/Habitat split rewards two different forms of mastery: depth into a ta
 
 ### 10.6 Achievement hub UX
 
-Reached from Profile → Achievements. Single scrollable screen. See `documentation/design/screens-profile.jsx` for the design reference.
+Reached from Profile → Achievements. Three screens.
 
-**Hero progress card** at the top:
-- Large bold text: "14 of 160 unlocked"
-- Sage progress bar showing overall completion
-- Subtle background tint
+**Hub screen** (default):
 
-**Two sections below the hero:**
+1. **Overall progress card** at the top — total unlocked / total achievements with a progress bar (e.g., "14 of 120 · 12% complete")
+2. **Recently unlocked** — list of the 1–3 most recent unlocks with relative timestamps ("Unlocked yesterday")
+3. **Categories** — 5 cards (Collection, Streaks, Regional, Family masters, Habitat masters), each with a category icon, name, "X of Y" count, and a progress bar tinted in the category's accent color
 
-**Unlocked** — achievements the user has earned, ordered by recency:
-- Each row: colored icon block (left, category accent color) — achievement name + "Earned [date]" (center) — sage circular check (right)
+Category accent colors:
+- Collection: sage
+- Streaks: coral
+- Regional: sky blue
+- Family masters: purple
+- Habitat masters: teal (a complementary accent — TBD against the full palette)
 
-**In progress** — achievements the user is working toward:
-- Each row: colored icon block (left) — achievement name + category label (center) — "X / Y" count + tier-colored progress bar (right)
+**Section detail screen** (tapping a category card):
 
-Category accent colors (from §18.1):
-- Collection: `#008D8F` (sage)
-- Streaks: `#E84B4B` (coral)
-- Family masters: `#9B6FE0` (purple)
-- Habitat masters: `#26A599` (teal-green)
+- Back arrow + category name in the top bar
+- One-line description of the category
+- List of achievements sorted: in-progress at top, locked next, unlocked at the bottom under a divider
+- Each row: status icon (filled check for unlocked, lock for locked, partial-fill for in-progress), name, and either "Earned [date]" / progress bar / criteria
 
-No separate section detail screen or category cards — all achievements are in a single flat list, grouped into Unlocked and In progress. Tapping a row expands it inline to show full description, criteria, and "Next:" teaser.
+**Achievement detail (inline expansion)** — tapping a row expands it inline rather than navigating to a new screen. Shows the full description, criteria, related achievements (next tier), and a Lottie-animated badge if unlocked. Keeps the screen count small and the interaction snappy.
 
 ### 10.7 Unlock celebration
 
@@ -879,7 +886,7 @@ No separate Settings → Subscription entry in v1 (no settings page). No Capture
 
 ### 11.4 Implementation
 
-Use RevenueCat per `documentation/subscription-pattern.md`. Track purchase events in PostHog per `documentation/posthog-pattern.md`.
+Use RevenueCat per `documentation/subscription-pattern.md`. Store API keys in ConfigCat per `documentation/configcat-pattern.md`. Track purchase events in PostHog per `documentation/posthog-pattern.md`.
 
 ## 12. Technical architecture
 
@@ -892,465 +899,100 @@ birdr inherits the engineering patterns documented in `documentation/`. Reuse wi
 - React Navigation per `navigation-pattern.md` — four-tab bottom-tab navigator with stack navigators inside each tab
 - Atomic design system per `atomic-design-pattern.md` and `atomic-design-extended-atoms.md`
 - Haptic feedback per `haptic-feedback-pattern.md`
-- Bottom sheets: `react-native-true-sheet` (`@lodev09/react-native-true-sheet`) — native bottom sheet for destructive confirmations (delete account). Requires New Architecture (Fabric).
-- Auth: Supabase Auth with Apple and Google OAuth providers only (no email/password in v1). See auth architecture below.
-- Map rendering: Mapbox or MapLibre with a custom style approximating the brand palette for interactive maps (Explore, global sightings, per-card sightings)
+- Auth: Supabase Auth with Apple and Google OAuth providers only (no email/password in v1)
+- Map rendering: a two-tier strategy (see §18.4) — static pre-rendered illustrated maps for per-card range maps; Mapbox or MapLibre with a custom style approximating the brand palette for interactive maps (Explore, global sightings, per-card sightings)
 
 ### 12.2 Backend
 
 - Supabase (auth, Postgres, edge functions, storage)
-- User photo storage per `upload-pattern.md` — photos uploaded to Supabase storage **after** bird is confirmed, not before
-
-#### Authentication architecture
-
-Apple + Google OAuth only via Supabase Auth. No email/password in v1.
-
-**Auth flow:**
-
-1. User launches app → check for existing session
-2. No session → welcome carousel (3 slides) → sign-in screen (Apple / Google)
-3. OAuth completes → Supabase creates row in `auth.users`
-4. DB trigger auto-creates `profiles` + `streaks` rows (see trigger below)
-5. Permission rationale screen (Camera, Location, Notifications)
-6. Tutorial capture (skippable)
-7. `profiles.is_onboarded` set to `true` → Capture hub
-8. Returning users: session exists, `is_onboarded = true` → straight to Capture hub
-
-**Profile creation trigger** — fires on `auth.users` insert, no client logic needed:
-
-```sql
-CREATE OR REPLACE FUNCTION handle_new_user()
-RETURNS trigger AS $$
-BEGIN
-  INSERT INTO public.profiles (id, display_name, created_at, ids_used_today, last_quota_reset_date, is_onboarded)
-  VALUES (
-    NEW.id,
-    COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.raw_user_meta_data->>'name', 'Birder'),
-    NOW(),
-    0,
-    CURRENT_DATE,
-    false
-  );
-
-  INSERT INTO public.streaks (user_id, current_streak, longest_streak, last_capture_date, total_capture_days)
-  VALUES (NEW.id, 0, 0, NULL, 0);
-
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
-CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION handle_new_user();
-```
-
-Display name pulls from OAuth provider metadata (`full_name` from Google, `name` from Apple). Falls back to "Birder."
-
-**Edge function auth pattern** — all edge functions extract user identity from the JWT. No client-sent user IDs trusted. No edge function is callable without authentication.
-
-```typescript
-const authHeader = req.headers.get('Authorization')!;
-const { data: { user }, error } = await supabase.auth.getUser(
-  authHeader.replace('Bearer ', '')
-);
-if (error || !user) {
-  return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
-}
-const userId = user.id;
-```
-
-**Auth context** (client-side):
-
-```typescript
-type AuthContextType = {
-  session: Session | null;
-  user: AuthUser | null;
-  profile: Profile | null;
-  loading: boolean;
-  isOnboarded: boolean;
-  signInWithApple: () => Promise<void>;
-  signInWithGoogle: () => Promise<void>;
-  signOut: () => Promise<void>;
-  completeOnboarding: () => Promise<void>;
-};
-```
-
-#### Edge functions
-
-Four edge functions. Three handle core flows, one handles account deletion.
-
-**`identify-bird`** — Receives image bytes + location, returns species candidates.
-
-1. **Auth check** — validate JWT
-2. **Quota check** — read `profiles.ids_used_today` and `last_quota_reset_date`. Reset counter if new day. If free user and `ids_used_today >= 3`, return `402 quota_exceeded` (client shows hard paywall). Increment counter.
-3. **Call vision API** — send image + location context to the bird ID provider (see provider architecture below). Provider returns ranked species candidates with confidence scores.
-4. **Match species** — map returned species names to `species` table IDs via shared `matchSpecies()` utility (exact match on `common_name`, scientific name fallback).
-5. **Apply confidence thresholds** and return:
-   - **≥ 85%** → `{ result: "auto_accepted", species: { id, common_name, scientific_name, conservation_status } }`
-   - **60–85%** → `{ result: "pick", candidates: [top 3 with distinguishing_feature, is_top flag] }`
-   - **< 60%** → `{ result: "retry", guidance: "..." }`
-
-Quota is consumed regardless of outcome (prevents gaming). No photo persisted. No sighting created.
-
-**`confirm-sighting`** — Receives confirmed species + uploaded photo path, persists everything.
-
-Input: `{ species_id, photo_storage_path, lat, lon, named_location, captured_at, timezone }`
-
-1. **Validate** — species exists, photo exists in storage, user owns the storage path
-2. **Insert sighting** — new row in `sightings`
-3. **Determine First Sight** — `COUNT(*) FROM sightings WHERE user_id AND species_id` (excluding new row)
-4. **Update streak** (lazy, no cron):
-   - Compute user's local date from `captured_at` + `timezone`
-   - Same day as `last_capture_date` → no-op
-   - Yesterday → `current_streak += 1`, update `longest_streak` if needed, increment `total_capture_days`
-   - Older or null → `current_streak = 1`, increment `total_capture_days`
-5. **Evaluate achievements** (scoped to what changed):
-   - Always: check streak tiers (3, 7, 14, 30, 100, 365)
-   - If First Sight: check collection milestones (1, 5, 10, 25, 50, 100, 250, 500, 900), family mastery for this species' type, habitat mastery for this species' habitat
-   - Upsert changed `user_achievements` rows; `COALESCE` on `unlocked_at` to never overwrite an existing unlock
-6. **Return response**:
-   ```json
-   {
-     "sighting_id": "...",
-     "is_first_sight": true,
-     "species": { "id", "common_name", "conservation_status" },
-     "streak": { "current": 13, "longest": 28, "incremented": true },
-     "achievements_unlocked": [{ "id", "name", "category" }]
-   }
-   ```
-
-Transaction safety: sighting insert + streak update wrapped in a single Postgres transaction. Achievement evaluation runs after commit — if it fails, the sighting is still valid and achievements can be re-evaluated on the next capture. This keeps lock duration tight.
-
-Performance notes: worst case is ~50-100ms for a First Sight by a power user with 10k+ sightings (5-6 queries for achievement evaluation). Repeat species captures are ~10-20ms (3 queries). No optimization needed for v1. If performance becomes an issue later, denormalize `total_species_collected` onto `profiles` to eliminate the `COUNT(DISTINCT species_id)` scan.
-
-**`explore-species`** — Serves the Explore tab's Near me mode.
-
-Input: `{ lat, lon }`
-
-1. **Resolve lat/lon → state code** — point-in-polygon against a lightweight US state boundary dataset (~50KB)
-2. **Query `species_regions`** joined to `species` and user's sightings (via `cards` view) for that state
-3. **Return shaped response**:
-   ```json
-   {
-     "region_label": "North Carolina",
-     "season_label": "Spring",
-     "species": [
-       {
-         "id": "...",
-         "common_name": "Northern Cardinal",
-         "scientific_name": "Cardinalis cardinalis",
-         "species_type": "Songbird",
-         "season": "year_round",
-         "frequency": 0.82,
-         "spotted": true,
-         "illustration_storage_path": "..."
-       }
-     ]
-   }
-   ```
-
-Species ordered: unspotted first, then by frequency descending. No runtime eBird API dependency — data served from our own `species_regions` table, hydrated from eBird bulk downloads during development.
-
-**`delete-account`** — Hard deletes all user data. Required by App Store policy (see §6.11).
-
-Input: none (user ID from JWT).
-
-1. **Auth check** — extract user from JWT
-2. **Delete user photos from storage** — list and remove all objects in the user's storage path
-3. **Delete user data** (ordered for FK constraints):
-   ```sql
-   DELETE FROM user_achievements WHERE user_id = $1;
-   DELETE FROM sightings WHERE user_id = $1;
-   DELETE FROM streaks WHERE user_id = $1;
-   DELETE FROM profiles WHERE user_id = $1;
-   ```
-4. **Delete auth user** — `supabase.auth.admin.deleteUser(userId)` (requires service role key)
-5. **Return** `{ success: true }`
-
-Client signs out and returns to the welcome screen on success. This function uses `SUPABASE_SERVICE_ROLE_KEY` (not the anon key) because `auth.admin.deleteUser()` is an admin operation.
-
-#### Bird ID provider architecture (IoC)
-
-The vision API provider is abstracted behind a `BirdIdProvider` interface so providers can be swapped via environment variable without changing edge function code.
-
-```typescript
-interface BirdIdProvider {
-  identify(image: Uint8Array, location: { lat: number; lon: number }): Promise<IdentifyResult>;
-}
-```
-
-Provider adapters implement this interface. Each adapter owns its own prompt engineering and API-specific logic. A factory function reads `BIRD_ID_PROVIDER` env var and returns the appropriate adapter.
-
-v1 default: **GPT-4o** (~$0.003 per ID). Prompt includes location context and constrains output to the ~900 NA species DB for higher accuracy than raw benchmarks suggest. Confidence thresholds (85% / 60%) live in the edge function, not the adapter — swapping providers doesn't change UX behavior.
-
-Future provider candidates: Gemini Flash (cheaper, faster), Claude Sonnet, custom fine-tuned model, or specialized bird classifiers (BirdRecon, Merlin if API becomes available).
+- Edge function for bird ID per `EDGE-FUNCTION.md`
+- Edge function for server-side streak validation
+- Edge function for proxying eBird API calls (so the eBird API key isn't shipped to clients)
+- User photo storage per `upload-pattern.md`
 
 ### 12.3 Services
 
+- Sentry — error tracking (`sentry-pattern.md`)
 - PostHog — product analytics (`posthog-pattern.md`)
+- ConfigCat — feature flags and remote config (`configcat-pattern.md`)
 - RevenueCat — subscriptions (`subscription-pattern.md`)
-- **OpenAI API (GPT-4o)** — bird identification via vision API. Default v1 provider behind IoC adapter.
+- **eBird API (Cornell Lab)** — recent observations near user and common species in region for the Explore tab. Requires API key + agreement; check commercial use terms.
+- Cloud vision API (Gemini Flash or equivalent) — bird ID
 
-Note: eBird API is **not** a runtime dependency in v1. Species regional/seasonal data is hydrated from freely available eBird bulk downloads (taxonomy CSV + bar chart data) during development and stored in `species_regions`. See §13.2 for the hydration pipeline.
+### 12.4 Database schema (high level)
 
-### 12.4 Database schema
+Server-side:
 
-#### Lookup tables (seeded, read-only)
+- `species` — curated bird DB, ~900 rows (includes `species_type` and `primary_habitat` enums from §7.2)
+- `species_assets` — references to audio, illustrations, range maps
+- `users` — Supabase auth users
+- `customer_accounts` — backend customer records keyed by Supabase user_id
+- `sightings` — every successful capture (user_id, species_id, photo_url, captured_at, lat, lon, named_location)
+- `cards` — per-user-per-species aggregate (user_id, species_id, first_seen_at, last_seen_at, sighting_count, hero_photo_url)
+- `streaks` — per-user (user_id, current_streak, longest_streak, last_capture_date)
+- `achievements` — per-user (user_id, achievement_id, unlocked_at, progress)
+- `ebird_cache` — short-TTL cache of eBird responses keyed by (lat_rounded, lon_rounded, query_type) to limit external API hits
 
-**`species_types`** — Bird type categories (Songbird, Waterfowl, Birds of prey, etc.) for filtering and family mastery achievements.
+A note on the schema: `sightings.lat/lon` should be stored as precise coordinates but a separate `display_location` field (named place, fuzzed location) should be added now even though v1 doesn't use it publicly. This avoids a painful migration when social features arrive in v2.
 
-| Column | Type | Notes |
-|---|---|---|
-| id | uuid | PK |
-| name | text | unique |
+### 12.5 E2E testing
 
-**`habitats`** — Habitat categories (Forest, Wetland, Urban, etc.) for filtering and habitat mastery achievements.
+Maestro per `e2e-testing-pattern.md`. Critical flows to cover at launch:
 
-| Column | Type | Notes |
-|---|---|---|
-| id | uuid | PK |
-| name | text | unique |
-
-#### Species reference data (seeded, ~900 rows)
-
-**`species`** — Curated North American bird species.
-
-| Column | Type | Notes |
-|---|---|---|
-| id | uuid | PK |
-| common_name | text | |
-| scientific_name | text | |
-| family | text | |
-| order | text | |
-| species_type_id | uuid | FK → species_types |
-| primary_habitat_id | uuid | FK → habitats |
-| conservation_status | enum | LC / NT / VU / EN / CR |
-| about_text | text | ~2-3 sentence editorial description |
-| distinguishing_feature | text | 5-8 word line for top-3 picker |
-| size | text | |
-
-Indexes: `species_type_id`, `primary_habitat_id`
-
-**`species_audio`** — Audio file references per species (song, call variants).
-
-| Column | Type | Notes |
-|---|---|---|
-| id | uuid | PK |
-| species_id | uuid | FK → species |
-| storage_path | text | Supabase storage bucket path |
-| label | text | e.g. "song", "call" |
-
-Indexes: `species_id`
-
-**`species_regions`** — Regional presence and seasonality per species. Hydrated from eBird bulk downloads during development. State-level granularity for v1.
-
-| Column | Type | Notes |
-|---|---|---|
-| species_id | uuid | PK, FK → species |
-| region_code | text | PK, e.g. "US-NC" |
-| season | enum | `year_round`, `summer`, `winter`, `migratory`, `rare` |
-| frequency | float | 0.0–1.0, peak detection frequency |
-
-Indexes: `(region_code, season)`
-
-**`species_illustrations`** — Illustration asset references per species.
-
-| Column | Type | Notes |
-|---|---|---|
-| id | uuid | PK |
-| species_id | uuid | FK → species |
-| storage_path | text | Supabase storage bucket path |
-| variant | text | |
-
-Indexes: `species_id`
-
-#### User data
-
-**`profiles`** — Extends Supabase auth (1:1 with `auth.users`). Created automatically via DB trigger on `auth.users` insert (see §12.2 auth architecture).
-
-| Column | Type | Notes |
-|---|---|---|
-| id | uuid | PK (= auth.users.id) |
-| display_name | text | from OAuth provider metadata |
-| created_at | timestamptz | |
-| ids_used_today | int | default 0 |
-| last_quota_reset_date | date | |
-| is_onboarded | boolean | default false; set true after permissions + tutorial |
-
-Indexes: PK only
-
-**`sightings`** — Every successful capture event.
-
-| Column | Type | Notes |
-|---|---|---|
-| id | uuid | PK |
-| user_id | uuid | FK → profiles |
-| species_id | uuid | FK → species |
-| photo_storage_path | text | Supabase storage bucket path |
-| captured_at | timestamptz | |
-| lat | float8 | precise GPS |
-| lon | float8 | precise GPS |
-| named_location | text | |
-| display_location | text | fuzzed, for v2 social |
-
-Indexes:
-- `(user_id, species_id, captured_at ASC)` — card detail, hero photo, cards view aggregation, species count
-- `(user_id, captured_at DESC)` — recent captures, pagination, streak calendar
-
-Schema note: `display_location` is added now even though v1 doesn't use it publicly. This avoids a painful migration when social features arrive in v2.
-
-**`streaks`** — Current streak state per user (1:1 with profiles). No history table — the 60-day calendar is derived from sightings.
-
-| Column | Type | Notes |
-|---|---|---|
-| user_id | uuid | PK, FK → profiles |
-| current_streak | int | default 0 |
-| longest_streak | int | default 0 |
-| last_capture_date | date | user's local date |
-| total_capture_days | int | default 0, lifetime count |
-
-Indexes: PK only
-
-Streak logic is lazy — no cron job. The streak resets implicitly when the user's next capture detects a gap in `last_capture_date`.
-
-**`user_achievements`** — Progress and unlock state per user per achievement. Achievement definitions (~105 total) live in app/edge function code, not in the DB.
-
-| Column | Type | Notes |
-|---|---|---|
-| id | uuid | PK |
-| user_id | uuid | FK → profiles |
-| achievement_id | text | matches ID from app-side achievement registry |
-| progress | float | 0.0–1.0 |
-| unlocked_at | timestamptz | nullable; null = in progress |
-
-Indexes:
-- unique constraint on `(user_id, achievement_id)`
-- partial index on `(user_id, unlocked_at DESC) WHERE unlocked_at IS NOT NULL` — recent unlocks query
-
-Achievement categories in v1: collection milestones (9), streak tiers (6), family masters (45), habitat masters (45). Regional/geographic achievements deferred to v2.
-
-#### Derived
-
-**`cards`** (Postgres view, not a table) — Per-user-per-species aggregate derived from sightings. Hero photo is always the first sighting photo (not user-selectable in v1).
-
-```sql
-SELECT DISTINCT ON (s.user_id, s.species_id)
-  s.user_id,
-  s.species_id,
-  s.photo_storage_path AS hero_photo_storage_path,
-  s.captured_at AS first_seen_at,
-  agg.last_seen_at,
-  agg.sighting_count
-FROM sightings s
-JOIN (
-  SELECT user_id, species_id,
-         MAX(captured_at) AS last_seen_at,
-         COUNT(*) AS sighting_count
-  FROM sightings
-  GROUP BY user_id, species_id
-) agg ON agg.user_id = s.user_id AND agg.species_id = s.species_id
-ORDER BY s.user_id, s.species_id, s.captured_at ASC
-```
-
-#### Device caching strategy
-
-The following reference data is cached on-device after first launch and re-synced on app update: `species`, `species_types`, `habitats`, `species_audio`, `species_illustrations`. Sightings are invalidated on capture and paginated. Streak state, daily quota, and explore data read from Supabase directly.
-
-#### Index summary
-
-| Table | Indexes beyond PK |
-|---|---|
-| species_types | — |
-| habitats | — |
-| species | `species_type_id`, `primary_habitat_id` |
-| species_audio | `species_id` |
-| species_regions | `(region_code, season)` |
-| species_illustrations | `species_id` |
-| profiles | — |
-| sightings | `(user_id, species_id, captured_at)`, `(user_id, captured_at DESC)` |
-| streaks | — |
-| user_achievements | unique `(user_id, achievement_id)`, partial `(user_id, unlocked_at DESC) WHERE NOT NULL` |
+- First-time signup → permission grants → first capture
+- High-confidence capture creates a new card
+- Low-confidence capture shows the top-3 picker
+- Repeat capture of an existing species updates the sightings log
+- Streak increments on first daily capture
+- Streak resets after a missed day (with mocked time)
+- Explore tab loads nearby observations (mocked eBird response)
+- Subscription paywall and RevenueCat sandbox purchase
+- Collection search and filter
 
 ## 13. Data sources and curation
 
 ### 13.1 Custom curated DB
 
-The 900-species North American bird DB is the highest-effort pre-launch task. The pipeline is split into automated hydration (steps 1-7) and LLM-assisted curation (steps 8-9).
+The 900-species North American bird DB is the highest-effort pre-launch task. Strategy:
 
-#### Hydration pipeline (automated, ~5 minutes)
-
-1. **Download Clements/eBird taxonomy CSV** — freely available, contains common name, scientific name, family, order, species code, range descriptions
-2. **Filter to ~900 NA species** — by region/range descriptions in the CSV
-3. **Join IUCN conservation status** — match on scientific name from IUCN Red List CSV
-4. **Download 50 state bar charts from eBird** — predictable URLs, scriptable with polite delays
-5. **Parse bar charts → season tags + frequency** — classify each species-state pair as `year_round`, `summer`, `winter`, `migratory`, or `rare` with peak frequency value
-6. **Insert `species` rows** — taxonomy + conservation status (species_type_id, primary_habitat_id, about_text, distinguishing_feature, size left null)
-7. **Insert `species_regions` rows** — ~45,000 rows
-
-#### LLM-assisted curation (step 8, ~1 day generation + 1-2 weeks human review)
-
-8. **LLM batch prompt** — one structured prompt per species returning all curated fields:
-
-   Input context per species: common name, scientific name, family, order, conservation status, range description from Clements CSV.
-
-   Output (structured JSON):
-   ```json
-   {
-     "species_type": "Songbird",
-     "primary_habitat": "Forest",
-     "size": "8-9 inches",
-     "about_text": "The Northern Cardinal is one of the most recognizable...",
-     "distinguishing_feature": "Bright red, black face mask"
-   }
-   ```
-
-   After the batch runs, a script maps `species_type` and `primary_habitat` strings to UUIDs in the `species_types` and `habitats` lookup tables and updates `species` rows.
-
-   LLM prompt guidelines:
-   - `species_type`: must be one of the 9 values in `species_types` (Songbird, Waterfowl, Birds of prey, Shorebird, Seabird, Woodpecker, Game bird, Aerial specialist, Hummingbird)
-   - `primary_habitat`: must be one of the 9 values in `habitats` (Forest, Grassland, Desert, Wetland, Freshwater, Coast, Mountain, Tundra, Urban)
-   - `size`: typical length range in inches
-   - `about_text`: 2-3 sentences for a casual bird watcher. Key visual features, typical habitat, one interesting behavioral fact. No jargon.
-   - `distinguishing_feature`: 5-8 words, visible field marks (color, pattern, size, bill shape, posture)
-
-9. **Human review** — review all LLM-generated text and classifications for accuracy. Quality matters more than coverage. Estimated 1-2 weeks.
-
-#### Deferred to later
-
+- Source common names, taxonomy, conservation status, size, and habitat from authoritative sources (eBird taxonomy, IUCN Red List, Cornell Lab Birds of the World)
+- LLM-assisted drafts of "About" editorial copy, then human review for accuracy on every entry
 - Audio from xeno-canto (CC-licensed bird recordings) — verify license compatibility per recording
-- Species illustrations — sourcing/creation TBD
-- Manual QA pass on every species before launch
+- Range maps from BirdLife International or similar — license check required
+- Manual QA pass on every species before launch; quality matters more than coverage
 
-### 13.2 Species regional data hydration
+Estimated effort: 2–3 focused months for one person, less with assistance.
 
-The Explore tab uses **our own `species_regions` table**, not a live eBird API connection. The data is hydrated from freely available eBird bulk downloads during development — no runtime external API dependency, no commercial license required.
+### 13.2 eBird API for the Explore tab
 
-#### Hydration pipeline (one-time development script)
+The Explore tab uses eBird's **research-grade aggregate data only** in v1 — no real-time crowdsourced observation feed. This is deliberate: with a small early user base, any data dependent on what users posted today feels sparse and unreliable (see §6.4).
 
-1. **Download eBird/Clements taxonomy CSV** — freely available from the Clements Checklist website. Contains common name, scientific name, family, order, species code for all birds. Used to seed the `species` table and map eBird species codes to our DB.
-2. **Download bar chart frequency data per state** — 50 state-level downloads from eBird's bar chart pages (predictable URLs, scriptable). Each file contains detection frequency per species per week-of-year (48 values per species).
-3. **Parse frequency data into season tags** — for each species in each state, classify as `year_round`, `summer`, `winter`, `migratory`, or `rare` based on which months show meaningful detection (>5% frequency threshold). Extract peak frequency value.
-4. **Match species codes to our DB** — join on scientific name via the Clements taxonomy CSV. Skip species not in our 900-species NA DB.
-5. **Insert into `species_regions`** — ~45,000 rows (900 species × 50 states, minus species not present in a given state).
+Endpoints used in v1:
 
-Total runtime: ~5 minutes. Re-run yearly when eBird updates their taxonomy.
+- **Sub-regional species list / frequency data** (`/product/spplist/{regionCode}` and seasonal frequency endpoints) — drives Near me and Region modes. Returns the full set of species expected in a given county/state/region, with bar-chart frequency over the year. This is aggregated historical data — well-populated and consistent across every region.
 
-#### Data sources (no commercial license needed)
+Endpoints explicitly **not used** in v1 (candidates for v1.1+):
 
-- **eBird/Clements taxonomy CSV** — freely downloadable, updated annually
-- **eBird bar chart data** — freely downloadable per region from the eBird website
-- **IUCN Red List CSV** — conservation status, freely available for research use
+- `/data/obs/{regionCode}/recent` — real-time observations. Deferred until we either have a sufficient internal user base or are confident in the data density + commercial terms.
 
-eBird's API terms restrict commercial runtime use, but bulk downloads of aggregate research data for seeding a curated DB are a different use case. The app serves its own data, not eBird's API.
+eBird requires an API key and has terms of use that distinguish non-commercial from commercial use. The legal review for commercial use must happen before launch. If commercial terms are not workable for the aggregate frequency endpoint, fall back options include: (a) BirdLife range data + Cornell Birds of the World species data, both research/curated sources, (b) ship a static seasonal species list per US state with the app and update via OTA on releases.
 
-#### Future upgrades (v1.1+)
+All eBird responses are cached server-side with a long TTL (24+ hours acceptable for aggregate data — it doesn't change frequently) to control external API volume.
 
-- Real-time "Live" observations layer (requires eBird commercial API terms or alternative data source)
-- County-level granularity for more precise "Near me" results
+### 13.3 Range map asset pipeline
 
-### 13.3 Asset hosting
+Each of the ~900 species needs a range map illustrated in the brand's field-guide aesthetic. Hand-illustrating 900 maps is prohibitive, so the pipeline is:
 
-Static assets (audio, illustrations, habitat backgrounds) hosted on Supabase storage with CDN. Range maps deferred from v1 (see §12.4). Avoid in-app bundling unless total size stays under ~50 MB.
+1. Hand-illustrate one base map of North America in the brand style (sage greens, golden west, blue water, thin state borders). Stored as a high-resolution SVG template.
+2. For each species, fetch the range polygon from eBird, IUCN, or BirdLife International.
+3. A scripted job overlays the range polygon onto the base map as a warm coral fill at ~60% opacity with feathered edges, exports the result as PNG (and SVG where feasible).
+4. Generated assets are stored in Supabase storage and referenced by `species_assets.range_map_url`.
+
+This produces one consistent base across all species while keeping the per-species generation tractable.
+
+### 13.4 Asset hosting
+
+Static assets (audio, range maps, illustrations, habitat backgrounds) hosted on Supabase storage with CDN. Avoid in-app bundling unless total size stays under ~50 MB.
 
 ## 14. Privacy and permissions
 
@@ -1374,15 +1016,15 @@ When v2 introduces social features, public-facing sighting locations must be fuz
 
 ## 15. Open questions
 
-1. ~~**Audio button UX on card:**~~ Deferred — audio assets not in v1.
-2. **First Sight permanence:** Frozen forever, or editable? (v1: frozen, uses first photo)
-3. ~~**ID provider final pick:**~~ **Resolved — GPT-4o via IoC adapter** (see §12.2).
+1. **Audio button UX on card:** Single tap-to-play, or expandable selector for song/call/alarm-call?
+2. **First Sight permanence:** Frozen forever, or editable?
+3. **ID provider final pick:** Locked at "TBD — engineering decision pending." Candidates: Gemini Flash, Cornell Merlin (commercial terms TBD), iNaturalist CV (commercial terms TBD), custom fine-tuned model.
 4. **Onboarding length:** How many tutorial screens before dropping into the app?
 5. **Notification defaults:** Default reminder time, user customization scope
-6. ~~**Explore "Near me" scope:**~~ **Resolved — state-level for v1** (see §12.2 `explore-species`).
-7. ~~**eBird aggregate API commercial terms:**~~ **Resolved — no runtime API dependency.** Species data hydrated from bulk downloads (see §13.2).
+6. **Explore "Near me" scope:** Working default is county-level (~50 mi). Should users be able to adjust this scope, or is one fixed scope per mode (Near me = county, Region = state) the simplest answer?
+7. **eBird aggregate API commercial terms:** Confirm commercial-use viability for the research-grade frequency endpoints. Identify fallback (BirdLife/Cornell or static state lists) if blocked.
 8. **Capture tab when launching camera mid-session:** When the user has the camera modal open and dismisses it, do they return to a fresh hub or the previous in-progress capture? (Working answer: dismiss = abandon; return to fresh hub.)
-9. ~~**Explore "target species" save:**~~ Deferred to v1.1.
+9. **Explore "target species" save:** Should v1 include a "save as target" interaction on Explore species, or is that a v1.1 add?
 10. **Rarity gradient exact stops:** Working defaults are LC=saffron, NT=light orange, VU=coral, EN=terracotta, CR=burgundy. Validate against the full palette and the look of common species frames.
 
 ## 16. Success metrics
@@ -1413,134 +1055,92 @@ When v2 introduces social features, public-facing sighting locations must be fuz
 | App Store rejection over location data | L | H | Conservative privacy disclosure; consider fuzzing earlier if Apple pushes back |
 | Non-bird photos clutter the ID model | L | L | Confidence threshold + "try again" handles this naturally |
 | NA-only DB feels limiting to global users | M | L | Geofence App Store to US for v1 (already planned) |
+| eBird aggregate API commercial terms block Explore | L | H | Confirm terms early; fallback to BirdLife/Cornell data or static per-state lists shipped with the app |
+| eBird aggregate API rate limits or downtime | L | L | Long server-side cache (24+ hours) — aggregate data doesn't change frequently; degrade to last-known-good cache on outage |
 | Explore feels thin without real-time data | M | M | Lean into research positioning ("what you'll find here") rather than "what's happening now"; v1.1 adds live layer once data density improves |
 
 ## 18. Visual design language
 
-The visual direction is **gamified collection with naturalist warmth** — a hybrid of Pokémon GO's game-like energy (bold components, gradient buttons, bouncy animations, progress everywhere) with birdr's nature palette (teal, mint, warm amber, illustrated habitats). The design prototype lives in `documentation/design/` as HTML/CSS/JS reference files.
+The visual direction is "modern field guide" — warm, naturalist, illustrated, with the polish of a contemporary app but the personality of an old paper bird book. This aesthetic was established by the Cardinal card design and the illustrated North America map references.
 
-### 18.1 Color palette (Vivid/Mint theme — v1 default)
+### 18.1 Color palette
 
-The v1 palette uses a teal-mint direction. A warmer "Field guide" palette exists in the design files as an alternate theme for potential future use.
+Drawn from the brand's map illustrations. All UI colors should derive from this palette:
 
-**Brand colors:**
-
-| Role | Token | Hex | Where it appears |
+| Role | Color | Approximate hex | Where it appears |
 |---|---|---|---|
-| Primary | `sage` | `#008D8F` | Tab active state, primary buttons, capture button, achievement collection accent |
-| Primary light | `sageLight` | `#5DC79C` | Gradient end, highlights |
-| Primary gradient | `sageGrad` | `linear-gradient(135deg, #008D8F, #5DC79C)` | Primary buttons, capture button, subscription banner, audio badge |
-| Primary tint | `sageTint` | `#D6EEEE` | Segmented control background, spotted badges, stats tile background |
-| Primary deep | `sageDeep` | `#00595B` | Active tab text, badge text on tint |
-| Accent | `saffron` | `#FFB347` | Warm amber accents, accent labels |
-| Accent light | `saffronLight` | `#FFD18A` | Flash icon tint, light accents |
-| Accent deep | `saffronDeep` | `#B86B00` | Accent label text (onboarding carousel) |
-| Warm CTA | `coral` | `#E84B4B` | Streak flame, destructive actions, streak achievement accent |
-| Warm CTA light | `coralLight` | `#F38787` | Light warm accents |
-| Cool secondary | `sky` | `#4FBDC0` | Cyan-teal, location pin backgrounds, info accents |
-| Cool secondary light | `skyLight` | `#8FD5D7` | Light info backgrounds |
+| Primary (brand) | Sage / moss green | ~#639922 / #3B6D11 | Tab active state, primary buttons, key headers, map land fills |
+| Accent gold | Saffron / amber yellow | ~#EF9F27 / #FAC775 | Card frame for LC rarity, streak chip, highlights, capture button |
+| Warm accent | Coral / terracotta | ~#D85A30 / #993C1D | Range map overlays, EN/CR rarity frames, streak flame, urgent CTAs |
+| Cool secondary | Robin-egg sky blue | ~#85B7EB / #B5D4F4 | Water on maps, info accents, gentle backgrounds |
+| Surface | Cream / off-white | ~#FAF7F0 | Page backgrounds, card body fills |
+| Text primary | Deep charcoal | ~#2C2C2A | Body text, titles |
+| Text secondary | Warm gray | ~#5F5E5A | Captions, helper text |
 
-**Surfaces and text:**
-
-| Role | Token | Hex |
-|---|---|---|
-| Surface | `cream` | `#EAF5E5` (pale mint) |
-| Paper | `paper` | `#DDEED7` (card detail background) |
-| Card body interior | — | `#FBF9EF` (warm cream, constant) |
-| Text primary | `ink` | `#1B3937` |
-| Text secondary | `inkSoft` | `#4A6E6A` |
-| Text faint | `inkFaint` | `#8AA4A0` |
-| Line/border | `line` | `#CFE3CB` |
-
-**Shadows:**
-
-| Level | Value |
-|---|---|
-| Small | `0 1px 2px rgba(40,30,20,.06), 0 2px 6px rgba(40,30,20,.04)` |
-| Medium | `0 4px 12px rgba(40,30,20,.08), 0 12px 32px rgba(40,30,20,.06)` |
-| Large | `0 12px 36px rgba(40,30,20,.16), 0 36px 80px rgba(40,30,20,.12)` |
-
-**Achievement category accents:**
-
-| Category | Color |
-|---|---|
-| Collection | `#008D8F` (sage) |
-| Streaks | `#E84B4B` (coral) |
-| Family masters | `#9B6FE0` (purple) |
-| Habitat masters | `#26A599` (teal-green) |
+Hex codes are anchors, not final tokens. The production design system will lock exact values once dark-mode variants and accessibility contrast checks are done.
 
 ### 18.2 Card frame rarity system
 
-Conservation status drives the card's border color and footer badge. These are IUCN semantic colors — constant across themes.
+Conservation status drives the card's border color. Each tier ties to one swatch in the palette:
 
-| IUCN | Frame color | Badge background |
-|---|---|---|
-| LC (Least Concern) | `#EFC027` | `#69A444` |
-| NT (Near Threatened) | `#E89A3B` | `#B2A53A` |
-| VU (Vulnerable) | `#D85A30` | `#E29C2A` |
-| EN (Endangered) | `#A53A1F` | `#D85A30` |
-| CR (Critically Endangered) | `#6B1A12` | `#993C1D` |
+| IUCN | Frame color |
+|---|---|
+| LC (Least Concern) | Saffron yellow (current Cardinal example) |
+| NT (Near Threatened) | Light orange |
+| VU (Vulnerable) | Coral |
+| EN (Endangered) | Deep terracotta |
+| CR (Critically Endangered) | Burgundy / deep red |
 
-Conservation badges appear as circular badges in the card footer (left position) with white border and shadow. Badge shows the tier code (LC/NT/VU/EN/CR) in white bold text on the badge background color.
+Rare-tier cards should also surface the protection framing (link to conservation info) so the visual rarity reads as reverence, not trophy.
 
 ### 18.3 Map aesthetic and strategy
 
-Interactive maps are used for two surfaces in v1:
+Per the map references, the aesthetic is illustrated/watercolor with sage and gold terrain, sky-blue water, and coral range overlays. The product has three map use cases with different feasibility profiles, so v1 uses a two-tier strategy:
 
-- Per-card personal sightings map (in card detail bottom sheet)
-- Global sightings map (My map in Explore tab)
+**Tier 1 — Static illustrated maps (full aesthetic)**
 
-Implementation: Mapbox GL or MapLibre with a custom style tuned to the brand palette. Land = teal-sage gradient, water = cyan-teal, pins = coral. No roads, no labels except major place names.
+- Per-card range maps. One per species, generated via the asset pipeline in §13.3.
+- Why static: the field-guide watercolor feel doesn't survive arbitrary zoom/pan. Static images keep the aesthetic perfect at the one zoom level that matters.
 
-Per-card range maps are deferred from v1 (see §13.1).
+**Tier 2 — Custom-styled interactive maps (palette only)**
+
+- Explore tab map (nearby observations from eBird)
+- Per-card personal sightings map (where the user has spotted this species)
+- Global sightings map (in Profile)
+- Implementation: Mapbox GL or MapLibre with a custom style tuned to the brand palette. Land = sage gradient, water = robin-egg, pins = coral. No roads, no labels except major place names.
+- Why this trade-off: maintaining hand-painted watercolor at every zoom level across all of North America is prohibitive. The custom style gets us 80% of the aesthetic at 20% of the cost.
 
 ### 18.4 Typography
 
-**Plus Jakarta Sans** (Google Fonts, free, OFL) for the entire app. Weights used in the design:
+**Plus Jakarta Sans** (Google Fonts, free, OFL) for the entire app — body, UI, and display. Used at multiple weights:
 
-- Regular (400) — body copy, supporting text
-- Medium (500) — section labels, meta text
-- SemiBold (600) — pills, badges, filter chips, tab labels
-- Bold (700) — buttons, row titles, card family tag, species names in lists
-- ExtraBold (800) — page titles, card species name, stat numbers, wordmark
+- Regular (400) for body copy and supporting text
+- Medium (500) for titles, section headers, button labels, card names ("Cardinal")
+- Tabular figures enabled globally so stat numbers (streak count, sighting count, species totals) stay vertically aligned
 
-Tabular figures enabled globally (`font-feature-settings: "tnum" 1`) so stat numbers stay vertically aligned. Letter spacing slightly negative (`-0.005em`) for a tighter, modern feel.
+Plus Jakarta Sans was chosen for its slightly warm, friendly character that complements the field-guide aesthetic without becoming twee. No serif in v1 — saves a font load and avoids a "vintage taxidermy" feel.
 
 ### 18.5 Iconography
 
-**Lucide** (free, ISC license) as the primary icon set. Outline-only style, stroke width 2. Used for tab bar, action buttons, list affordances, settings.
+**Lucide** (free, ISC license) as the primary icon set. Outline-only style, consistent with the field-guide aesthetic. Used for tab bar, action buttons, list affordances, settings.
 
-Tab bar icons: Binoculars (Capture), Book (Collection), Compass (Explore), User (Profile).
+Candidates for custom-drawn treatment (out of scope for v1, candidates for v1.1 polish):
 
-### 18.6 Chrome components
+- The four tab icons (Capture, Collection, Explore, Profile) — a custom binoculars / book / compass / user set would add personality
+- Conservation status badges — IUCN codes lend themselves to a custom badge treatment that reads more credibly than generic shapes
+- The streak chip / flame — Brandon is providing a custom animation for this
 
-Defined in the design prototype (`documentation/design/chrome.jsx`):
+### 18.6 Habitat footer illustrations
 
-**TabBar** — sage primary 2px top border. Themed background (pale mint wash with backdrop blur). Active tab: small sage dot indicator above icon + sage-colored icon + semibold label. Inactive: faint icon + regular label.
-
-**PrimaryButton** — sage gradient fill (`135deg, #008D8F → #5DC79C`) with sage-tinted shadow (`0 6px 16px #008D8F40`). White text, bold, pill-shaped (borderRadius 999). Sizes: sm (9px 14px), md (14px 20px), lg (17px 22px).
-
-**GhostButton** — white fill, line border, ink text. Pill-shaped.
-
-**SegmentedControl** — sageTint background, rounded 12px. Active segment: white pill with sageDeep text + sage-tinted shadow. Inactive: transparent, 65% opacity.
-
-**Pill** — inline badge. sageTint background, sageDeep text by default. Pill-shaped (borderRadius 999).
-
-**CircleBtn** — circular icon button, white background with subtle shadow. Dark variant for camera/dark surfaces.
-
-### 18.7 Habitat footer illustrations
-
-Nine habitat scenes (forest, grassland, desert, wetland, freshwater, coast, mountain, tundra, urban) are needed for the card footer backgrounds. Owner will provide finished art. Style: illustrated field-guide aesthetic, simplified to read at small sizes on the card footer.
+Nine habitat scenes (forest, grassland, desert, wetland, freshwater, coast, mountain, tundra, urban) are needed for the card footer backgrounds. Owner will provide finished art. Style direction: same watercolor field-guide aesthetic as the maps, simplified to read at small sizes on the card.
 
 ---
 
 **Next steps**
 
-1. Finalize visual design tokens (from separate design process)
-2. Stand up Supabase project (auth, schema migration, storage buckets, DB trigger for profile creation)
-3. Run species DB hydration script (taxonomy + conservation + regions) and LLM batch curation
-4. Scaffold Expo app with React Navigation (4-tab structure)
-5. Implement edge functions (`identify-bird`, `confirm-sighting`, `explore-species`, `delete-account`)
-6. Build the capture → ID → card vertical slice as the first engineering milestone
-7. Wire up remaining screens (Collection, Explore, Profile, Achievements)
-8. Beta test with 20–50 casual bird watchers before public launch
+1. Resolve the open questions in §15 (especially the card "7" badge, ID provider pick, and eBird commercial terms)
+2. Begin DB curation work in parallel with engineering scaffolding
+3. Stand up the Supabase project (auth, schema migration, edge function stubs for ID + eBird proxy)
+4. Build the capture → ID → card vertical slice as the first engineering milestone
+5. Wire up the Explore tab with eBird as the second milestone
+6. Beta test with 20–50 casual bird watchers before public launch
