@@ -1,0 +1,41 @@
+{
+  "name": "birdr",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "db:start": "supabase start",
+    "db:stop": "supabase stop",
+    "db:reset": "supabase db reset",
+    "db:push": "supabase db push",
+    "db:pull": "supabase db pull",
+    "db:diff": "supabase db diff",
+    "db:lint": "supabase db lint",
+    "db:migration:new": "supabase migration new",
+    "db:seed": "supabase db reset --db-only",
+    "db:status": "supabase status",
+    "db:studio": "open https://supabase.com/dashboard/project/enctbzysromgremkqykc",
+
+    "functions:serve": "supabase functions serve",
+    "functions:deploy": "supabase functions deploy identify-bird && supabase functions deploy confirm-sighting && supabase functions deploy explore-species && supabase functions deploy delete-account",
+    "functions:deploy:identify": "supabase functions deploy identify-bird",
+    "functions:deploy:confirm": "supabase functions deploy confirm-sighting",
+    "functions:deploy:explore": "supabase functions deploy explore-species",
+    "functions:deploy:delete": "supabase functions deploy delete-account",
+
+    "hydrate:download": "cd scripts && npm run download:taxonomy && npm run download:iucn && npm run download:frequency",
+    "hydrate:parse": "cd scripts && npm run parse:species",
+    "hydrate:prompts": "cd scripts && node 05-generate-llm-prompts.js",
+    "hydrate:process": "cd scripts && node 06-process-llm-results.js",
+    "hydrate:seed": "cd scripts && node 07-seed-database.js",
+
+    "setup:scripts": "cd scripts && npm install",
+
+    "app:start": "yarn --cwd app start",
+    "app:android": "yarn --cwd app android",
+    "app:ios": "yarn --cwd app ios",
+    "app:web": "yarn --cwd app web",
+
+    "app:build:ios": "cd app && npx expo run:ios",
+    "app:build:android": "cd app && npx expo run:android"
+  }
+}

@@ -7,12 +7,7 @@ import { ArrowLeft } from "lucide-react-native";
 import { Colors, Spacing, BorderRadius, Shadows } from "../theme";
 import { Text, CircleBtn } from "../components/atoms";
 import { BirdCard } from "../components/molecules/BirdCard";
-import {
-  DUMMY_USER_CARDS,
-  DUMMY_SPECIES,
-  DUMMY_SIGHTINGS,
-  type Species,
-} from "../data/dummy";
+import { useCards, useAllSpecies, useSightingsForSpecies } from "../hooks/useApi";
 import type { CollectionStackParamList } from "../navigation/stacks/CollectionStack";
 
 type RouteProps = RouteProp<CollectionStackParamList, "CardDetail">;
@@ -22,10 +17,14 @@ export const CardDetailScreen: React.FC = () => {
   const route = useRoute<RouteProps>();
   const { speciesId } = route.params;
 
-  const species = DUMMY_SPECIES.find((s) => s.id === speciesId);
-  const userCard = DUMMY_USER_CARDS.find((c) => c.speciesId === speciesId);
-  const sightings = DUMMY_SIGHTINGS.filter((s) => s.speciesId === speciesId).sort(
-    (a, b) => new Date(b.capturedAt).getTime() - new Date(a.capturedAt).getTime()
+  const { data: allSpecies } = useAllSpecies();
+  const { data: cards } = useCards();
+  const { data: sightingsData } = useSightingsForSpecies(speciesId);
+
+  const species = allSpecies?.find((s) => s.id === speciesId);
+  const userCard = cards?.find((c) => c.species_id === speciesId);
+  const sightings = (sightingsData ?? []).sort(
+    (a, b) => new Date(b.captured_at).getTime() - new Date(a.captured_at).getTime()
   );
 
   if (!species) {
@@ -62,17 +61,17 @@ export const CardDetailScreen: React.FC = () => {
         <View style={styles.cardWrapper}>
           <BirdCard
             data={{
-              speciesName: species.name,
-              familyName: species.familyName,
-              habitat: species.habitat,
-              conservationTier: species.conservationTier,
-              photoUri: userCard?.heroPhotoUri ?? null,
+              speciesName: species.common_name,
+              familyName: species.family,
+              habitat: species.habitat_name,
+              conservationTier: species.conservation_status as any,
+              photoUri: userCard?.hero_photo_url ?? null,
               size: species.size,
-              about: species.about,
+              about: species.about_text,
               firstSight: isSpotted
-                ? formatDate(userCard!.firstSeenAt)
+                ? formatDate(userCard!.first_seen_at)
                 : undefined,
-              sightingCount: userCard?.sightingCount,
+              sightingCount: userCard?.sighting_count,
               locked: !isSpotted,
             }}
             testID="card-detail-bird-card"
@@ -105,7 +104,7 @@ export const CardDetailScreen: React.FC = () => {
                     color={Colors.ink}
                     testID={`sighting-location-${sighting.id}`}
                   >
-                    {sighting.namedLocation}
+                    {sighting.named_location ?? "Unknown location"}
                   </Text>
                   <Text
                     variant="regular"
@@ -113,7 +112,7 @@ export const CardDetailScreen: React.FC = () => {
                     color={Colors.inkSoft}
                     testID={`sighting-date-${sighting.id}`}
                   >
-                    {formatDateTime(sighting.capturedAt)}
+                    {formatDateTime(sighting.captured_at)}
                   </Text>
                 </View>
               </View>

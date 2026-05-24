@@ -4,6 +4,7 @@
  */
 
 import { supabase } from "./supabase";
+import { logger } from "./logger";
 import type {
   IdentifyBirdResponse,
   ConfirmSightingRequest,
@@ -54,6 +55,8 @@ async function invokeFunction<T>(
     }
   }
 
+  logger.info(`Invoking edge function: ${functionName}`, { method, params });
+
   const { data, error } = await supabase.functions.invoke<T>(
     `${functionName}${queryString}`,
     {
@@ -67,13 +70,17 @@ async function invokeFunction<T>(
   );
 
   if (error) {
+    const status = (error as any).status ?? 500;
+    const code = (error as any).code;
+    logger.error(`Edge function ${functionName} failed`, { status, code, message: error.message });
     throw new ApiError(
       error.message ?? "Edge function error",
-      (error as any).status ?? 500,
-      (error as any).code
+      status,
+      code
     );
   }
 
+  logger.info(`Edge function ${functionName} succeeded`);
   return data as T;
 }
 
@@ -87,6 +94,7 @@ export async function identifyBird(
   imageFile: { uri: string; type: string; name: string },
   location?: { lat: number; lon: number }
 ): Promise<IdentifyBirdResponse> {
+  logger.info("Identifying bird", { hasLocation: !!location });
   const formData = new FormData();
   formData.append("image", imageFile as any);
   if (location) {
@@ -106,6 +114,7 @@ export async function identifyBird(
 export async function confirmSighting(
   request: ConfirmSightingRequest
 ): Promise<ConfirmSightingResponse> {
+  logger.info("Confirming sighting", { speciesId: (request as any).species_id });
   return invokeFunction<ConfirmSightingResponse>("confirm-sighting", {
     body: request as unknown as Record<string, unknown>,
   });
@@ -117,6 +126,7 @@ export async function confirmSighting(
 export async function fetchExploreSpecies(
   params: ExploreSpeciesParams
 ): Promise<ExploreSpeciesResponse> {
+  logger.info("Fetching explore species", { lat: params.lat, lon: params.lon, mode: params.mode });
   return invokeFunction<ExploreSpeciesResponse>("explore-species", {
     method: "GET",
     params: {
@@ -135,6 +145,7 @@ export async function fetchExploreSpecies(
  * Permanently delete the current user's account and all data.
  */
 export async function deleteAccount(): Promise<DeleteAccountResponse> {
+  logger.warn("Deleting user account");
   return invokeFunction<DeleteAccountResponse>("delete-account");
 }
 
@@ -153,7 +164,10 @@ export async function fetchProfile(): Promise<Profile | null> {
     .eq("id", user.id)
     .single();
 
-  if (error) throw new ApiError(error.message, 500, error.code);
+  if (error) {
+    logger.error("Failed to fetch profile", { code: error.code, message: error.message });
+    throw new ApiError(error.message, 500, error.code);
+  }
   return data as Profile;
 }
 
@@ -170,7 +184,10 @@ export async function fetchStreak(): Promise<Streak | null> {
     .eq("user_id", user.id)
     .single();
 
-  if (error) throw new ApiError(error.message, 500, error.code);
+  if (error) {
+    logger.error("Failed to fetch streak", { code: error.code, message: error.message });
+    throw new ApiError(error.message, 500, error.code);
+  }
   return data as Streak;
 }
 
@@ -187,7 +204,10 @@ export async function fetchCards(): Promise<Card[]> {
     .eq("user_id", user.id)
     .order("last_seen_at", { ascending: false });
 
-  if (error) throw new ApiError(error.message, 500, error.code);
+  if (error) {
+    logger.error("Failed to fetch cards", { code: error.code, message: error.message });
+    throw new ApiError(error.message, 500, error.code);
+  }
   return (data ?? []) as Card[];
 }
 
@@ -207,7 +227,10 @@ export async function fetchSightingsForSpecies(
     .eq("species_id", speciesId)
     .order("captured_at", { ascending: false });
 
-  if (error) throw new ApiError(error.message, 500, error.code);
+  if (error) {
+    logger.error("Failed to fetch sightings for species", { speciesId, code: error.code, message: error.message });
+    throw new ApiError(error.message, 500, error.code);
+  }
   return (data ?? []) as Sighting[];
 }
 
@@ -224,7 +247,10 @@ export async function fetchAchievements(): Promise<UserAchievement[]> {
     .eq("user_id", user.id)
     .order("unlocked_at", { ascending: false, nullsFirst: false });
 
-  if (error) throw new ApiError(error.message, 500, error.code);
+  if (error) {
+    logger.error("Failed to fetch achievements", { code: error.code, message: error.message });
+    throw new ApiError(error.message, 500, error.code);
+  }
   return (data ?? []) as UserAchievement[];
 }
 
@@ -240,7 +266,10 @@ export async function fetchSpecies(speciesId: string): Promise<
     .eq("id", speciesId)
     .single();
 
-  if (error) throw new ApiError(error.message, 500, error.code);
+  if (error) {
+    logger.error("Failed to fetch species", { speciesId, code: error.code, message: error.message });
+    throw new ApiError(error.message, 500, error.code);
+  }
 
   const row = data as any;
   return {
@@ -261,7 +290,10 @@ export async function fetchAllSpecies(): Promise<
     )
     .order("common_name");
 
-  if (error) throw new ApiError(error.message, 500, error.code);
+  if (error) {
+    logger.error("Failed to fetch all species", { code: error.code, message: error.message });
+    throw new ApiError(error.message, 500, error.code);
+  }
 
   return ((data ?? []) as any[]).map((row) => ({
     ...row,
@@ -286,6 +318,9 @@ export async function fetchRecentSightings(
     .order("captured_at", { ascending: false })
     .limit(limit);
 
-  if (error) throw new ApiError(error.message, 500, error.code);
+  if (error) {
+    logger.error("Failed to fetch recent sightings", { code: error.code, message: error.message });
+    throw new ApiError(error.message, 500, error.code);
+  }
   return (data ?? []) as (Sighting & { species: Species })[];
 }

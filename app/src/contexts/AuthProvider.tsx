@@ -5,10 +5,19 @@ import React, {
   useState,
   useCallback,
 } from "react";
-import { Alert, Platform } from "react-native";
+import * as AppleAuthentication from "expo-apple-authentication";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import Toast from "react-native-toast-message";
 import { supabase } from "../services/supabase";
+import { logger } from "../services/logger";
+import { ENV } from "../config/env";
 import type { Session, User } from "@supabase/supabase-js";
 import type { Profile } from "../types/api";
+
+GoogleSignin.configure({
+  iosClientId: ENV.GOOGLE_IOS_CLIENT_ID,
+  webClientId: ENV.GOOGLE_WEB_CLIENT_ID,
+});
 
 type AuthContextType = {
   isSignedIn: boolean;
@@ -44,13 +53,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Fetch profile from DB
   const fetchProfile = useCallback(async (userId: string) => {
+    logger.info("Fetching user profile", { userId });
     const { data, error } = await supabase
       .from("profiles")
       .select("*")
       .eq("id", userId)
       .single();
 
-    if (!error && data) {
+    if (error) {
+      logger.error("Failed to fetch profile in auth context", {
+        userId,
+        code: error.code,
+        message: error.message,
+      });
+      return;
+    }
+    if (data) {
       setProfile(data as Profile);
     }
   }, []);
@@ -76,7 +94,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     // Subscribe to changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, s) => {
+    } = supabase.auth.onAuthStateChange((event, s) => {
+      logger.info("Auth state changed", { event, userId: s?.user?.id });
       setSession(s);
       setUser(s?.user ?? null);
       if (s?.user) {
@@ -90,35 +109,110 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     return () => subscription.unsubscribe();
   }, [fetchProfile]);
 
-  // OAuth sign-in methods
+  // Native Apple sign-in → ID token → Supabase
   const signInWithApple = useCallback(async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "apple",
-      options: {
-        skipBrowserRedirect: Platform.OS !== "web",
-      },
-    });
-    if (error) {
-      Alert.alert("Sign in failed", error.message);
+    logger.info("Signing in with Apple");
+    try {
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+
+      if (!credential.identityToken) {
+        logger.error("Apple sign-in returned no identity token");
+        Toast.show({
+          type: "error",
+          text1: "Sign in failed",
+          text2: "Something went wrong with Apple. Please try again.",
+        });
+        return;
+      }
+
+      const { error } = await supabase.auth.signInWithIdToken({
+        provider: "apple",
+        token: credential.identityToken,
+      });
+
+      if (error) {
+        logger.error("Apple sign-in failed", { message: error.message });
+        Toast.show({
+          type: "error",
+          text1: "Sign in failed",
+          text2: "We couldn't sign you in. Please try again.",
+        });
+      }
+    } catch (e: any) {
+      if (e.code === "ERR_REQUEST_CANCELED") {
+        logger.info("Apple sign-in cancelled by user");
+        return;
+      }
+      logger.error("Apple sign-in error", { message: e.message });
+      Toast.show({
+        type: "error",
+        text1: "Sign in failed",
+        text2: "Something unexpected happened. Please try again.",
+      });
     }
   }, []);
 
+  // Native Google sign-in → ID token → Supabase
   const signInWithGoogle = useCallback(async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        skipBrowserRedirect: Platform.OS !== "web",
-      },
-    });
-    if (error) {
-      Alert.alert("Sign in failed", error.message);
+    logger.info("Signing in with Google");
+    try {
+      await GoogleSignin.hasPlayServices();
+      await GoogleSignin.signIn();
+      const currentUser = GoogleSignin.getCurrentUser();
+
+      const idToken = currentUser?.idToken;
+      if (!idToken) {
+        logger.error("Google sign-in returned no ID token");
+        Toast.show({
+          type: "error",
+          text1: "Sign in failed",
+          text2: "Something went wrong with Google. Please try again.",
+        });
+        return;
+      }
+
+      const { error } = await supabase.auth.signInWithIdToken({
+        provider: "google",
+        token: idToken,
+      });
+
+      if (error) {
+        logger.error("Google sign-in failed", { message: error.message });
+        Toast.show({
+          type: "error",
+          text1: "Sign in failed",
+          text2: "We couldn't sign you in. Please try again.",
+        });
+      }
+    } catch (e: any) {
+      if (e.code === "SIGN_IN_CANCELLED") {
+        logger.info("Google sign-in cancelled by user");
+        return;
+      }
+      logger.error("Google sign-in error", e.message);
+      Toast.show({
+        type: "error",
+        text1: "Sign in failed",
+        text2: "Something unexpected happened. Please try again.",
+      });
     }
   }, []);
 
   const signOut = useCallback(async () => {
+    logger.info("Signing out");
     const { error } = await supabase.auth.signOut();
     if (error) {
-      Alert.alert("Sign out failed", error.message);
+      logger.error("Sign out failed", { message: error.message });
+      Toast.show({
+        type: "error",
+        text1: "Sign out failed",
+        text2: "We couldn't sign you out. Please try again.",
+      });
     }
   }, []);
 

@@ -18,12 +18,17 @@ const Stack = createNativeStackNavigator<OnboardingStackParamList>();
 // Placeholder complete screen that signals onboarding is done
 const CompleteScreen: React.FC = () => null;
 
-export const OnboardingStack: React.FC = () => (
+export const OnboardingStack: React.FC<{ initialRouteName?: keyof OnboardingStackParamList }> = ({
+  initialRouteName = "Welcome",
+  ...rest
+}) => (
   <Stack.Navigator
+    initialRouteName={initialRouteName}
     screenOptions={{
       headerShown: false,
       animation: "slide_from_right",
     }}
+    {...rest}
   >
     <Stack.Screen name="Welcome" component={WelcomeCarouselScreen} />
     <Stack.Screen name="SignIn" component={SignInScreen} />

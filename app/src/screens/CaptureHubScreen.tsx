@@ -1,14 +1,28 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, StyleSheet, Pressable } from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withTiming,
+  Easing,
+} from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { Binoculars, Flame } from "lucide-react-native";
+import { Binoculars, Flame, Crown } from "lucide-react-native";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { Colors, Spacing, BorderRadius, Shadows, Fonts, FontSizes } from "../theme";
+import {
+  Colors,
+  Spacing,
+  BorderRadius,
+  Shadows,
+  Fonts,
+  FontSizes,
+} from "../theme";
 import { Text, Body, Pill } from "../components/atoms";
-import { DUMMY_STREAK, DUMMY_USER, DUMMY_USER_CARDS } from "../data/dummy";
-import { BirdCardThumb } from "../components/molecules/BirdCard";
+import { useStreak, useProfile } from "../hooks/useApi";
+import { useRevenueCat } from "../contexts/RevenueCatProvider";
 import { ScrollView } from "react-native-gesture-handler";
 import type { CaptureStackParamList } from "../navigation/stacks/CaptureStack";
 
@@ -16,132 +30,116 @@ type Nav = NativeStackNavigationProp<CaptureStackParamList>;
 
 export const CaptureHubScreen: React.FC = () => {
   const navigation = useNavigation<Nav>();
-  const streak = DUMMY_STREAK;
-  const user = DUMMY_USER;
-  const recentCards = DUMMY_USER_CARDS.slice(0, 4);
-  const quotaRemaining = 2;
+  const { data: streakData } = useStreak();
+  const { data: profile } = useProfile();
+  const currentStreak = streakData?.current_streak ?? 0;
+  const lastCapture = streakData?.last_capture_date;
+  const hasCapturedToday =
+    lastCapture === new Date().toISOString().split("T")[0];
+  const isSubscribed = profile?.subscription_tier !== "free";
+  const { presentPaywall } = useRevenueCat();
+  const dailyUsed = profile?.daily_captures_used ?? 0;
+  const quotaRemaining = Math.max(0, 3 - dailyUsed);
+
+  // Pulse animation
+  const pulseScale = useSharedValue(1);
+  useEffect(() => {
+    pulseScale.value = withRepeat(
+      withTiming(1.08, { duration: 1200, easing: Easing.inOut(Easing.ease) }),
+      -1,
+      true,
+    );
+  }, []);
+  const pulseStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: pulseScale.value }],
+  }));
 
   return (
     <SafeAreaView style={styles.container} testID="capture-hub-screen">
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Wordmark */}
+      {/* Top header bar */}
+      <View style={styles.headerBar}>
         <Text
           variant="bold"
-          size="3xl"
+          size="2xl"
           color={Colors.sage}
-          align="center"
           testID="capture-hub-wordmark"
         >
           birdr
         </Text>
 
-        <Text
-          variant="regular"
-          size="sm"
-          color={Colors.inkSoft}
-          align="center"
-          testID="capture-hub-tagline"
-          style={{ marginTop: Spacing.xs }}
-        >
-          Every bird tells a story
-        </Text>
-
-        {/* Streak chip */}
-        <View style={styles.streakChip} testID="capture-hub-streak-chip">
-          <Flame size={18} color={Colors.coral} strokeWidth={2} />
-          <Text variant="bold" size="lg" color={Colors.ink} testID="capture-hub-streak-count">
-            {String(streak.currentStreak)}
-          </Text>
-          <Text variant="regular" size="sm" color={Colors.inkSoft} testID="capture-hub-streak-label">
-            day streak
-          </Text>
-        </View>
-
-        {/* Today's status */}
-        <View style={styles.statusCard} testID="capture-hub-status">
-          <Text
-            variant="medium"
-            size="sm"
-            color={streak.hasCapturedToday ? Colors.sage : Colors.coral}
-            align="center"
-            testID="capture-hub-status-text"
-          >
-            {streak.hasCapturedToday
-              ? "Streak safe today"
-              : "Capture today to keep your streak"}
-          </Text>
-        </View>
-
-        {/* Big capture button */}
+        {/* Streak chip — tappable */}
         <Pressable
-          style={({ pressed }) => [
-            styles.captureButton,
-            pressed && { transform: [{ scale: 0.95 }] },
-          ]}
-          onPress={() => navigation.navigate("CaptureFlow")}
-          testID="capture-hub-capture-button"
-          accessible
-          accessibilityRole="button"
-          accessibilityLabel="Open camera to capture a bird"
+          style={styles.streakChip}
+          onPress={() => navigation.navigate("StreakDetail")}
+          testID="capture-hub-streak-chip"
         >
-          <LinearGradient
-            colors={[Colors.saffron, "#FFC966"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.captureButtonGradient}
+          <Flame size={28} color={Colors.coral} strokeWidth={2} />
+          <Text
+            variant="bold"
+            size="lg"
+            color={Colors.ink}
+            testID="capture-hub-streak-count"
           >
-            <Binoculars size={40} color={Colors.white} strokeWidth={1.5} />
-          </LinearGradient>
+            {String(currentStreak)}
+          </Text>
         </Pressable>
+      </View>
+
+      <View style={styles.scrollContent}>
+        {/* Big capture button with pulse */}
+        <Animated.View style={[styles.captureButton, pulseStyle]}>
+          <Pressable
+            style={({ pressed }) => [
+              pressed && { transform: [{ scale: 0.95 }] },
+            ]}
+            onPress={() => navigation.navigate("CaptureFlow")}
+            testID="capture-hub-capture-button"
+            accessible
+            accessibilityRole="button"
+            accessibilityLabel="Open camera to capture a bird"
+          >
+            <LinearGradient
+              colors={[Colors.sage, Colors.sageLight]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.captureButtonGradient}
+            >
+              <Binoculars size={40} color={Colors.white} strokeWidth={1.5} />
+            </LinearGradient>
+          </Pressable>
+        </Animated.View>
 
         {/* Daily quota (free tier) */}
-        {!user.isSubscribed && (
-          <View style={styles.quotaRow} testID="capture-hub-quota">
-            <Text variant="regular" size="sm" color={Colors.inkSoft} testID="capture-hub-quota-text">
-              {`${quotaRemaining} of 3 captures left today`}
-            </Text>
-          </View>
-        )}
-
-        {/* Recent captures */}
-        {recentCards.length > 0 && (
-          <View style={styles.recentSection} testID="capture-hub-recent">
-            <Text
-              variant="semiBold"
-              size="base"
-              color={Colors.ink}
-              testID="capture-hub-recent-title"
-              style={{ marginBottom: Spacing.md }}
+        {!isSubscribed && (
+          <>
+            <View style={styles.quotaBadge} testID="capture-hub-quota-badge">
+              <Text
+                variant="medium"
+                size="sm"
+                color={Colors.inkSoft}
+                testID="capture-hub-quota-text"
+              >
+                {`${quotaRemaining} of 3 captures left today`}
+              </Text>
+            </View>
+            <Pressable
+              style={styles.upgradeLink}
+              onPress={presentPaywall}
+              testID="capture-hub-upgrade"
             >
-              Recent captures
-            </Text>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.recentScroll}
-            >
-              {recentCards.map((card) => (
-                <View key={card.speciesId} style={styles.recentCard}>
-                  <BirdCardThumb
-                    data={{
-                      speciesName: card.species.name,
-                      familyName: card.species.familyName,
-                      habitat: card.species.habitat,
-                      conservationTier: card.species.conservationTier,
-                      photoUri: card.heroPhotoUri,
-                      sightingCount: card.sightingCount,
-                    }}
-                    testID={`capture-hub-recent-${card.speciesId}`}
-                  />
-                </View>
-              ))}
-            </ScrollView>
-          </View>
+              <Crown size={14} color={Colors.saffron} strokeWidth={2} />
+              <Text
+                variant="medium"
+                size="sm"
+                color={Colors.saffron}
+                testID="capture-hub-upgrade-text"
+              >
+                Upgrade for unlimited
+              </Text>
+            </Pressable>
+          </>
         )}
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 };
@@ -151,32 +149,43 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.cream,
   },
-  scrollContent: {
-    paddingHorizontal: Spacing.xl,
-    paddingTop: Spacing["3xl"],
-    paddingBottom: Spacing["4xl"],
+  headerBar: {
+    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: Spacing.xl,
+    paddingVertical: Spacing.sm,
   },
   streakChip: {
     flexDirection: "row",
     alignItems: "center",
-    gap: Spacing.xs,
-    marginTop: Spacing["2xl"],
+    gap: Spacing.sm,
     paddingVertical: Spacing.sm,
     paddingHorizontal: Spacing.lg,
     backgroundColor: Colors.white,
     borderRadius: BorderRadius.full,
     ...Shadows.sm,
   },
-  statusCard: {
-    marginTop: Spacing.lg,
-    paddingVertical: Spacing.md,
+  scrollContent: {
+    flex: 1,
     paddingHorizontal: Spacing.xl,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  quotaBadge: {
+    marginTop: Spacing["4xl"],
+    paddingVertical: Spacing.xs,
+    paddingHorizontal: Spacing.lg,
     backgroundColor: Colors.paper,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.full,
+  },
+  upgradeLink: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.xs,
+    marginTop: Spacing.md,
   },
   captureButton: {
-    marginTop: Spacing["3xl"],
     ...Shadows.lg,
   },
   captureButtonGradient: {
@@ -185,20 +194,6 @@ const styles = StyleSheet.create({
     borderRadius: 48,
     alignItems: "center",
     justifyContent: "center",
-  },
-  quotaRow: {
-    marginTop: Spacing.lg,
-    alignItems: "center",
-  },
-  recentSection: {
-    marginTop: Spacing["3xl"],
-    alignSelf: "stretch",
-  },
-  recentScroll: {
-    gap: Spacing.md,
-  },
-  recentCard: {
-    width: 120,
   },
 });
 

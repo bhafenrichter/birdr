@@ -1,12 +1,24 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, StyleSheet, Pressable, Platform } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useNavigation } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Colors, Spacing, BorderRadius, Shadows, Fonts, FontSizes } from "../../theme";
 import { Text } from "../../components/atoms";
 import { useAuth } from "../../contexts/AuthProvider";
+import type { OnboardingStackParamList } from "../../navigation/stacks/OnboardingStack";
+import AppleLogo from "../../../assets/apple-logo.svg";
+import GoogleLogo from "../../../assets/google-logo.svg";
 
 export const SignInScreen: React.FC = () => {
-  const { signInWithApple, signInWithGoogle } = useAuth();
+  const { signInWithApple, signInWithGoogle, isSignedIn } = useAuth();
+  const navigation = useNavigation<NativeStackNavigationProp<OnboardingStackParamList>>();
+
+  useEffect(() => {
+    if (isSignedIn) {
+      navigation.navigate("Permissions");
+    }
+  }, [isSignedIn, navigation]);
 
   return (
     <SafeAreaView style={styles.container} testID="sign-in-screen">
@@ -43,8 +55,9 @@ export const SignInScreen: React.FC = () => {
           accessibilityRole="button"
           accessibilityLabel="Continue with Apple"
         >
+          <AppleLogo width={20} height={20} style={styles.buttonIcon} />
           <Text variant="semiBold" size="base" color={Colors.white} testID="sign-in-apple-label">
-             Continue with Apple
+            Continue with Apple
           </Text>
         </Pressable>
 
@@ -57,6 +70,7 @@ export const SignInScreen: React.FC = () => {
           accessibilityRole="button"
           accessibilityLabel="Continue with Google"
         >
+          <GoogleLogo width={20} height={20} style={styles.buttonIcon} />
           <Text variant="semiBold" size="base" color={Colors.ink} testID="sign-in-google-label">
             Continue with Google
           </Text>
@@ -101,6 +115,9 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.lg,
     borderRadius: BorderRadius.lg,
     ...Shadows.sm,
+  },
+  buttonIcon: {
+    marginRight: Spacing.sm,
   },
   googleButton: {
     flexDirection: "row",

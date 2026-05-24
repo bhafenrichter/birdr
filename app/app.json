@@ -9,7 +9,7 @@
     "scheme": "birdr",
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.birdr.app"
+      "bundleIdentifier": "com.hoftware.birdr"
     },
     "android": {
       "adaptiveIcon": {
@@ -18,7 +18,7 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "package": "com.birdr.app",
+      "package": "com.hoftware.birdr",
       "predictiveBackGestureEnabled": false
     },
     "web": {
@@ -28,7 +28,13 @@
       "expo-font",
       "expo-image",
       "expo-splash-screen",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.190604400136-sn3c769di33nr2sdaopjplfbvm7mnkg9"
+        }
+      ]
     ]
   }
 }

@@ -1,6 +1,7 @@
 import React from "react";
 import { View, StyleSheet, ScrollView, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { LinearGradient } from "expo-linear-gradient";
 import {
   Award,
   Flame,
@@ -14,19 +15,45 @@ import {
 } from "lucide-react-native";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { Colors, Spacing, BorderRadius, Shadows, Fonts, FontSizes } from "../theme";
+import {
+  Colors,
+  Spacing,
+  BorderRadius,
+  Shadows,
+  Fonts,
+  FontSizes,
+} from "../theme";
 import { Text, PrimaryButton } from "../components/atoms";
-import { DUMMY_USER, DUMMY_STREAK, DUMMY_ACHIEVEMENTS } from "../data/dummy";
+import Svg, { Path } from "react-native-svg";
+import {
+  useProfile,
+  useStreak,
+  useAchievements,
+  useCards,
+} from "../hooks/useApi";
+import { useRevenueCat } from "../contexts/RevenueCatProvider";
 import type { ProfileStackParamList } from "../navigation/stacks/ProfileStack";
 
 type Nav = NativeStackNavigationProp<ProfileStackParamList>;
 
 export const ProfileScreen: React.FC = () => {
   const navigation = useNavigation<Nav>();
-  const user = DUMMY_USER;
-  const streak = DUMMY_STREAK;
-  const unlockedCount = DUMMY_ACHIEVEMENTS.filter((a) => a.unlockedAt).length;
-  const totalCount = DUMMY_ACHIEVEMENTS.length;
+  const { data: profile } = useProfile();
+  const { data: streakData } = useStreak();
+  const { data: achievements } = useAchievements();
+  const { data: cards } = useCards();
+  const { presentPaywall } = useRevenueCat();
+
+  const displayName = profile?.display_name ?? "Birder";
+  const initial = displayName.charAt(0).toUpperCase();
+  const memberSince = profile?.created_at ?? new Date().toISOString();
+  const isSubscribed = profile?.subscription_tier !== "free";
+  const currentStreak = streakData?.current_streak ?? 0;
+  const totalCaptures =
+    cards?.reduce((sum, c) => sum + c.sighting_count, 0) ?? 0;
+  const totalSpecies = cards?.length ?? 0;
+  const unlockedCount = achievements?.filter((a) => a.unlocked_at).length ?? 0;
+  const totalCount = achievements?.length ?? 0;
 
   return (
     <SafeAreaView style={styles.container} testID="profile-screen">
@@ -36,9 +63,27 @@ export const ProfileScreen: React.FC = () => {
       >
         {/* Avatar + name */}
         <View style={styles.avatarSection} testID="profile-avatar-section">
-          <View style={styles.avatar}>
-            <Text variant="bold" size="xl" color={Colors.white} testID="profile-avatar-initial">
-              {user.initial}
+          <View style={styles.avatar} testID="profile-avatar">
+            <Svg
+              width={64}
+              height={76}
+              viewBox="0 0 64 76"
+              style={StyleSheet.absoluteFill}
+            >
+              <Path
+                d="M32 2 C18 2, 4 20, 4 42 C4 60, 16 74, 32 74 C48 74, 60 60, 60 42 C60 20, 46 2, 32 2 Z"
+                fill={Colors.white}
+                stroke={Colors.sageTint}
+                strokeWidth={2}
+              />
+            </Svg>
+            <Text
+              variant="bold"
+              size="xl"
+              color={Colors.sage}
+              testID="profile-avatar-initial"
+            >
+              {initial}
             </Text>
           </View>
           <Text
@@ -47,7 +92,7 @@ export const ProfileScreen: React.FC = () => {
             color={Colors.ink}
             testID="profile-display-name"
           >
-            {user.displayName}
+            {displayName}
           </Text>
           <Text
             variant="regular"
@@ -55,50 +100,58 @@ export const ProfileScreen: React.FC = () => {
             color={Colors.inkSoft}
             testID="profile-member-since"
           >
-            {`Member since ${formatDate(user.memberSince)}`}
+            {`Birdr since ${formatDate(memberSince)}`}
           </Text>
         </View>
 
         {/* Stats trio */}
         <View style={styles.statsTrio} testID="profile-stats">
           <StatBlock
-            value={String(user.totalCaptures)}
+            value={String(totalCaptures)}
             label="Captures"
             testID="profile-stat-captures"
           />
           <StatBlock
-            value={String(user.totalSpecies)}
+            value={String(totalSpecies)}
             label="Species"
             testID="profile-stat-species"
           />
           <StatBlock
-            value={String(streak.currentStreak)}
+            value={String(currentStreak)}
             label="Streak"
             testID="profile-stat-streak"
           />
         </View>
 
         {/* Subscription banner (free users) */}
-        {!user.isSubscribed && (
-          <Pressable
-            style={styles.upgradeBanner}
-            testID="profile-upgrade-banner"
-            onPress={() => navigation.navigate("Subscription")}
-          >
-            <View style={styles.upgradeBannerContent}>
-              <Text variant="semiBold" size="base" color={Colors.white} testID="profile-upgrade-title">
-                Unlock unlimited captures
-              </Text>
-              <Text
-                variant="regular"
-                size="xs"
-                color="rgba(255,255,255,0.8)"
-                testID="profile-upgrade-subtitle"
-              >
-                From $2.50/month with the yearly plan
-              </Text>
-            </View>
-            <ChevronRight size={20} color={Colors.white} />
+        {!isSubscribed && (
+          <Pressable testID="profile-upgrade-banner" onPress={presentPaywall}>
+            <LinearGradient
+              colors={[Colors.sage, Colors.sageLight]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.upgradeBanner}
+            >
+              <View style={styles.upgradeBannerContent}>
+                <Text
+                  variant="semiBold"
+                  size="base"
+                  color={Colors.white}
+                  testID="profile-upgrade-title"
+                >
+                  Unlock unlimited captures
+                </Text>
+                <Text
+                  variant="regular"
+                  size="xs"
+                  color="rgba(255,255,255,0.8)"
+                  testID="profile-upgrade-subtitle"
+                >
+                  From $2.50/month with the yearly plan
+                </Text>
+              </View>
+              <ChevronRight size={20} color={Colors.white} />
+            </LinearGradient>
           </Pressable>
         )}
 
@@ -112,11 +165,11 @@ export const ProfileScreen: React.FC = () => {
           />
           <ProfileRow
             icon={Flame}
-            label={`Streak · ${streak.currentStreak} days`}
+            label={`Streak · ${currentStreak} days`}
             onPress={() => navigation.navigate("StreakDetail")}
             testID="profile-row-streak"
           />
-          {user.isSubscribed ? (
+          {isSubscribed ? (
             <ProfileRow
               icon={CreditCard}
               label="Manage subscription"
@@ -153,7 +206,7 @@ export const ProfileScreen: React.FC = () => {
           <ProfileRow
             icon={LogOut}
             label="Sign out"
-            onPress={() => {}}
+            onPress={() => navigation.navigate("SignOutConfirm")}
             testID="profile-row-signout"
           />
           <ProfileRow
@@ -177,7 +230,12 @@ const StatBlock: React.FC<{
   testID: string;
 }> = ({ value, label, testID }) => (
   <View style={styles.statBlock} testID={testID}>
-    <Text variant="bold" size="xl" color={Colors.ink} testID={`${testID}-value`}>
+    <Text
+      variant="bold"
+      size="xl"
+      color={Colors.ink}
+      testID={`${testID}-value`}
+    >
       {value}
     </Text>
     <Text
@@ -198,11 +256,7 @@ const ProfileRow: React.FC<{
   destructive?: boolean;
   testID: string;
 }> = ({ icon: IconComp, label, onPress, destructive, testID }) => (
-  <Pressable
-    style={styles.profileRow}
-    onPress={onPress}
-    testID={testID}
-  >
+  <Pressable style={styles.profileRow} onPress={onPress} testID={testID}>
     <IconComp
       size={20}
       color={destructive ? Colors.coral : Colors.inkSoft}
@@ -232,6 +286,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.cream,
   },
   scrollContent: {
+    flexGrow: 1,
     paddingHorizontal: Spacing.xl,
     paddingTop: Spacing.lg,
     paddingBottom: Spacing["4xl"],
@@ -242,9 +297,7 @@ const styles = StyleSheet.create({
   },
   avatar: {
     width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: Colors.sage,
+    height: 76,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: Spacing.md,
@@ -265,8 +318,8 @@ const styles = StyleSheet.create({
   upgradeBanner: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: Colors.saffron,
     borderRadius: BorderRadius.xl,
+    overflow: "hidden",
     paddingVertical: Spacing.lg,
     paddingHorizontal: Spacing.xl,
     marginBottom: Spacing.xl,

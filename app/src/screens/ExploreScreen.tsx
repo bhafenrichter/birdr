@@ -1,19 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, StyleSheet, Pressable } from "react-native";
+import * as Location from "expo-location";
 import { FlashList } from "@shopify/flash-list";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Check, MapPin } from "lucide-react-native";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import type { NativeStackNavigationProp, NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Colors, Spacing, BorderRadius, Shadows, Fonts, FontSizes } from "../theme";
-import { Text, SegmentedControl, Pill } from "../components/atoms";
-import {
-  DUMMY_EXPLORE_LIST,
-  DUMMY_SIGHTINGS,
-  DUMMY_USER,
-  type ExploreSpecies,
-} from "../data/dummy";
+import { Text, SegmentedControl, Pill, LocationCard } from "../components/atoms";
+import { useExploreSpecies, useProfile, useCards } from "../hooks/useApi";
+import type { ExploreStackParamList } from "../navigation/stacks/ExploreStack";
+
+type Nav = NativeStackNavigationProp<ExploreStackParamList>;
 
 export const ExploreScreen: React.FC = () => {
   const [segmentIndex, setSegmentIndex] = useState(0);
+  const navigation = useNavigation<Nav>();
+  const route = useRoute<NativeStackScreenProps<ExploreStackParamList, "ExploreHome">["route"]>();
 
   return (
     <SafeAreaView style={styles.container} testID="explore-screen">
@@ -40,7 +43,7 @@ export const ExploreScreen: React.FC = () => {
       </View>
 
       {segmentIndex === 0 ? (
-        <NearMeView />
+        <NearMeView navigation={navigation} routeParams={route.params} />
       ) : (
         <MyMapView />
       )}
@@ -50,74 +53,165 @@ export const ExploreScreen: React.FC = () => {
 
 // ── Near Me ────────────────────────────────────────────────────────────────
 
-const NearMeView: React.FC = () => {
-  const list = DUMMY_EXPLORE_LIST;
-  const unspottedCount = list.filter((e) => !e.spotted).length;
+const NearMeView: React.FC<{
+  navigation: Nav;
+  routeParams?: { lat?: number; lon?: number; name?: string };
+}> = ({ navigation, routeParams }) => {
+  const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null);
+  const [locationName, setLocationName] = useState<string>("Finding location...");
+  const [locationError, setLocationError] = useState(false);
+
+  useEffect(() => {
+    if (routeParams?.lat && routeParams?.lon) {
+      setLocation({ lat: routeParams.lat, lon: routeParams.lon });
+      setLocationName(routeParams.name ?? "Selected location");
+      return;
+    }
+
+    (async () => {
+      const { status } = await Location.getForegroundPermissionsAsync();
+      if (status !== "granted") {
+        setLocationError(true);
+        return;
+      }
+      try {
+        const pos = await Location.getCurrentPositionAsync({});
+        setLocation({ lat: pos.coords.latitude, lon: pos.coords.longitude });
+        const [place] = await Location.reverseGeocodeAsync({
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+        });
+        if (place) {
+          setLocationName([place.city, place.region].filter(Boolean).join(", ") || "Current location");
+        }
+      } catch {
+        setLocationError(true);
+      }
+    })();
+  }, [routeParams?.lat, routeParams?.lon]);
+
+  const params = location ? { lat: location.lat, lon: location.lon, mode: "near_me" as const } : null;
+  const { data: exploreData, isLoading } = useExploreSpecies(params);
+  const list = exploreData?.species ?? [];
+
+  if (locationError) {
+    return (
+      <View style={styles.emptyState} testID="explore-no-location">
+        <MapPin size={40} color={Colors.inkFaint} strokeWidth={1} />
+        <Text
+          variant="semiBold"
+          size="lg"
+          color={Colors.ink}
+          align="center"
+          testID="explore-no-location-title"
+          style={{ marginTop: Spacing.lg }}
+        >
+          Location needed
+        </Text>
+        <Text
+          variant="regular"
+          size="sm"
+          color={Colors.inkSoft}
+          align="center"
+          testID="explore-no-location-body"
+          style={{ marginTop: Spacing.sm }}
+        >
+          Enable location access so we can show birds near you
+        </Text>
+      </View>
+    );
+  }
+
+  if (isLoading || !location) {
+    return (
+      <View style={styles.emptyState} testID="explore-loading">
+        <Text variant="regular" size="sm" color={Colors.inkSoft} testID="explore-loading-text">
+          Finding birds near you...
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1 }} testID="explore-near-me">
-      {/* Context header */}
-      <View style={styles.contextHeader}>
-        <Text
-          variant="medium"
-          size="sm"
-          color={Colors.inkSoft}
-          testID="explore-context"
-        >
-          {`Spring near Asheville, NC · ${list.length} species expected`}
-        </Text>
+      {/* Location card — tappable */}
+      <View style={styles.locationWrapper}>
+        <LocationCard
+          locationName={exploreData?.header?.location_name ?? locationName}
+          subtitle={
+            exploreData?.header
+              ? `${exploreData.header.season} · ${exploreData.header.total_species} species expected`
+              : undefined
+          }
+          onPress={() => navigation.navigate("LocationPicker")}
+          testID="explore-location"
+        />
       </View>
 
-      <FlashList
-        data={list}
-        keyExtractor={(item) => item.species.id}
-        contentContainerStyle={styles.listContent}
-        showsVerticalScrollIndicator={false}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-        renderItem={({ item }) => <SpeciesRow item={item} />}
-      />
+      {list.length === 0 ? (
+        <View style={styles.emptyState} testID="explore-empty">
+          <Text variant="semiBold" size="lg" color={Colors.ink} align="center" testID="explore-empty-title">
+            No birds found
+          </Text>
+          <Text
+            variant="regular"
+            size="sm"
+            color={Colors.inkSoft}
+            align="center"
+            testID="explore-empty-body"
+            style={{ marginTop: Spacing.sm }}
+          >
+            We don't have species data for this area yet
+          </Text>
+        </View>
+      ) : (
+        <FlashList
+          data={list}
+          keyExtractor={(item) => item.species_id}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          renderItem={({ item }) => <SpeciesRow item={item} />}
+        />
+      )}
+
     </View>
   );
 };
 
-const SpeciesRow: React.FC<{ item: ExploreSpecies }> = ({ item }) => {
-  const { species, seasonality, spotted } = item;
-
+const SpeciesRow: React.FC<{ item: any }> = ({ item }) => {
   return (
     <Pressable
       style={styles.speciesRow}
-      testID={`explore-species-${species.id}`}
+      testID={`explore-species-${item.species_id}`}
     >
-      {/* Reference illustration placeholder */}
       <View style={styles.speciesAvatar}>
-        <Text variant="bold" size="lg" color={Colors.white} testID={`explore-avatar-${species.id}`}>
-          {species.name.charAt(0)}
+        <Text variant="bold" size="lg" color={Colors.white} testID={`explore-avatar-${item.species_id}`}>
+          {item.common_name.charAt(0)}
         </Text>
       </View>
 
-      {/* Info */}
       <View style={styles.speciesInfo}>
         <Text
           variant="medium"
           size="base"
           color={Colors.ink}
-          testID={`explore-name-${species.id}`}
+          testID={`explore-name-${item.species_id}`}
         >
-          {species.name}
+          {item.common_name}
         </Text>
         <Text
           variant="regular"
           size="xs"
           color={Colors.inkSoft}
-          testID={`explore-meta-${species.id}`}
+          testID={`explore-meta-${item.species_id}`}
         >
-          {`${species.speciesType} · ${seasonality}`}
+          {`${item.species_type} · ${item.season}`}
         </Text>
       </View>
 
-      {/* Status */}
-      {spotted ? (
-        <View style={styles.spottedBadge} testID={`explore-spotted-${species.id}`}>
+      {item.spotted ? (
+        <View style={styles.spottedBadge} testID={`explore-spotted-${item.species_id}`}>
           <Check size={14} color={Colors.white} strokeWidth={2.5} />
         </View>
       ) : (
@@ -125,7 +219,7 @@ const SpeciesRow: React.FC<{ item: ExploreSpecies }> = ({ item }) => {
           variant="regular"
           size="xs"
           color={Colors.inkFaint}
-          testID={`explore-unspotted-${species.id}`}
+          testID={`explore-unspotted-${item.species_id}`}
         >
           Not yet
         </Text>
@@ -137,28 +231,27 @@ const SpeciesRow: React.FC<{ item: ExploreSpecies }> = ({ item }) => {
 // ── My Map ─────────────────────────────────────────────────────────────────
 
 const MyMapView: React.FC = () => {
-  const user = DUMMY_USER;
-  const sightings = DUMMY_SIGHTINGS;
-  const uniqueStates = new Set(
-    sightings.map((s) => s.namedLocation.split(", ").pop())
-  );
+  const { data: cards } = useCards();
+  const allCards = cards ?? [];
+  const totalCaptures = allCards.reduce((sum, c) => sum + c.sighting_count, 0);
+  const totalSpecies = allCards.length;
 
   return (
     <View style={styles.myMapContainer} testID="explore-my-map">
       {/* Stats trio */}
       <View style={styles.statsTrio}>
         <StatBlock
-          value={String(user.totalCaptures)}
+          value={String(totalCaptures)}
           label="Captures"
           testID="explore-stat-captures"
         />
         <StatBlock
-          value={String(user.totalSpecies)}
+          value={String(totalSpecies)}
           label="Species"
           testID="explore-stat-species"
         />
         <StatBlock
-          value={String(uniqueStates.size)}
+          value="—"
           label="States"
           testID="explore-stat-states"
         />
@@ -185,7 +278,7 @@ const MyMapView: React.FC = () => {
           testID="explore-map-placeholder-sub"
           style={{ marginTop: Spacing.xs }}
         >
-          {`${sightings.length} sightings across ${uniqueStates.size} state${uniqueStates.size !== 1 ? "s" : ""}`}
+          {`${totalCaptures} sightings`}
         </Text>
       </View>
     </View>
@@ -226,9 +319,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.xl,
     paddingBottom: Spacing.md,
   },
-  contextHeader: {
+  locationWrapper: {
     paddingHorizontal: Spacing.xl,
-    paddingBottom: Spacing.md,
+    marginBottom: Spacing.md,
   },
   listContent: {
     paddingHorizontal: Spacing.xl,
@@ -280,6 +373,12 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     borderRadius: BorderRadius.lg,
     ...Shadows.sm,
+  },
+  emptyState: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: Spacing.xl,
   },
   mapPlaceholder: {
     flex: 1,

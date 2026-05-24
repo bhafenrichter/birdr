@@ -1,5 +1,6 @@
 import React from "react";
-import { Pressable, ViewStyle } from "react-native";
+import { Pressable, View, ViewStyle } from "react-native";
+import { MapPin } from "lucide-react-native";
 import { Colors, Spacing, BorderRadius } from "../../theme";
 import { Text } from "./Text";
 
@@ -18,7 +19,10 @@ export const HabitatPill: React.FC<HabitatPillProps> = ({
 }) => {
   const containerStyle: ViewStyle = {
     alignSelf: "flex-start",
-    paddingVertical: Spacing.xs,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.xs,
+    paddingVertical: Spacing.sm,
     paddingHorizontal: Spacing.md,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
@@ -36,9 +40,10 @@ export const HabitatPill: React.FC<HabitatPillProps> = ({
       accessibilityLabel={`Habitat: ${habitat}`}
       accessibilityState={{ selected: active }}
     >
+      <MapPin size={14} color={active ? Colors.sage : Colors.inkSoft} strokeWidth={2} />
       <Text
         variant="medium"
-        size="xs"
+        size="sm"
         color={active ? Colors.sage : Colors.inkSoft}
         testID={`${testID}-label`}
       >

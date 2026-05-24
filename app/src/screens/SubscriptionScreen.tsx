@@ -5,7 +5,7 @@ import { useNavigation } from "@react-navigation/native";
 import { ArrowLeft, Check, X } from "lucide-react-native";
 import { Colors, Spacing, BorderRadius, Shadows, Fonts, FontSizes } from "../theme";
 import { Text, CircleBtn, PrimaryButton, GhostButton } from "../components/atoms";
-import { DUMMY_USER } from "../data/dummy";
+import { useProfile } from "../hooks/useApi";
 
 type Plan = "free" | "weekly" | "yearly";
 
@@ -47,7 +47,8 @@ const FEATURES = [
 
 export const SubscriptionScreen: React.FC = () => {
   const navigation = useNavigation();
-  const user = DUMMY_USER;
+  const { data: profile } = useProfile();
+  const isSubscribed = profile?.subscription_tier !== "free";
   const [selectedPlan, setSelectedPlan] = useState<Plan>("yearly");
 
   return (
@@ -68,7 +69,7 @@ export const SubscriptionScreen: React.FC = () => {
           color={Colors.ink}
           testID="subscription-title"
         >
-          {user.isSubscribed ? "Your plan" : "Upgrade"}
+          {isSubscribed ? "Your plan" : "Upgrade"}
         </Text>
         <View style={{ width: 36 }} />
       </View>
@@ -103,8 +104,8 @@ export const SubscriptionScreen: React.FC = () => {
           {PLANS.map((plan) => {
             const isSelected = selectedPlan === plan.id;
             const isCurrent =
-              (user.isSubscribed && plan.id === "yearly") ||
-              (!user.isSubscribed && plan.id === "free");
+              (isSubscribed && plan.id === "yearly") ||
+              (!isSubscribed && plan.id === "free");
 
             return (
               <Pressable

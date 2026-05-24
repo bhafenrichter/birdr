@@ -21,12 +21,7 @@ import {
 } from "../theme";
 import { Text, SegmentedControl } from "../components/atoms";
 import { BirdCardThumb } from "../components/molecules/BirdCard";
-import {
-  DUMMY_USER_CARDS,
-  DUMMY_SPECIES,
-  type UserCard,
-  type Species,
-} from "../data/dummy";
+import { useCards, useAllSpecies } from "../hooks/useApi";
 import type { CollectionStackParamList } from "../navigation/stacks/CollectionStack";
 
 type Nav = NativeStackNavigationProp<CollectionStackParamList>;
@@ -36,24 +31,29 @@ export const CollectionScreen: React.FC = () => {
   const [segmentIndex, setSegmentIndex] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const spottedCards = DUMMY_USER_CARDS;
-  const spottedIds = new Set(spottedCards.map((c) => c.speciesId));
+  const { data: cards } = useCards();
+  const { data: allSpecies } = useAllSpecies();
+  const spottedCards = cards ?? [];
+  const species = allSpecies ?? [];
+  const spottedIds = new Set(spottedCards.map((c) => c.species_id));
 
   const filteredSpotted = useMemo(
     () =>
-      spottedCards.filter((c) =>
-        c.species.name.toLowerCase().includes(searchQuery.toLowerCase())
-      ),
-    [searchQuery]
+      spottedCards.filter((c) => {
+        const sp = species.find((s) => s.id === c.species_id);
+        return sp?.common_name.toLowerCase().includes(searchQuery.toLowerCase());
+      }),
+    [searchQuery, spottedCards, species]
   );
 
   // All NA: group by habitat, mark spotted/locked
   const allNAByHabitat = useMemo(() => {
-    const groups = new Map<string, { species: Species; spotted: boolean }[]>();
-    for (const sp of DUMMY_SPECIES) {
-      const list = groups.get(sp.habitat) ?? [];
+    const groups = new Map<string, { species: typeof species[0]; spotted: boolean }[]>();
+    for (const sp of species) {
+      const habitat = sp.habitat_name;
+      const list = groups.get(habitat) ?? [];
       list.push({ species: sp, spotted: spottedIds.has(sp.id) });
-      groups.set(sp.habitat, list);
+      groups.set(habitat, list);
     }
     return Array.from(groups.entries()).map(([habitat, items]) => ({
       habitat,
@@ -61,11 +61,11 @@ export const CollectionScreen: React.FC = () => {
       spotted: items.filter((i) => i.spotted).length,
       total: items.length,
     }));
-  }, []);
+  }, [species, spottedIds]);
 
   const segments = [
     `Spotted · ${spottedCards.length}`,
-    `All NA · ${DUMMY_SPECIES.length}`,
+    `All NA · ${species.length}`,
   ];
 
   const handleCardPress = (speciesId: string) => {
@@ -141,29 +141,32 @@ export const CollectionScreen: React.FC = () => {
         ) : (
           <FlashList
             data={filteredSpotted}
-            keyExtractor={(item) => item.speciesId}
+            keyExtractor={(item) => item.species_id}
             numColumns={3}
             contentContainerStyle={styles.gridContent}
             showsVerticalScrollIndicator={false}
-            renderItem={({ item }) => (
-              <Pressable
-                style={styles.gridCell}
-                onPress={() => handleCardPress(item.speciesId)}
-                testID={`collection-card-${item.speciesId}`}
-              >
-                <BirdCardThumb
-                  data={{
-                    speciesName: item.species.name,
-                    familyName: item.species.familyName,
-                    habitat: item.species.habitat,
-                    conservationTier: item.species.conservationTier,
-                    photoUri: item.heroPhotoUri,
-                    sightingCount: item.sightingCount,
-                  }}
-                  testID={`collection-thumb-${item.speciesId}`}
-                />
-              </Pressable>
-            )}
+            renderItem={({ item }) => {
+              const sp = species.find((s) => s.id === item.species_id);
+              return (
+                <Pressable
+                  style={styles.gridCell}
+                  onPress={() => handleCardPress(item.species_id)}
+                  testID={`collection-card-${item.species_id}`}
+                >
+                  <BirdCardThumb
+                    data={{
+                      speciesName: sp?.common_name ?? "Unknown",
+                      familyName: sp?.family ?? "",
+                      habitat: sp?.habitat_name ?? "",
+                      conservationTier: (sp?.conservation_status ?? "LC") as any,
+                      photoUri: item.hero_photo_url,
+                      sightingCount: item.sighting_count,
+                    }}
+                    testID={`collection-thumb-${item.species_id}`}
+                  />
+                </Pressable>
+              );
+            }}
           />
         )
       ) : (
@@ -187,24 +190,24 @@ export const CollectionScreen: React.FC = () => {
                 {`${group.habitat} · ${group.spotted} of ${group.total}`}
               </Text>
               <View style={styles.habitatGrid}>
-                {group.items.map(({ species, spotted }) => (
+                {group.items.map(({ species: sp, spotted }) => (
                   <Pressable
-                    key={species.id}
+                    key={sp.id}
                     style={styles.gridCell}
-                    onPress={() => handleCardPress(species.id)}
-                    testID={`collection-card-${species.id}`}
+                    onPress={() => handleCardPress(sp.id)}
+                    testID={`collection-card-${sp.id}`}
                   >
                     <BirdCardThumb
                       data={{
-                        speciesName: species.name,
-                        familyName: species.familyName,
-                        habitat: species.habitat,
-                        conservationTier: species.conservationTier,
+                        speciesName: sp.common_name,
+                        familyName: sp.family,
+                        habitat: sp.habitat_name,
+                        conservationTier: sp.conservation_status as any,
                         photoUri: null,
                         sightingCount: spotted ? 1 : 0,
                         locked: !spotted,
                       }}
-                      testID={`collection-thumb-${species.id}`}
+                      testID={`collection-thumb-${sp.id}`}
                     />
                   </Pressable>
                 ))}

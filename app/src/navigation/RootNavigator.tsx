@@ -43,28 +43,33 @@ export const RootNavigator: React.FC = () => {
     );
   }
 
-  // Not signed in or onboarding not complete → show onboarding
-  if (!isSignedIn || !onboardingComplete) {
-    return (
-      <OnboardingStack
-        // @ts-ignore — using screenListeners to detect completion
-        screenListeners={{
-          state: (e: any) => {
-            const routes = e.data?.state?.routes;
-            if (routes?.length > 0) {
-              const lastRoute = routes[routes.length - 1];
-              if (lastRoute.name === "Complete") {
-                AsyncStorage.setItem(ONBOARDING_COMPLETE_KEY, "true");
-                setOnboardingComplete(true);
-              }
-            }
-          },
-        }}
-      />
-    );
+  // Already signed in → skip onboarding, go to main app
+  if (isSignedIn) {
+    if (!onboardingComplete) {
+      AsyncStorage.setItem(ONBOARDING_COMPLETE_KEY, "true");
+    }
+    return <TabNavigator />;
   }
 
-  return <TabNavigator />;
+  // Not signed in → show onboarding / sign-in
+  return (
+    <OnboardingStack
+      // @ts-ignore — using screenListeners to detect completion
+      initialRouteName={onboardingComplete ? "SignIn" : "Welcome"}
+      screenListeners={{
+        state: (e: any) => {
+          const routes = e.data?.state?.routes;
+          if (routes?.length > 0) {
+            const lastRoute = routes[routes.length - 1];
+            if (lastRoute.name === "Complete") {
+              AsyncStorage.setItem(ONBOARDING_COMPLETE_KEY, "true");
+              setOnboardingComplete(true);
+            }
+          }
+        },
+      }}
+    />
+  );
 };
 
 export default RootNavigator;

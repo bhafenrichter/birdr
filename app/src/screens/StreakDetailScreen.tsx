@@ -1,17 +1,19 @@
 import React, { useMemo } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useNavigation } from "@react-navigation/native";
-import { ArrowLeft, Flame } from "lucide-react-native";
+import { Flame } from "lucide-react-native";
 import { Colors, Spacing, BorderRadius, Shadows, Fonts, FontSizes } from "../theme";
-import { Text, CircleBtn } from "../components/atoms";
-import { DUMMY_STREAK } from "../data/dummy";
+import { Text } from "../components/atoms";
+import { useStreak } from "../hooks/useApi";
 
 const WEEKDAYS = ["S", "M", "T", "W", "T", "F", "S"];
 
 export const StreakDetailScreen: React.FC = () => {
-  const navigation = useNavigation();
-  const streak = DUMMY_STREAK;
+  const { data: streakData } = useStreak();
+  const currentStreak = streakData?.current_streak ?? 0;
+  const longestStreak = streakData?.longest_streak ?? 0;
+  const lastCaptureDate = streakData?.last_capture_date ?? null;
+  const hasCapturedToday = lastCaptureDate === new Date().toISOString().split("T")[0];
 
   // Build 28-day calendar (4 weeks)
   const calendarDays = useMemo(() => {
@@ -24,7 +26,11 @@ export const StreakDetailScreen: React.FC = () => {
     // Align to Sunday
     startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
 
-    const captureSet = new Set(streak.capturedDays);
+    const captureSet = new Set<string>();
+    // Build capture days from streak data — in production this would come from sightings
+    if (lastCaptureDate) {
+      captureSet.add(lastCaptureDate);
+    }
 
     for (let i = 0; i < 28; i++) {
       const d = new Date(startOfWeek);
@@ -42,26 +48,6 @@ export const StreakDetailScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container} testID="streak-detail-screen">
-      {/* Top bar */}
-      <View style={styles.topBar}>
-        <CircleBtn
-          icon={ArrowLeft}
-          size={36}
-          backgroundColor={Colors.white}
-          color={Colors.ink}
-          onPress={() => navigation.goBack()}
-          testID="streak-detail-back"
-        />
-        <Text
-          variant="semiBold"
-          size="md"
-          color={Colors.ink}
-          testID="streak-detail-title"
-        >
-          Streak
-        </Text>
-        <View style={{ width: 36 }} />
-      </View>
 
       <ScrollView
         contentContainerStyle={styles.scrollContent}
@@ -77,7 +63,7 @@ export const StreakDetailScreen: React.FC = () => {
             testID="streak-detail-current-value"
             style={{ marginTop: Spacing.sm }}
           >
-            {String(streak.currentStreak)}
+            {String(currentStreak)}
           </Text>
           <Text
             variant="regular"
@@ -88,19 +74,6 @@ export const StreakDetailScreen: React.FC = () => {
             day streak
           </Text>
 
-          {/* Status prompt */}
-          <View style={styles.statusPill}>
-            <Text
-              variant="medium"
-              size="sm"
-              color={streak.hasCapturedToday ? Colors.sage : Colors.coral}
-              testID="streak-detail-status"
-            >
-              {streak.hasCapturedToday
-                ? "Streak safe today"
-                : "Capture today to keep it going"}
-            </Text>
-          </View>
         </View>
 
         {/* Stat tiles */}
@@ -112,7 +85,7 @@ export const StreakDetailScreen: React.FC = () => {
               color={Colors.ink}
               testID="streak-detail-longest-value"
             >
-              {String(streak.longestStreak)}
+              {String(longestStreak)}
             </Text>
             <Text
               variant="regular"
@@ -130,7 +103,7 @@ export const StreakDetailScreen: React.FC = () => {
               color={Colors.ink}
               testID="streak-detail-total-value"
             >
-              {String(streak.captureDaysTotal)}
+              {String(currentStreak)}
             </Text>
             <Text
               variant="regular"
@@ -214,15 +187,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.cream,
   },
-  topBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: Spacing.xl,
-    paddingVertical: Spacing.sm,
-  },
   scrollContent: {
     paddingHorizontal: Spacing.xl,
+    paddingTop: Spacing.xl,
     paddingBottom: Spacing["4xl"],
   },
   heroCard: {
@@ -233,13 +200,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.xl,
     ...Shadows.sm,
     marginBottom: Spacing.lg,
-  },
-  statusPill: {
-    marginTop: Spacing.lg,
-    paddingVertical: Spacing.sm,
-    paddingHorizontal: Spacing.lg,
-    backgroundColor: Colors.paper,
-    borderRadius: BorderRadius.full,
   },
   statRow: {
     flexDirection: "row",

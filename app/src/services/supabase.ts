@@ -2,10 +2,8 @@ import "react-native-url-polyfill/auto";
 import { createClient } from "@supabase/supabase-js";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
-
-// TODO(birdr): Move to environment config / .env
-const SUPABASE_URL = "https://YOUR_PROJECT.supabase.co";
-const SUPABASE_ANON_KEY = "YOUR_ANON_KEY";
+import { logger } from "./logger";
+import { ENV } from "../config/env";
 
 /**
  * Secure storage adapter for Supabase auth session persistence.
@@ -34,7 +32,9 @@ const secureStoreAdapter = {
   },
 };
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+logger.info("Initializing Supabase client", { url: ENV.SUPABASE_URL });
+
+export const supabase = createClient(ENV.SUPABASE_URL, ENV.SUPABASE_ANON_KEY, {
   auth: {
     storage: secureStoreAdapter,
     autoRefreshToken: true,

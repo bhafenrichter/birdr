@@ -100,7 +100,7 @@ export const ViewfinderScreen: React.FC = () => {
       <View style={styles.topBar}>
         <CircleBtn
           icon={X}
-          size={40}
+          size={48}
           backgroundColor="rgba(0,0,0,0.4)"
           color={Colors.white}
           onPress={handleClose}
@@ -108,17 +108,21 @@ export const ViewfinderScreen: React.FC = () => {
         />
 
         {capturesRemaining !== null && (
-          <Pill
-            label={`${capturesRemaining} left`}
-            color={capturesRemaining === 0 ? Colors.coral : Colors.white}
-            backgroundColor="rgba(0,0,0,0.4)"
-            testID="viewfinder-quota"
-          />
+          <View style={styles.quotaPill} testID="viewfinder-quota">
+            <Text
+              variant="semiBold"
+              size="base"
+              color={capturesRemaining === 0 ? Colors.coral : Colors.white}
+              testID="viewfinder-quota-text"
+            >
+              {`${capturesRemaining} of 3 left`}
+            </Text>
+          </View>
         )}
 
         <CircleBtn
           icon={flash ? Zap : ZapOff}
-          size={40}
+          size={48}
           backgroundColor="rgba(0,0,0,0.4)"
           color={Colors.white}
           onPress={() => setFlash(!flash)}
@@ -145,7 +149,7 @@ export const ViewfinderScreen: React.FC = () => {
             >
               <Text
                 variant={zoom === level ? "semiBold" : "regular"}
-                size="xs"
+                size="sm"
                 color={zoom === level ? Colors.sage : Colors.white}
                 testID={`viewfinder-zoom-${level}-label`}
               >
@@ -196,11 +200,17 @@ const styles = StyleSheet.create({
   topBar: {
     position: "absolute",
     top: Platform.OS === "ios" ? 60 : 40,
-    left: Spacing.xl,
-    right: Spacing.xl,
+    left: Spacing.lg,
+    right: Spacing.lg,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+  },
+  quotaPill: {
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.xl,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    borderRadius: BorderRadius.full,
   },
   bottomBar: {
     position: "absolute",
@@ -212,12 +222,14 @@ const styles = StyleSheet.create({
   },
   zoomRow: {
     flexDirection: "row",
-    gap: Spacing.sm,
+    gap: Spacing.lg,
   },
   zoomPill: {
-    paddingVertical: Spacing.xs,
-    paddingHorizontal: Spacing.md,
-    borderRadius: BorderRadius.full,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: "center",
+    justifyContent: "center",
     backgroundColor: "rgba(0,0,0,0.4)",
   },
   zoomPillActive: {

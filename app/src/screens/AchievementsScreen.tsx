@@ -11,20 +11,24 @@ import {
   AchievementColors,
 } from "../theme";
 import { Text, CircleBtn } from "../components/atoms";
-import { DUMMY_ACHIEVEMENTS, type Achievement } from "../data/dummy";
+import { useAchievements } from "../hooks/useApi";
+import type { UserAchievement } from "../types/api";
 
 export const AchievementsScreen: React.FC = () => {
   const navigation = useNavigation();
-  const unlocked = DUMMY_ACHIEVEMENTS.filter((a) => a.unlockedAt);
-  const inProgress = DUMMY_ACHIEVEMENTS.filter(
-    (a) => !a.unlockedAt && a.progress > 0
+  const { data: achievements } = useAchievements();
+  const allAchievements = achievements ?? [];
+
+  const unlocked = allAchievements.filter((a) => a.unlocked_at);
+  const inProgress = allAchievements.filter(
+    (a) => !a.unlocked_at && a.progress > 0
   );
-  const locked = DUMMY_ACHIEVEMENTS.filter(
-    (a) => !a.unlockedAt && a.progress === 0
+  const locked = allAchievements.filter(
+    (a) => !a.unlocked_at && a.progress === 0
   );
 
-  const totalCount = DUMMY_ACHIEVEMENTS.length;
-  const overallProgress = unlocked.length / totalCount;
+  const totalCount = allAchievements.length;
+  const overallProgress = totalCount > 0 ? unlocked.length / totalCount : 0;
 
   const sections = [
     ...(inProgress.length > 0
@@ -105,15 +109,15 @@ export const AchievementsScreen: React.FC = () => {
   );
 };
 
-const AchievementRow: React.FC<{ achievement: Achievement }> = ({
+const AchievementRow: React.FC<{ achievement: UserAchievement }> = ({
   achievement,
 }) => {
-  const isUnlocked = !!achievement.unlockedAt;
+  const isUnlocked = !!achievement.unlocked_at;
   const categoryColor =
     AchievementColors[achievement.category] ?? Colors.sage;
 
   return (
-    <View style={styles.achievementRow} testID={`achievement-${achievement.id}`}>
+    <View style={styles.achievementRow} testID={`achievement-${achievement.achievement_id}`}>
       {/* Status icon */}
       <View
         style={[
@@ -136,17 +140,9 @@ const AchievementRow: React.FC<{ achievement: Achievement }> = ({
           variant="medium"
           size="base"
           color={Colors.ink}
-          testID={`achievement-name-${achievement.id}`}
+          testID={`achievement-name-${achievement.achievement_id}`}
         >
-          {achievement.name}
-        </Text>
-        <Text
-          variant="regular"
-          size="xs"
-          color={Colors.inkSoft}
-          testID={`achievement-desc-${achievement.id}`}
-        >
-          {achievement.description}
+          {achievement.achievement_id}
         </Text>
 
         {/* Progress bar for in-progress */}
@@ -165,16 +161,16 @@ const AchievementRow: React.FC<{ achievement: Achievement }> = ({
         )}
       </View>
 
-      {/* Right side: date or progress count */}
+      {/* Right side: date or progress */}
       <Text
         variant="regular"
         size="xs"
         color={Colors.inkFaint}
-        testID={`achievement-status-${achievement.id}`}
+        testID={`achievement-status-${achievement.achievement_id}`}
       >
         {isUnlocked
-          ? formatShortDate(achievement.unlockedAt!)
-          : `${achievement.current}/${achievement.target}`}
+          ? formatShortDate(achievement.unlocked_at!)
+          : `${Math.round(achievement.progress * 100)}%`}
       </Text>
     </View>
   );

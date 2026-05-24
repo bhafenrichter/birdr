@@ -89,7 +89,7 @@ export const BirdCard: React.FC<BirdCardProps> = ({
               {isLocked ? "???" : data.familyName}
             </Text>
             <Text
-              variant="semiBold"
+              variant="bold"
               size="lg"
               color={isLocked ? Colors.inkFaint : Colors.ink}
               testID={`${testID}-name`}
@@ -151,35 +151,35 @@ export const BirdCard: React.FC<BirdCardProps> = ({
           )}
         </View>
 
-        {/* Body text: Size, About, First Sight */}
+        {/* Body text: Size, About, First Sight — inline label: value */}
         {!isLocked && (
           <View style={{ paddingHorizontal: Spacing.lg, paddingTop: Spacing.md }}>
             {data.size && (
-              <View style={{ marginBottom: Spacing.xs }}>
-                <Text variant="medium" size="xs" color={Colors.inkSoft} testID={`${testID}-size-label`}>
-                  Size
-                </Text>
-                <Text variant="regular" size="sm" color={Colors.ink} testID={`${testID}-size`}>
+              <View style={{ marginBottom: Spacing.sm }} testID={`${testID}-size`}>
+                <Text variant="regular" size="sm" color={Colors.ink} testID={`${testID}-size-text`}>
+                  <Text variant="bold" size="base" color={Colors.ink} testID={`${testID}-size-label`}>
+                    {"Size: "}
+                  </Text>
                   {data.size}
                 </Text>
               </View>
             )}
             {data.about && (
-              <View style={{ marginBottom: Spacing.xs }}>
-                <Text variant="medium" size="xs" color={Colors.inkSoft} testID={`${testID}-about-label`}>
-                  About
-                </Text>
-                <Text variant="regular" size="sm" color={Colors.ink} testID={`${testID}-about`}>
+              <View style={{ marginBottom: Spacing.sm }} testID={`${testID}-about`}>
+                <Text variant="regular" size="base" color={Colors.ink} testID={`${testID}-about-text`}>
+                  <Text variant="bold" size="base" color={Colors.ink} testID={`${testID}-about-label`}>
+                    {"About: "}
+                  </Text>
                   {data.about}
                 </Text>
               </View>
             )}
             {data.firstSight && (
-              <View style={{ marginBottom: Spacing.xs }}>
-                <Text variant="medium" size="xs" color={Colors.inkSoft} testID={`${testID}-firstsight-label`}>
-                  First Sight
-                </Text>
-                <Text variant="regular" size="sm" color={Colors.ink} testID={`${testID}-firstsight`}>
+              <View style={{ marginBottom: Spacing.sm }} testID={`${testID}-firstsight`}>
+                <Text variant="regular" size="base" color={Colors.ink} testID={`${testID}-firstsight-text`}>
+                  <Text variant="bold" size="base" color={Colors.ink} testID={`${testID}-firstsight-label`}>
+                    {"First Sight: "}
+                  </Text>
                   {data.firstSight}
                 </Text>
               </View>
@@ -187,28 +187,30 @@ export const BirdCard: React.FC<BirdCardProps> = ({
           </View>
         )}
 
-        {/* Footer: habitat strip with badges */}
+        {/* Footer: badges evenly spaced */}
         <View style={{
           flexDirection: "row",
           alignItems: "center",
-          justifyContent: "flex-end",
+          justifyContent: "space-evenly",
           paddingHorizontal: Spacing.lg,
-          paddingVertical: Spacing.md,
-          gap: Spacing.sm,
+          paddingVertical: Spacing.lg,
         }}>
           <ConservationBadge
             tier={data.conservationTier}
+            size={44}
             testID={`${testID}-conservation-badge`}
           />
           {!isLocked && (
             <>
               <AudioBadge
+                size={44}
                 onPress={onAudioPress}
                 testID={`${testID}-audio-badge`}
               />
               {data.sightingCount != null && data.sightingCount > 0 && (
                 <SightingBadge
                   count={data.sightingCount}
+                  size={44}
                   testID={`${testID}-sighting-badge`}
                 />
               )}

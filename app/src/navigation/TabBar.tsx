@@ -1,5 +1,11 @@
 import React from "react";
-import { View, Pressable, Text as RNText, StyleSheet, Platform } from "react-native";
+import {
+  View,
+  Pressable,
+  Text as RNText,
+  StyleSheet,
+  Platform,
+} from "react-native";
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BlurView } from "expo-blur";
@@ -60,14 +66,6 @@ export const TabBar: React.FC<BottomTabBarProps> = ({
               accessibilityState={{ selected: isFocused }}
               accessibilityLabel={String(label)}
             >
-              {/* Active dot indicator */}
-              <View
-                style={[
-                  styles.dot,
-                  { backgroundColor: isFocused ? Colors.sage : "transparent" },
-                ]}
-              />
-
               <IconComponent
                 size={22}
                 color={isFocused ? Colors.sage : Colors.inkFaint}
@@ -101,11 +99,7 @@ export const TabBar: React.FC<BottomTabBarProps> = ({
       testID="tab-bar"
     >
       {Platform.OS === "ios" ? (
-        <BlurView
-          intensity={80}
-          tint="light"
-          style={StyleSheet.absoluteFill}
-        />
+        <BlurView intensity={80} tint="light" style={StyleSheet.absoluteFill} />
       ) : null}
       {/* Semi-transparent mint tint over the blur */}
       <View style={styles.tintOverlay} />
@@ -119,28 +113,27 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   tintOverlay: {
-    position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
-    backgroundColor: Platform.OS === "ios" ? "rgba(234,245,229,0.75)" : Colors.cream,
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor:
+      Platform.OS === "ios" ? "rgba(234,245,229,0.75)" : Colors.cream,
   },
   topBorder: {
-    height: 2,
+    height: 1,
     backgroundColor: Colors.sage,
   },
   tabRow: {
+    paddingTop: Spacing.md,
     flexDirection: "row",
-    paddingTop: Spacing.sm,
   },
   tab: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: Spacing.xs,
-  },
-  dot: {
-    width: 4,
-    height: 4,
-    borderRadius: 2,
-    marginBottom: 4,
   },
   label: {
     fontSize: FontSizes.xs,

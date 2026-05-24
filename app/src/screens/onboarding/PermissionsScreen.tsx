@@ -1,5 +1,5 @@
-import React, { useCallback } from "react";
-import { View, StyleSheet, Alert } from "react-native";
+import React, { useCallback, useEffect, useState } from "react";
+import { View, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -7,54 +7,87 @@ import { Camera, MapPin, Bell } from "lucide-react-native";
 import * as CameraModule from "expo-camera";
 import * as Location from "expo-location";
 import * as Notifications from "expo-notifications";
-import { Colors, Spacing, BorderRadius, Shadows } from "../../theme";
-import { Text, PrimaryButton } from "../../components/atoms";
+import { Colors, Spacing } from "../../theme";
+import { Text, PrimaryButton, CheckboxCard } from "../../components/atoms";
 import type { OnboardingStackParamList } from "../../navigation/stacks/OnboardingStack";
 
 type Nav = NativeStackNavigationProp<OnboardingStackParamList>;
 
 const PERMISSIONS = [
   {
+    key: "camera",
     icon: Camera,
     name: "Camera",
     rationale: "So you can photograph birds for identification.",
     color: Colors.sage,
-    required: true,
+    badge: undefined,
   },
   {
+    key: "location",
     icon: MapPin,
     name: "Location",
-    rationale:
-      "To record where you spotted each bird. Used in your personal map and regional achievements.",
+    rationale: "To record where you spotted each bird and power your personal map.",
     color: Colors.sky,
-    required: true,
+    badge: undefined,
   },
   {
+    key: "notifications",
     icon: Bell,
     name: "Notifications",
     rationale: "Streak reminders and achievement alerts.",
     color: Colors.coral,
-    required: false,
+    badge: "Optional",
   },
 ];
 
 export const PermissionsScreen: React.FC = () => {
   const navigation = useNavigation<Nav>();
+  const [granted, setGranted] = useState<Record<string, boolean>>({
+    camera: false,
+    location: false,
+    notifications: false,
+  });
 
-  const handleContinue = useCallback(async () => {
-    // Request permissions sequentially (Camera → Location → Notifications)
+  // Check existing permissions on mount
+  useEffect(() => {
+    (async () => {
+      const [cameraStatus, locationStatus, notifStatus] = await Promise.all([
+        CameraModule.Camera.getCameraPermissionsAsync(),
+        Location.getForegroundPermissionsAsync(),
+        Notifications.getPermissionsAsync(),
+      ]);
+
+      setGranted({
+        camera: cameraStatus.status === "granted",
+        location: locationStatus.status === "granted",
+        notifications: notifStatus.status === "granted",
+      });
+    })();
+  }, []);
+
+  const requestPermission = useCallback(async (key: string) => {
+    if (granted[key]) return;
+
     try {
-      await CameraModule.Camera.requestCameraPermissionsAsync();
+      let result;
+      switch (key) {
+        case "camera":
+          result = await CameraModule.Camera.requestCameraPermissionsAsync();
+          break;
+        case "location":
+          result = await Location.requestForegroundPermissionsAsync();
+          break;
+        case "notifications":
+          result = await Notifications.requestPermissionsAsync();
+          break;
+      }
+      if (result?.status === "granted") {
+        setGranted((prev) => ({ ...prev, [key]: true }));
+      }
     } catch {}
+  }, [granted]);
 
-    try {
-      await Location.requestForegroundPermissionsAsync();
-    } catch {}
-
-    try {
-      await Notifications.requestPermissionsAsync();
-    } catch {}
-
+  const handleContinue = useCallback(() => {
     navigation.navigate("TutorialCapture");
   }, [navigation]);
 
@@ -79,64 +112,33 @@ export const PermissionsScreen: React.FC = () => {
           birdr works best with these enabled
         </Text>
 
-        {/* Permission rows */}
         <View style={styles.permissionList}>
-          {PERMISSIONS.map((perm, i) => (
-            <View
-              key={perm.name}
-              style={styles.permissionRow}
-              testID={`permissions-row-${i}`}
-            >
-              <View
-                style={[
-                  styles.permissionIcon,
-                  { backgroundColor: perm.color },
-                ]}
-              >
-                <perm.icon size={20} color={Colors.white} strokeWidth={2} />
-              </View>
-              <View style={styles.permissionInfo}>
-                <View style={styles.permissionNameRow}>
-                  <Text
-                    variant="semiBold"
-                    size="base"
-                    color={Colors.ink}
-                    testID={`permissions-name-${i}`}
-                  >
-                    {perm.name}
-                  </Text>
-                  {!perm.required && (
-                    <Text
-                      variant="regular"
-                      size="xs"
-                      color={Colors.inkFaint}
-                      testID={`permissions-optional-${i}`}
-                    >
-                      Optional
-                    </Text>
-                  )}
+          {PERMISSIONS.map((perm) => (
+            <CheckboxCard
+              key={perm.key}
+              icon={
+                <View style={[styles.iconCircle, { backgroundColor: perm.color }]}>
+                  <perm.icon size={20} color={Colors.white} strokeWidth={2} />
                 </View>
-                <Text
-                  variant="regular"
-                  size="sm"
-                  color={Colors.inkSoft}
-                  testID={`permissions-rationale-${i}`}
-                >
-                  {perm.rationale}
-                </Text>
-              </View>
-            </View>
+              }
+              title={perm.name}
+              description={perm.rationale}
+              checked={granted[perm.key]}
+              onPress={() => requestPermission(perm.key)}
+              badge={perm.badge}
+              testID={`permissions-${perm.key}`}
+            />
           ))}
         </View>
       </View>
 
-      {/* Continue */}
       <View style={styles.ctaWrapper}>
         <PrimaryButton
           title="Continue"
           size="lg"
           fullWidth
           onPress={handleContinue}
+          disabled={!granted.camera || !granted.location}
           testID="permissions-continue"
         />
       </View>
@@ -156,27 +158,14 @@ const styles = StyleSheet.create({
   },
   permissionList: {
     marginTop: Spacing["3xl"],
-    gap: Spacing.xl,
-  },
-  permissionRow: {
-    flexDirection: "row",
     gap: Spacing.lg,
   },
-  permissionIcon: {
+  iconCircle: {
     width: 40,
     height: 40,
     borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
-  },
-  permissionInfo: {
-    flex: 1,
-    gap: 2,
-  },
-  permissionNameRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.sm,
   },
   ctaWrapper: {
     paddingHorizontal: Spacing.xl,
