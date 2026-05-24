@@ -19,7 +19,7 @@ import { PostHogProvider } from "./src/contexts/PostHogProvider";
 import { AuthProvider } from "./src/contexts/AuthProvider";
 import { RevenueCatProvider } from "./src/contexts/RevenueCatProvider";
 import { HapticProvider } from "./src/contexts/HapticProvider";
-import { TabNavigator } from "./src/navigation/TabNavigator";
+import { RootNavigator } from "./src/navigation/RootNavigator";
 import { toastConfig } from "./src/config/toast";
 
 // Keep the splash screen visible while we load fonts
@@ -57,7 +57,7 @@ export default function App() {
             <AuthProvider>
               <RevenueCatProvider>
                 <HapticProvider>
-                  <TabNavigator />
+                  <RootNavigator />
                 </HapticProvider>
               </RevenueCatProvider>
             </AuthProvider>

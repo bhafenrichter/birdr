@@ -1,0 +1,449 @@
+import React, { useEffect, useState, useRef, useCallback } from "react";
+import { View, StyleSheet, Pressable, Platform } from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withSequence,
+  withDelay,
+  withSpring,
+  runOnJS,
+  Easing,
+} from "react-native-reanimated";
+import * as Haptics from "expo-haptics";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import type { RouteProp } from "@react-navigation/native";
+import Toast from "react-native-toast-message";
+import {
+  Colors,
+  ConservationTierColors,
+  Spacing,
+  BorderRadius,
+  Shadows,
+} from "../../theme";
+import { Text, PrimaryButton, GhostButton, Pill } from "../../components/atoms";
+import { confirmSighting } from "../../services/api";
+import { useAuth } from "../../contexts/AuthProvider";
+import type { CaptureFlowParamList } from "../../navigation/stacks/CaptureFlowStack";
+import type { ConservationStatus, ConfirmSightingResponse } from "../../types/api";
+
+type Nav = NativeStackNavigationProp<CaptureFlowParamList>;
+type Route = RouteProp<CaptureFlowParamList, "CardReveal">;
+
+// Rarity intensity scaling per PRD §6.7
+const RARITY_SCALE: Record<
+  ConservationStatus,
+  { durationMult: number; haptic: Haptics.ImpactFeedbackStyle }
+> = {
+  LC: { durationMult: 1.0, haptic: Haptics.ImpactFeedbackStyle.Light },
+  NT: { durationMult: 1.1, haptic: Haptics.ImpactFeedbackStyle.Light },
+  VU: { durationMult: 1.25, haptic: Haptics.ImpactFeedbackStyle.Medium },
+  EN: { durationMult: 1.4, haptic: Haptics.ImpactFeedbackStyle.Medium },
+  CR: { durationMult: 1.6, haptic: Haptics.ImpactFeedbackStyle.Heavy },
+};
+
+export const CardRevealScreen: React.FC = () => {
+  const navigation = useNavigation<Nav>();
+  const route = useRoute<Route>();
+  const { photoUri, speciesId, commonName, conservationStatus, location } =
+    route.params;
+  const { refreshProfile } = useAuth();
+
+  const tier = (conservationStatus ?? "LC") as ConservationStatus;
+  const tierColor = ConservationTierColors[tier];
+  const scale = RARITY_SCALE[tier];
+
+  const [beat, setBeat] = useState(0); // 0=init, 1=identifying, 2=match, 3=card, 4=banner, 5=settled
+  const [confirmResult, setConfirmResult] =
+    useState<ConfirmSightingResponse | null>(null);
+  const [canSkip, setCanSkip] = useState(false);
+  const confirmedRef = useRef(false);
+
+  // Animation values
+  const bgOpacity = useSharedValue(0);
+  const particleOpacity = useSharedValue(0);
+  const cardScale = useSharedValue(0.3);
+  const cardOpacity = useSharedValue(0);
+  const bannerOpacity = useSharedValue(0);
+  const settledScale = useSharedValue(1);
+  const bonusOpacity = useSharedValue(0);
+
+  // Confirm the sighting in background while animation plays
+  useEffect(() => {
+    if (confirmedRef.current) return;
+    confirmedRef.current = true;
+
+    (async () => {
+      try {
+        // Read photo as base64
+        const response = await fetch(photoUri);
+        const blob = await response.blob();
+        const reader = new FileReader();
+        const base64 = await new Promise<string>((resolve) => {
+          reader.onloadend = () => {
+            const result = reader.result as string;
+            resolve(result.split(",")[1] ?? "");
+          };
+          reader.readAsDataURL(blob);
+        });
+
+        const result = await confirmSighting({
+          species_id: speciesId,
+          photo_base64: base64,
+          photo_mime_type: "image/jpeg",
+          lat: location?.lat,
+          lon: location?.lon,
+        });
+
+        setConfirmResult(result);
+        await refreshProfile();
+
+        // If it was a repeat sighting (not first sight), show toast and go back
+        if (!result.is_first_sight) {
+          Toast.show({
+            type: "sighting",
+            text1: "Spotted again!",
+            text2: `${commonName} — sighting #${result.card.sighting_count}`,
+            position: "top",
+          });
+          navigation.getParent()?.goBack();
+          return;
+        }
+      } catch (e: any) {
+        // Confirm failed but we still show the reveal with optimistic data
+        setConfirmResult({
+          sighting_id: "pending",
+          is_first_sight: true,
+          card: {
+            species_id: speciesId,
+            common_name: commonName,
+            scientific_name: "",
+            conservation_status: tier,
+            sighting_count: 1,
+          },
+          streak: { current_streak: 0, longest_streak: 0 },
+          achievements_unlocked: [],
+        });
+      }
+    })();
+  }, []);
+
+  // Run the 5-beat animation sequence
+  useEffect(() => {
+    const d = scale.durationMult;
+
+    // Beat 1: Identifying (background dims)
+    setBeat(1);
+    bgOpacity.value = withTiming(0.85, { duration: 800 * d });
+
+    // Beat 2: Match found (~1.5s in)
+    const beat2Delay = 1500 * d;
+    setTimeout(() => {
+      setBeat(2);
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      particleOpacity.value = withTiming(1, { duration: 300 });
+      setCanSkip(true);
+    }, beat2Delay);
+
+    // Beat 3: Card materializes (~2.5s in)
+    const beat3Delay = 2500 * d;
+    setTimeout(() => {
+      setBeat(3);
+      Haptics.impactAsync(scale.haptic);
+      cardOpacity.value = withTiming(1, { duration: 500 });
+      cardScale.value = withSpring(1, { damping: 12, stiffness: 100 });
+    }, beat3Delay);
+
+    // Beat 4: First Sight banner (~3.5s in)
+    const beat4Delay = 3500 * d;
+    setTimeout(() => {
+      setBeat(4);
+      bannerOpacity.value = withTiming(1, { duration: 400 });
+    }, beat4Delay);
+
+    // Beat 5: Settled (~4.5s in)
+    const beat5Delay = 4500 * d;
+    setTimeout(() => {
+      setBeat(5);
+      settledScale.value = withTiming(0.85, { duration: 500 });
+      bonusOpacity.value = withDelay(300, withTiming(1, { duration: 400 }));
+      bgOpacity.value = withTiming(0, { duration: 600 });
+    }, beat5Delay);
+  }, []);
+
+  const handleSkip = useCallback(() => {
+    if (!canSkip) return;
+    setBeat(5);
+    bgOpacity.value = withTiming(0, { duration: 300 });
+    cardOpacity.value = withTiming(1, { duration: 200 });
+    cardScale.value = withTiming(0.85, { duration: 300 });
+    bannerOpacity.value = withTiming(1, { duration: 200 });
+    bonusOpacity.value = withTiming(1, { duration: 200 });
+  }, [canSkip]);
+
+  const handleContinue = () => {
+    // Back to viewfinder for next shot
+    navigation.getParent()?.goBack();
+  };
+
+  const handleViewCard = () => {
+    // Navigate to card detail in Collection tab
+    navigation.getParent()?.goBack();
+    // TODO(birdr): Deep-link to Collection > CardDetail for this species
+  };
+
+  // Animated styles
+  const bgStyle = useAnimatedStyle(() => ({
+    opacity: bgOpacity.value,
+  }));
+
+  const particleStyle = useAnimatedStyle(() => ({
+    opacity: particleOpacity.value,
+  }));
+
+  const cardStyle = useAnimatedStyle(() => ({
+    opacity: cardOpacity.value,
+    transform: [{ scale: cardScale.value }],
+  }));
+
+  const bannerStyle = useAnimatedStyle(() => ({
+    opacity: bannerOpacity.value,
+  }));
+
+  const bonusStyle = useAnimatedStyle(() => ({
+    opacity: bonusOpacity.value,
+  }));
+
+  return (
+    <Pressable
+      style={styles.container}
+      onPress={handleSkip}
+      testID="card-reveal-screen"
+    >
+      {/* Dark overlay */}
+      <Animated.View
+        style={[styles.overlay, bgStyle]}
+        testID="card-reveal-overlay"
+      />
+
+      {/* Particle burst placeholder */}
+      {beat >= 2 && (
+        <Animated.View
+          style={[styles.particles, particleStyle]}
+          testID="card-reveal-particles"
+        >
+          {/* TODO(birdr): Replace with Lottie particle burst per conservation tier */}
+          <View
+            style={[
+              styles.particleDot,
+              { backgroundColor: tierColor, top: "30%", left: "20%" },
+            ]}
+          />
+          <View
+            style={[
+              styles.particleDot,
+              { backgroundColor: tierColor, top: "25%", right: "25%" },
+            ]}
+          />
+          <View
+            style={[
+              styles.particleDot,
+              { backgroundColor: tierColor, bottom: "35%", left: "30%" },
+            ]}
+          />
+          <View
+            style={[
+              styles.particleDot,
+              { backgroundColor: tierColor, bottom: "30%", right: "20%" },
+            ]}
+          />
+        </Animated.View>
+      )}
+
+      {/* Card */}
+      {beat >= 3 && (
+        <Animated.View
+          style={[styles.cardContainer, cardStyle]}
+          testID="card-reveal-card"
+        >
+          <View
+            style={[styles.cardFrame, { backgroundColor: tierColor }]}
+          >
+            <View style={styles.cardInner}>
+              <Text
+                variant="semiBold"
+                size="xl"
+                color={Colors.ink}
+                align="center"
+                testID="card-reveal-species-name"
+              >
+                {commonName}
+              </Text>
+              <Text
+                variant="regular"
+                size="sm"
+                color={Colors.inkSoft}
+                align="center"
+                testID="card-reveal-tier"
+                style={{ marginTop: Spacing.xs }}
+              >
+                {tier}
+              </Text>
+            </View>
+          </View>
+        </Animated.View>
+      )}
+
+      {/* First Sight banner */}
+      {beat >= 4 && (
+        <Animated.View
+          style={[styles.bannerContainer, bannerStyle]}
+          testID="card-reveal-banner"
+        >
+          <Text
+            variant="bold"
+            size="xs"
+            color={Colors.saffron}
+            testID="card-reveal-first-sight-label"
+            style={{ letterSpacing: 2 }}
+          >
+            FIRST SIGHT
+          </Text>
+          <Text
+            variant="bold"
+            size="2xl"
+            color={Colors.white}
+            testID="card-reveal-banner-name"
+          >
+            {commonName}
+          </Text>
+        </Animated.View>
+      )}
+
+      {/* Settled state: bonus chips + CTAs */}
+      {beat >= 5 && (
+        <Animated.View
+          style={[styles.settledContainer, bonusStyle]}
+          testID="card-reveal-settled"
+        >
+          {/* Bonus chips */}
+          <View style={styles.bonusChips}>
+            {confirmResult?.streak && confirmResult.streak.current_streak > 0 && (
+              <Pill
+                label={`Streak +1 → ${confirmResult.streak.current_streak} day${confirmResult.streak.current_streak !== 1 ? "s" : ""}`}
+                color={Colors.white}
+                backgroundColor={Colors.coral}
+                testID="card-reveal-streak-chip"
+              />
+            )}
+            {confirmResult?.achievements_unlocked.map((ach) => (
+              <Pill
+                key={ach.achievement_id}
+                label={ach.name}
+                color={Colors.white}
+                backgroundColor={Colors.sage}
+                testID={`card-reveal-achievement-${ach.achievement_id}`}
+              />
+            ))}
+          </View>
+
+          {/* CTAs */}
+          <View style={styles.ctaRow}>
+            <GhostButton
+              title="Continue"
+              size="lg"
+              onPress={handleContinue}
+              testID="card-reveal-continue"
+              style={{ flex: 1 }}
+            />
+            <PrimaryButton
+              title="View card"
+              size="lg"
+              onPress={handleViewCard}
+              testID="card-reveal-view-card"
+              style={{ flex: 1 }}
+            />
+          </View>
+
+          {beat < 5 && canSkip && (
+            <Text
+              variant="regular"
+              size="xs"
+              color="rgba(255,255,255,0.5)"
+              align="center"
+              testID="card-reveal-skip-hint"
+              style={{ marginTop: Spacing.md }}
+            >
+              Tap to continue
+            </Text>
+          )}
+        </Animated.View>
+      )}
+    </Pressable>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: Colors.stage,
+  },
+  overlay: {
+    position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: Colors.stage,
+  },
+  particles: {
+    position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
+    pointerEvents: "none",
+  },
+  particleDot: {
+    position: "absolute",
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  cardContainer: {
+    position: "absolute",
+    top: "25%",
+    alignSelf: "center",
+  },
+  cardFrame: {
+    borderRadius: BorderRadius["2xl"],
+    padding: 4,
+    ...Shadows.lg,
+  },
+  cardInner: {
+    backgroundColor: Colors.cardBody,
+    borderRadius: BorderRadius["2xl"] - 2,
+    paddingVertical: Spacing["4xl"],
+    paddingHorizontal: Spacing["3xl"],
+    alignItems: "center",
+    minWidth: 240,
+  },
+  bannerContainer: {
+    position: "absolute",
+    top: "18%",
+    alignSelf: "center",
+    alignItems: "center",
+  },
+  settledContainer: {
+    position: "absolute",
+    bottom: Platform.OS === "ios" ? 60 : 40,
+    left: Spacing.xl,
+    right: Spacing.xl,
+  },
+  bonusChips: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: Spacing.sm,
+    marginBottom: Spacing.xl,
+  },
+  ctaRow: {
+    flexDirection: "row",
+    gap: Spacing.md,
+  },
+});
+
+export default CardRevealScreen;
