@@ -3,13 +3,19 @@ import { View, StyleSheet, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Binoculars, Flame } from "lucide-react-native";
+import { useNavigation } from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Colors, Spacing, BorderRadius, Shadows, Fonts, FontSizes } from "../theme";
 import { Text, Body, Pill } from "../components/atoms";
 import { DUMMY_STREAK, DUMMY_USER, DUMMY_USER_CARDS } from "../data/dummy";
 import { BirdCardThumb } from "../components/molecules/BirdCard";
 import { ScrollView } from "react-native-gesture-handler";
+import type { CaptureStackParamList } from "../navigation/stacks/CaptureStack";
+
+type Nav = NativeStackNavigationProp<CaptureStackParamList>;
 
 export const CaptureHubScreen: React.FC = () => {
+  const navigation = useNavigation<Nav>();
   const streak = DUMMY_STREAK;
   const user = DUMMY_USER;
   const recentCards = DUMMY_USER_CARDS.slice(0, 4);
@@ -75,6 +81,7 @@ export const CaptureHubScreen: React.FC = () => {
             styles.captureButton,
             pressed && { transform: [{ scale: 0.95 }] },
           ]}
+          onPress={() => navigation.navigate("CaptureFlow")}
           testID="capture-hub-capture-button"
           accessible
           accessibilityRole="button"
