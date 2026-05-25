@@ -5,6 +5,7 @@
 
 import { supabase } from "./supabase";
 import { logger } from "./logger";
+import { getCached, setCache } from "./cache";
 import type {
   IdentifyBirdResponse,
   ConfirmSightingRequest,
@@ -123,11 +124,23 @@ export async function confirmSighting(
 /**
  * Fetch species expected near the user's location.
  */
+const EXPLORE_CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
+
 export async function fetchExploreSpecies(
   params: ExploreSpeciesParams
 ): Promise<ExploreSpeciesResponse> {
+  // Build a cache key from the params that affect the result
+  const cacheKey = `explore:${params.lat.toFixed(1)}:${params.lon.toFixed(1)}:${params.mode ?? "near_me"}:${params.season_filter ?? ""}:${params.species_type_slug ?? ""}`;
+
+  // Try cache first
+  const cached = await getCached<ExploreSpeciesResponse>(cacheKey);
+  if (cached) {
+    logger.info("Explore cache hit", { cacheKey });
+    return cached;
+  }
+
   logger.info("Fetching explore species", { lat: params.lat, lon: params.lon, mode: params.mode });
-  return invokeFunction<ExploreSpeciesResponse>("explore-species", {
+  const result = await invokeFunction<ExploreSpeciesResponse>("explore-species", {
     method: "GET",
     params: {
       lat: params.lat,
@@ -139,6 +152,11 @@ export async function fetchExploreSpecies(
       offset: params.offset,
     },
   });
+
+  // Cache the result
+  await setCache(cacheKey, result, EXPLORE_CACHE_TTL);
+
+  return result;
 }
 
 /**
@@ -300,6 +318,44 @@ export async function fetchAllSpecies(): Promise<
     species_type_name: row.species_types?.name ?? "",
     habitat_name: row.habitats?.name ?? "",
   }));
+}
+
+const ALL_SPECIES_PAGE_SIZE = 60;
+
+export async function fetchAllSpeciesPaginated(
+  page: number,
+  search?: string
+): Promise<{
+  species: (Species & { species_type_name: string; habitat_name: string })[];
+  hasMore: boolean;
+}> {
+  const from = page * ALL_SPECIES_PAGE_SIZE;
+  const to = from + ALL_SPECIES_PAGE_SIZE - 1;
+
+  let query = supabase
+    .from("species")
+    .select(`*, species_types!inner(name), habitats!inner(name)`, { count: "exact" })
+    .order("common_name")
+    .range(from, to);
+
+  if (search) {
+    query = query.ilike("common_name", `%${search}%`);
+  }
+
+  const { data, error, count } = await query;
+
+  if (error) {
+    logger.error("Failed to fetch species page", { code: error.code, message: error.message });
+    throw new ApiError(error.message, 500, error.code);
+  }
+
+  const species = ((data ?? []) as any[]).map((row) => ({
+    ...row,
+    species_type_name: row.species_types?.name ?? "",
+    habitat_name: row.habitats?.name ?? "",
+  }));
+
+  return { species, hasMore: (count ?? 0) > to + 1 };
 }
 
 /** Fetch recent sightings for capture hub (last N). */

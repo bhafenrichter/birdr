@@ -45,6 +45,7 @@ export interface Habitat {
 
 export interface Profile {
   id: string;
+  customer_id: string;
   display_name: string;
   avatar_url: string | null;
   subscription_tier: SubscriptionTier;

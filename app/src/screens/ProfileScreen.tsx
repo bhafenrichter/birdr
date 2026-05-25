@@ -42,18 +42,17 @@ export const ProfileScreen: React.FC = () => {
   const { data: streakData } = useStreak();
   const { data: achievements } = useAchievements();
   const { data: cards } = useCards();
-  const { presentPaywall } = useRevenueCat();
 
   const displayName = profile?.display_name ?? "Birder";
   const initial = displayName.charAt(0).toUpperCase();
   const memberSince = profile?.created_at ?? new Date().toISOString();
-  const isSubscribed = profile?.subscription_tier !== "free";
+  const { isSubscribed, presentPaywall, presentCustomerCenter } = useRevenueCat();
   const currentStreak = streakData?.current_streak ?? 0;
   const totalCaptures =
     cards?.reduce((sum, c) => sum + c.sighting_count, 0) ?? 0;
   const totalSpecies = cards?.length ?? 0;
   const unlockedCount = achievements?.filter((a) => a.unlocked_at).length ?? 0;
-  const totalCount = achievements?.length ?? 0;
+  const totalCount = 105; // Fixed: 9 collection + 6 streak + 45 family + 45 habitat
 
   return (
     <SafeAreaView style={styles.container} testID="profile-screen">
@@ -173,7 +172,7 @@ export const ProfileScreen: React.FC = () => {
             <ProfileRow
               icon={CreditCard}
               label="Manage subscription"
-              onPress={() => navigation.navigate("Subscription")}
+              onPress={presentCustomerCenter}
               testID="profile-row-subscription"
             />
           ) : null}

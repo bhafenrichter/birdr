@@ -9,9 +9,20 @@ import type { NativeStackNavigationProp, NativeStackScreenProps } from "@react-n
 import { Colors, Spacing, BorderRadius, Shadows, Fonts, FontSizes } from "../theme";
 import { Text, SegmentedControl, Pill, LocationCard } from "../components/atoms";
 import { useExploreSpecies, useProfile, useCards } from "../hooks/useApi";
+import Skeleton from "react-native-reanimated-skeleton";
 import type { ExploreStackParamList } from "../navigation/stacks/ExploreStack";
 
 type Nav = NativeStackNavigationProp<ExploreStackParamList>;
+
+const SEASON_LABELS: Record<string, string> = {
+  year_round: "Year-round",
+  summer: "Summer",
+  winter: "Winter",
+  migratory: "Migratory",
+  rare: "Rare",
+};
+
+const formatSeason = (slug: string) => SEASON_LABELS[slug] ?? slug;
 
 export const ExploreScreen: React.FC = () => {
   const [segmentIndex, setSegmentIndex] = useState(0);
@@ -94,50 +105,50 @@ const NearMeView: React.FC<{
   const { data: exploreData, isLoading } = useExploreSpecies(params);
   const list = exploreData?.species ?? [];
 
-  if (locationError) {
+  if (locationError && !location) {
     return (
-      <View style={styles.emptyState} testID="explore-no-location">
-        <MapPin size={40} color={Colors.inkFaint} strokeWidth={1} />
-        <Text
-          variant="semiBold"
-          size="lg"
-          color={Colors.ink}
-          align="center"
-          testID="explore-no-location-title"
-          style={{ marginTop: Spacing.lg }}
-        >
-          Location needed
-        </Text>
-        <Text
-          variant="regular"
-          size="sm"
-          color={Colors.inkSoft}
-          align="center"
-          testID="explore-no-location-body"
-          style={{ marginTop: Spacing.sm }}
-        >
-          Enable location access so we can show birds near you
-        </Text>
-      </View>
-    );
-  }
-
-  if (isLoading || !location) {
-    return (
-      <View style={styles.emptyState} testID="explore-loading">
-        <Text variant="regular" size="sm" color={Colors.inkSoft} testID="explore-loading-text">
-          Finding birds near you...
-        </Text>
+      <View style={{ flex: 1 }} testID="explore-no-location">
+        <View style={styles.locationWrapper}>
+          <LocationCard
+            locationName="Select a state"
+            subtitle="Tap to browse birds by state"
+            onPress={() => navigation.navigate("LocationPicker")}
+            testID="explore-location"
+          />
+        </View>
+        <View style={styles.emptyState}>
+          <MapPin size={40} color={Colors.inkFaint} strokeWidth={1} />
+          <Text
+            variant="semiBold"
+            size="lg"
+            color={Colors.ink}
+            align="center"
+            testID="explore-no-location-title"
+            style={{ marginTop: Spacing.lg }}
+          >
+            Pick a state to explore
+          </Text>
+          <Text
+            variant="regular"
+            size="sm"
+            color={Colors.inkSoft}
+            align="center"
+            testID="explore-no-location-body"
+            style={{ marginTop: Spacing.sm }}
+          >
+            Choose a state above or enable location access
+          </Text>
+        </View>
       </View>
     );
   }
 
   return (
     <View style={{ flex: 1 }} testID="explore-near-me">
-      {/* Location card — tappable */}
+      {/* Location card — always visible */}
       <View style={styles.locationWrapper}>
         <LocationCard
-          locationName={exploreData?.header?.location_name ?? locationName}
+          locationName={locationName}
           subtitle={
             exploreData?.header
               ? `${exploreData.header.season} · ${exploreData.header.total_species} species expected`
@@ -148,7 +159,54 @@ const NearMeView: React.FC<{
         />
       </View>
 
-      {list.length === 0 ? (
+      {/* Loading skeleton */}
+      {(isLoading || !location) ? (
+        <View style={styles.skeletonList} testID="explore-loading">
+          <Skeleton
+            isLoading
+            containerStyle={{ flex: 0 }}
+            boneColor={Colors.paper}
+            highlightColor={Colors.cream}
+            duration={1200}
+            layout={Array.from({ length: 8 }).map((_, i) => ({
+              key: `row-${i}`,
+              flexDirection: "row" as const,
+              alignItems: "center" as const,
+              paddingVertical: Spacing.md,
+              gap: Spacing.md,
+              borderBottomWidth: 1,
+              borderBottomColor: Colors.paper,
+              children: [
+                {
+                  key: `avatar-${i}`,
+                  width: 44,
+                  height: 44,
+                  borderRadius: 22,
+                },
+                {
+                  key: `text-${i}`,
+                  flex: 1,
+                  children: [
+                    {
+                      key: `line1-${i}`,
+                      width: "65%" as any,
+                      height: 12,
+                      borderRadius: 6,
+                      marginBottom: 6,
+                    },
+                    {
+                      key: `line2-${i}`,
+                      width: "40%" as any,
+                      height: 12,
+                      borderRadius: 6,
+                    },
+                  ],
+                },
+              ],
+            }))}
+          />
+        </View>
+      ) : list.length === 0 ? (
         <View style={styles.emptyState} testID="explore-empty">
           <Text variant="semiBold" size="lg" color={Colors.ink} align="center" testID="explore-empty-title">
             No birds found
@@ -206,7 +264,7 @@ const SpeciesRow: React.FC<{ item: any }> = ({ item }) => {
           color={Colors.inkSoft}
           testID={`explore-meta-${item.species_id}`}
         >
-          {`${item.species_type} · ${item.season}`}
+          {`${item.species_type} · ${formatSeason(item.season)}`}
         </Text>
       </View>
 
@@ -378,6 +436,9 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    paddingHorizontal: Spacing.xl,
+  },
+  skeletonList: {
     paddingHorizontal: Spacing.xl,
   },
   mapPlaceholder: {

@@ -14,6 +14,27 @@ config.resolver = {
   ...resolver,
   assetExts: resolver.assetExts.filter((ext) => ext !== "svg"),
   sourceExts: [...resolver.sourceExts, "svg"],
+  // Use browser field in package.json so ws resolves to browser.js
+  // instead of index.js (which requires Node's stream module)
+  unstable_enablePackageExports: false,
+  // Force ws to resolve to its browser entry
+  resolveRequest: (context, moduleName, platform) => {
+    if (moduleName === "react-native-linear-gradient") {
+      return {
+        type: "sourceFile",
+        filePath: require.resolve("./src/shims/react-native-linear-gradient.js"),
+      };
+    }
+    if (moduleName === "ws") {
+      return {
+        type: "sourceFile",
+        filePath: require.resolve(
+          "@supabase/realtime-js/node_modules/ws/browser.js"
+        ),
+      };
+    }
+    return context.resolveRequest(context, moduleName, platform);
+  },
 };
 
 module.exports = config;

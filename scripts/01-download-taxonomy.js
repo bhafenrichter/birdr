@@ -17,7 +17,7 @@ const DATA_DIR = new URL("../data/", import.meta.url).pathname;
 // eBird/Clements taxonomy download URL
 // This URL may change with new releases — check https://www.birds.cornell.edu/clementschecklist/download/
 const TAXONOMY_URL =
-  "https://www.birds.cornell.edu/clementschecklist/wp-content/uploads/2024/08/eBird-Clements-v2024-integrated-checklist-August-2024.csv";
+  "https://www.birds.cornell.edu/clementschecklist/wp-content/uploads/2025/10/eBird-Clements_v2025-integrated-checklist-October-2025.csv";
 
 const OUTPUT_FILE = `${DATA_DIR}clements-taxonomy.csv`;
 

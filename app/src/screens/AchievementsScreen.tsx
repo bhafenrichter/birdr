@@ -1,8 +1,8 @@
-import React from "react";
-import { View, StyleSheet, SectionList, Pressable } from "react-native";
+import React, { useMemo } from "react";
+import { View, StyleSheet, SectionList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
-import { ArrowLeft, Check, Lock } from "lucide-react-native";
+import { ArrowLeft, Check, Lock, Trophy } from "lucide-react-native";
 import {
   Colors,
   Spacing,
@@ -12,22 +12,59 @@ import {
 } from "../theme";
 import { Text, CircleBtn } from "../components/atoms";
 import { useAchievements } from "../hooks/useApi";
-import type { UserAchievement } from "../types/api";
+import {
+  ALL_ACHIEVEMENTS,
+  getAchievement,
+  CATEGORY_COLOR_KEY,
+  CATEGORY_LABELS,
+} from "../data/achievements";
+import type { AchievementCategory } from "../types/api";
+
+interface AchievementRowData {
+  id: string;
+  name: string;
+  description: string;
+  category: AchievementCategory;
+  progress: number;
+  unlocked: boolean;
+  unlockedAt: string | null;
+}
 
 export const AchievementsScreen: React.FC = () => {
   const navigation = useNavigation();
-  const { data: achievements } = useAchievements();
-  const allAchievements = achievements ?? [];
+  const { data: userAchievements } = useAchievements();
+  const userMap = useMemo(() => {
+    const map = new Map<string, { progress: number; unlocked_at: string | null }>();
+    for (const ua of userAchievements ?? []) {
+      map.set(ua.achievement_id, {
+        progress: ua.progress,
+        unlocked_at: ua.unlocked_at,
+      });
+    }
+    return map;
+  }, [userAchievements]);
 
-  const unlocked = allAchievements.filter((a) => a.unlocked_at);
-  const inProgress = allAchievements.filter(
-    (a) => !a.unlocked_at && a.progress > 0
-  );
-  const locked = allAchievements.filter(
-    (a) => !a.unlocked_at && a.progress === 0
-  );
+  // Merge registry with user progress
+  const allRows: AchievementRowData[] = useMemo(() => {
+    return ALL_ACHIEVEMENTS.map((def) => {
+      const user = userMap.get(def.id);
+      return {
+        id: def.id,
+        name: def.name,
+        description: def.description,
+        category: def.category,
+        progress: user?.progress ?? 0,
+        unlocked: !!user?.unlocked_at,
+        unlockedAt: user?.unlocked_at ?? null,
+      };
+    });
+  }, [userMap]);
 
-  const totalCount = allAchievements.length;
+  const unlocked = allRows.filter((a) => a.unlocked);
+  const inProgress = allRows.filter((a) => !a.unlocked && a.progress > 0);
+  const locked = allRows.filter((a) => !a.unlocked && a.progress === 0);
+
+  const totalCount = allRows.length;
   const overallProgress = totalCount > 0 ? unlocked.length / totalCount : 0;
 
   const sections = [
@@ -63,7 +100,15 @@ export const AchievementsScreen: React.FC = () => {
 
       {/* Overall progress card */}
       <View style={styles.progressCard} testID="achievements-progress">
-        <Text variant="bold" size="2xl" color={Colors.ink} testID="achievements-progress-count">
+        <View style={styles.progressIconWrap}>
+          <Trophy size={28} color={Colors.saffron} strokeWidth={1.5} />
+        </View>
+        <Text
+          variant="bold"
+          size="2xl"
+          color={Colors.ink}
+          testID="achievements-progress-count"
+        >
           {`${unlocked.length} of ${totalCount}`}
         </Text>
         <Text
@@ -85,23 +130,27 @@ export const AchievementsScreen: React.FC = () => {
         </View>
       </View>
 
-      {/* Flat list */}
+      {/* Achievement list */}
       <SectionList
         sections={sections}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
         stickySectionHeadersEnabled={false}
-        renderSectionHeader={({ section: { title } }) => (
-          <Text
-            variant="semiBold"
-            size="base"
-            color={Colors.ink}
-            testID={`achievements-section-${title}`}
-            style={{ marginTop: Spacing.lg, marginBottom: Spacing.sm }}
-          >
-            {title}
-          </Text>
+        renderSectionHeader={({ section: { title, data } }) => (
+          <View style={styles.sectionHeader}>
+            <Text
+              variant="semiBold"
+              size="base"
+              color={Colors.ink}
+              testID={`achievements-section-${title}`}
+            >
+              {title}
+            </Text>
+            <Text variant="regular" size="xs" color={Colors.inkFaint}>
+              {data.length}
+            </Text>
+          </View>
         )}
         renderItem={({ item }) => <AchievementRow achievement={item} />}
       />
@@ -109,44 +158,66 @@ export const AchievementsScreen: React.FC = () => {
   );
 };
 
-const AchievementRow: React.FC<{ achievement: UserAchievement }> = ({
+const AchievementRow: React.FC<{ achievement: AchievementRowData }> = ({
   achievement,
 }) => {
-  const isUnlocked = !!achievement.unlocked_at;
+  const colorKey = CATEGORY_COLOR_KEY[achievement.category] ?? "collection";
   const categoryColor =
-    AchievementColors[achievement.category] ?? Colors.sage;
+    (AchievementColors as Record<string, string>)[colorKey] ?? Colors.sage;
+  const categoryLabel = CATEGORY_LABELS[achievement.category] ?? achievement.category;
 
   return (
-    <View style={styles.achievementRow} testID={`achievement-${achievement.achievement_id}`}>
-      {/* Status icon */}
+    <View
+      style={styles.achievementRow}
+      testID={`achievement-${achievement.id}`}
+    >
+      {/* Category color icon */}
       <View
         style={[
           styles.achievementIcon,
           {
-            backgroundColor: isUnlocked ? categoryColor : Colors.paper,
+            backgroundColor: achievement.unlocked
+              ? categoryColor
+              : `${categoryColor}20`,
           },
         ]}
       >
-        {isUnlocked ? (
+        {achievement.unlocked ? (
           <Check size={16} color={Colors.white} strokeWidth={2.5} />
         ) : (
-          <Lock size={14} color={Colors.inkFaint} strokeWidth={1.5} />
+          <Lock
+            size={14}
+            color={achievement.progress > 0 ? categoryColor : Colors.inkFaint}
+            strokeWidth={1.5}
+          />
         )}
       </View>
 
       {/* Info */}
-      <View style={{ flex: 1 }}>
+      <View style={styles.achievementInfo}>
         <Text
           variant="medium"
           size="base"
-          color={Colors.ink}
-          testID={`achievement-name-${achievement.achievement_id}`}
+          color={achievement.unlocked ? Colors.ink : Colors.inkSoft}
+          numberOfLines={1}
+          testID={`achievement-name-${achievement.id}`}
         >
-          {achievement.achievement_id}
+          {achievement.name}
+        </Text>
+        <Text
+          variant="regular"
+          size="xs"
+          color={Colors.inkFaint}
+          numberOfLines={1}
+          testID={`achievement-desc-${achievement.id}`}
+        >
+          {achievement.unlocked
+            ? `${categoryLabel} · Earned ${formatShortDate(achievement.unlockedAt!)}`
+            : achievement.description}
         </Text>
 
         {/* Progress bar for in-progress */}
-        {!isUnlocked && achievement.progress > 0 && (
+        {!achievement.unlocked && achievement.progress > 0 && (
           <View style={styles.miniProgressBg}>
             <View
               style={[
@@ -161,17 +232,17 @@ const AchievementRow: React.FC<{ achievement: UserAchievement }> = ({
         )}
       </View>
 
-      {/* Right side: date or progress */}
-      <Text
-        variant="regular"
-        size="xs"
-        color={Colors.inkFaint}
-        testID={`achievement-status-${achievement.achievement_id}`}
-      >
-        {isUnlocked
-          ? formatShortDate(achievement.unlocked_at!)
-          : `${Math.round(achievement.progress * 100)}%`}
-      </Text>
+      {/* Right side */}
+      {!achievement.unlocked && achievement.progress > 0 && (
+        <Text
+          variant="semiBold"
+          size="xs"
+          color={categoryColor}
+          testID={`achievement-pct-${achievement.id}`}
+        >
+          {`${Math.round(achievement.progress * 100)}%`}
+        </Text>
+      )}
     </View>
   );
 };
@@ -203,6 +274,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     ...Shadows.sm,
   },
+  progressIconWrap: {
+    marginBottom: Spacing.sm,
+  },
   progressBarBg: {
     width: "100%",
     height: 6,
@@ -220,6 +294,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.xl,
     paddingBottom: Spacing["4xl"],
   },
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: Spacing.xl,
+    marginBottom: Spacing.sm,
+  },
   achievementRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -229,11 +310,15 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.paper,
   },
   achievementIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     alignItems: "center",
     justifyContent: "center",
+  },
+  achievementInfo: {
+    flex: 1,
+    gap: 2,
   },
   miniProgressBg: {
     height: 4,

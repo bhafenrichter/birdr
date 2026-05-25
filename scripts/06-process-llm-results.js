@@ -88,6 +88,19 @@ function fuzzyMatchType(value) {
   return null;
 }
 
+const VALID_SEASONS = new Set(["year_round", "summer", "winter", "migratory"]);
+
+function normalizeseason(value) {
+  if (!value) return "year_round";
+  const lower = value.toLowerCase().trim().replace(/[\s-]+/g, "_");
+  if (VALID_SEASONS.has(lower)) return lower;
+  if (lower.includes("year") || lower.includes("resident")) return "year_round";
+  if (lower.includes("summer") || lower.includes("breed")) return "summer";
+  if (lower.includes("winter")) return "winter";
+  if (lower.includes("migrat") || lower.includes("passage")) return "migratory";
+  return "year_round";
+}
+
 function fuzzyMatchHabitat(value) {
   const lower = value.toLowerCase().trim();
   for (const valid of VALID_HABITATS) {
@@ -196,6 +209,7 @@ function main() {
       species_type_slug: TYPE_SLUGS[speciesType],
       primary_habitat: habitat,
       primary_habitat_slug: HABITAT_SLUGS[habitat],
+      season: normalizeseason(llmData.season),
       size: llmData.size || null,
       about_text: llmData.about_text || null,
       distinguishing_feature: llmData.distinguishing_feature || null,

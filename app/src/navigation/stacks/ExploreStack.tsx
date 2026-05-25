@@ -17,11 +17,7 @@ export const ExploreStack: React.FC = () => (
       name="LocationPicker"
       component={LocationPickerScreen}
       options={{
-        presentation: "formSheet",
-        sheetGrabberVisible: true,
-        sheetCornerRadius: 24,
-        sheetExpandsWhenScrolledToEdge: false,
-        sheetAllowedDetents: "fitToContents",
+        presentation: "modal",
         contentStyle: { backgroundColor: "#EAF5E5" },
       }}
     />

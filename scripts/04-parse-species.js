@@ -9,7 +9,7 @@
  *   - Currently present / regularly occurring (not extinct or hypothetical)
  *
  * Joins IUCN conservation status if data/iucn-status.json exists.
- * Joins frequency/season data if data/frequency-by-state.json exists.
+ * Joins eBird state presence data if data/frequency-by-state.json exists.
  *
  * Input:  data/clements-taxonomy.csv
  * Output: data/na-species-parsed.json
@@ -101,32 +101,66 @@ async function main() {
   });
   console.log(`Species-level records: ${speciesOnly.length}`);
 
+  // Build species code → scientific name mapping from taxonomy
+  const codeToSciName = new Map();
+  for (const r of speciesOnly) {
+    const code = findColumn(r, "species_code", "Species Code", "eBird species code", "eBird_species_code");
+    const sciName = findColumn(r, "scientific name", "scientific_name", "Scientific name", "sci_name");
+    if (code && sciName) {
+      codeToSciName.set(code, sciName);
+    }
+  }
+  console.log(`Species codes mapped: ${codeToSciName.size}`);
+
+  // If we have eBird state data, use it to determine NA species
+  let naSpeciesCodes = null;
+  let stateData = null;
+  if (existsSync(FREQUENCY_FILE)) {
+    stateData = JSON.parse(readFileSync(FREQUENCY_FILE, "utf-8"));
+    const totalEntries = Object.values(stateData).reduce((sum, arr) => sum + arr.length, 0);
+
+    if (totalEntries > 0) {
+      // Collect all unique species codes seen in any US state
+      naSpeciesCodes = new Set();
+      for (const codes of Object.values(stateData)) {
+        for (const code of codes) {
+          naSpeciesCodes.add(code);
+        }
+      }
+      console.log(`\neBird state data: ${naSpeciesCodes.size} unique species codes across ${Object.keys(stateData).length} states`);
+    }
+  }
+
   // Filter to North American species
-  const naSpecies = speciesOnly.filter((r) => {
-    const range = findColumn(r, "range", "Range", "breeding_range", "Breeding Range", "eBird range");
-    return isNorthAmerican(range);
-  });
-  console.log(`North American species: ${naSpecies.length}`);
+  let naSpecies;
+  if (naSpeciesCodes && naSpeciesCodes.size > 0) {
+    // Use eBird presence data as the authoritative NA filter
+    naSpecies = speciesOnly.filter((r) => {
+      const code = findColumn(r, "species_code", "Species Code", "eBird species code", "eBird_species_code");
+      return code && naSpeciesCodes.has(code);
+    });
+    console.log(`North American species (from eBird state data): ${naSpecies.length}`);
+  } else {
+    // Fallback: filter by range description in taxonomy CSV
+    naSpecies = speciesOnly.filter((r) => {
+      const range = findColumn(r, "range", "Range", "breeding_range", "Breeding Range", "eBird range");
+      return isNorthAmerican(range);
+    });
+    console.log(`North American species (from range text): ${naSpecies.length}`);
+  }
 
-  // If NA filter is too aggressive (< 500 species), fall back to less strict filtering
-  let finalSpecies = naSpecies;
   if (naSpecies.length < 500) {
-    console.log("\nNA filter matched fewer than expected. Showing all species for manual review.");
-    console.log("Consider adjusting NA_KEYWORDS or using eBird region species list instead.\n");
-
-    // Fallback: use eBird species codes that match NA species checklist
-    // For now, output what we have
-    finalSpecies = naSpecies;
+    console.log("\nWarning: NA filter matched fewer than 500 species. Check filtering logic.");
   }
 
   // Map to our schema format
-  const species = finalSpecies.map((r) => ({
+  const species = naSpecies.map((r) => ({
     common_name: findColumn(r, "English name", "common_name", "English_name", "primary_com_name") || "",
     scientific_name: findColumn(r, "scientific name", "scientific_name", "Scientific name", "sci_name") || "",
     family: findColumn(r, "family", "Family") || "",
     taxonomic_order: findColumn(r, "order", "Order", "taxonomic_order") || "",
     species_code: findColumn(r, "species_code", "Species Code", "eBird species code", "eBird_species_code") || "",
-    sort_order: findColumn(r, "sort v2024", "sort", "Sort") || "",
+    sort_order: findColumn(r, "sort v2025", "sort v2024", "sort", "Sort") || "",
   }));
 
   // Deduplicate by scientific name
@@ -158,28 +192,33 @@ async function main() {
     }
   }
 
-  // Build species_regions from frequency data if available
+  // Build species_regions from eBird state presence data
   const regions = [];
-  if (existsSync(FREQUENCY_FILE)) {
-    console.log("\nJoining frequency/season data...");
-    const freqData = JSON.parse(readFileSync(FREQUENCY_FILE, "utf-8"));
-    const speciesNameSet = new Set(uniqueSpecies.map((sp) => sp.common_name.toLowerCase()));
+  if (stateData) {
+    console.log("\nBuilding species_regions from eBird state data...");
+    const sciNameToCommon = new Map(uniqueSpecies.map((sp) => [sp.scientific_name, sp.common_name]));
 
-    for (const [stateCode, stateSpecies] of Object.entries(freqData)) {
-      for (const entry of stateSpecies) {
-        if (speciesNameSet.has(entry.common_name.toLowerCase())) {
-          regions.push({
-            common_name: entry.common_name,
-            state_code: stateCode,
-            season: entry.season,
-            peak_frequency: entry.peak_frequency,
-          });
-        }
+    for (const [stateCode, speciesCodes] of Object.entries(stateData)) {
+      for (const code of speciesCodes) {
+        const sciName = codeToSciName.get(code);
+        if (!sciName) continue;
+        const commonName = sciNameToCommon.get(sciName);
+        if (!commonName) continue; // Not in our filtered species list
+
+        regions.push({
+          common_name: commonName,
+          scientific_name: sciName,
+          species_code: code,
+          state_code: stateCode,
+          // Season will be populated by LLM curation (script 05/06)
+          season: "year_round",
+          peak_frequency: null,
+        });
       }
     }
     console.log(`  ${regions.length} species-region entries`);
   } else {
-    console.log("\nNo frequency data found. Run step 03 to download.");
+    console.log("\nNo eBird state data found. Run step 03 to download.");
   }
 
   // Write outputs
@@ -198,6 +237,11 @@ async function main() {
   console.log(`  Species: ${uniqueSpecies.length}`);
   console.log(`  Families: ${families.size}`);
   console.log(`  Orders: ${orders.size}`);
+  if (regions.length > 0) {
+    const statesWithData = new Set(regions.map((r) => r.state_code));
+    console.log(`  States with data: ${statesWithData.size}`);
+    console.log(`  Avg species per state: ${Math.round(regions.length / statesWithData.size)}`);
+  }
 }
 
 main().catch((err) => {

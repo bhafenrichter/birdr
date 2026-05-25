@@ -2,9 +2,9 @@ import React, { useState, useMemo } from "react";
 import {
   View,
   StyleSheet,
-  FlatList,
   Pressable,
   TextInput as RNTextInput,
+  ActivityIndicator,
 } from "react-native";
 import { FlashList } from "@shopify/flash-list";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -21,7 +21,11 @@ import {
 } from "../theme";
 import { Text, SegmentedControl } from "../components/atoms";
 import { BirdCardThumb } from "../components/molecules/BirdCard";
-import { useCards, useAllSpecies } from "../hooks/useApi";
+import {
+  useCards,
+  useAllSpecies,
+  useAllSpeciesPaginated,
+} from "../hooks/useApi";
 import type { CollectionStackParamList } from "../navigation/stacks/CollectionStack";
 
 type Nav = NativeStackNavigationProp<CollectionStackParamList>;
@@ -41,27 +45,12 @@ export const CollectionScreen: React.FC = () => {
     () =>
       spottedCards.filter((c) => {
         const sp = species.find((s) => s.id === c.species_id);
-        return sp?.common_name.toLowerCase().includes(searchQuery.toLowerCase());
+        return sp?.common_name
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase());
       }),
-    [searchQuery, spottedCards, species]
+    [searchQuery, spottedCards, species],
   );
-
-  // All NA: group by habitat, mark spotted/locked
-  const allNAByHabitat = useMemo(() => {
-    const groups = new Map<string, { species: typeof species[0]; spotted: boolean }[]>();
-    for (const sp of species) {
-      const habitat = sp.habitat_name;
-      const list = groups.get(habitat) ?? [];
-      list.push({ species: sp, spotted: spottedIds.has(sp.id) });
-      groups.set(habitat, list);
-    }
-    return Array.from(groups.entries()).map(([habitat, items]) => ({
-      habitat,
-      items,
-      spotted: items.filter((i) => i.spotted).length,
-      total: items.length,
-    }));
-  }, [species, spottedIds]);
 
   const segments = [
     `Spotted · ${spottedCards.length}`,
@@ -111,112 +100,171 @@ export const CollectionScreen: React.FC = () => {
 
       {/* Grid */}
       {segmentIndex === 0 ? (
-        // Spotted view
-        filteredSpotted.length === 0 ? (
-          <View style={styles.emptyState} testID="collection-empty">
-            <Text
-              variant="semiBold"
-              size="lg"
-              color={Colors.ink}
-              align="center"
-              testID="collection-empty-title"
-            >
-              {searchQuery
-                ? "No species match your search"
-                : "No captures yet"}
-            </Text>
-            {!searchQuery && (
-              <Text
-                variant="regular"
-                size="sm"
-                color={Colors.inkSoft}
-                align="center"
-                testID="collection-empty-subtitle"
-                style={{ marginTop: Spacing.sm }}
-              >
-                Photograph your first bird to start your collection
-              </Text>
-            )}
-          </View>
-        ) : (
-          <FlashList
-            data={filteredSpotted}
-            keyExtractor={(item) => item.species_id}
-            numColumns={3}
-            contentContainerStyle={styles.gridContent}
-            showsVerticalScrollIndicator={false}
-            renderItem={({ item }) => {
-              const sp = species.find((s) => s.id === item.species_id);
-              return (
-                <Pressable
-                  style={styles.gridCell}
-                  onPress={() => handleCardPress(item.species_id)}
-                  testID={`collection-card-${item.species_id}`}
-                >
-                  <BirdCardThumb
-                    data={{
-                      speciesName: sp?.common_name ?? "Unknown",
-                      familyName: sp?.family ?? "",
-                      habitat: sp?.habitat_name ?? "",
-                      conservationTier: (sp?.conservation_status ?? "LC") as any,
-                      photoUri: item.hero_photo_url,
-                      sightingCount: item.sighting_count,
-                    }}
-                    testID={`collection-thumb-${item.species_id}`}
-                  />
-                </Pressable>
-              );
-            }}
-          />
-        )
+        <SpottedView
+          cards={filteredSpotted}
+          species={species}
+          searchQuery={searchQuery}
+          onCardPress={handleCardPress}
+        />
       ) : (
-        // All NA view — grouped by habitat
-        <FlatList
-          data={allNAByHabitat}
-          keyExtractor={(item) => item.habitat}
-          contentContainerStyle={styles.gridContent}
-          showsVerticalScrollIndicator={false}
-          renderItem={({ item: group }) => (
-            <View
-              style={styles.habitatGroup}
-              testID={`collection-habitat-${group.habitat}`}
-            >
-              <Text
-                variant="semiBold"
-                size="base"
-                color={Colors.ink}
-                testID={`collection-habitat-${group.habitat}-title`}
-              >
-                {`${group.habitat} · ${group.spotted} of ${group.total}`}
-              </Text>
-              <View style={styles.habitatGrid}>
-                {group.items.map(({ species: sp, spotted }) => (
-                  <Pressable
-                    key={sp.id}
-                    style={styles.gridCell}
-                    onPress={() => handleCardPress(sp.id)}
-                    testID={`collection-card-${sp.id}`}
-                  >
-                    <BirdCardThumb
-                      data={{
-                        speciesName: sp.common_name,
-                        familyName: sp.family,
-                        habitat: sp.habitat_name,
-                        conservationTier: sp.conservation_status as any,
-                        photoUri: null,
-                        sightingCount: spotted ? 1 : 0,
-                        locked: !spotted,
-                      }}
-                      testID={`collection-thumb-${sp.id}`}
-                    />
-                  </Pressable>
-                ))}
-              </View>
-            </View>
-          )}
+        <AllNAView
+          searchQuery={searchQuery}
+          spottedIds={spottedIds}
+          onCardPress={handleCardPress}
         />
       )}
     </SafeAreaView>
+  );
+};
+
+// ── Spotted view ──────────────────────────────────────────────────────────
+
+const SpottedView: React.FC<{
+  cards: any[];
+  species: any[];
+  searchQuery: string;
+  onCardPress: (id: string) => void;
+}> = ({ cards, species, searchQuery, onCardPress }) => {
+  if (cards.length === 0) {
+    return (
+      <View style={styles.emptyState} testID="collection-empty">
+        <Text
+          variant="semiBold"
+          size="lg"
+          color={Colors.ink}
+          align="center"
+          testID="collection-empty-title"
+        >
+          {searchQuery ? "No species match your search" : "No captures yet"}
+        </Text>
+        {!searchQuery && (
+          <Text
+            variant="regular"
+            size="sm"
+            color={Colors.inkSoft}
+            align="center"
+            testID="collection-empty-subtitle"
+            style={{ marginTop: Spacing.sm }}
+          >
+            Photograph your first bird to start your collection
+          </Text>
+        )}
+      </View>
+    );
+  }
+
+  return (
+    <FlashList
+      data={cards}
+      keyExtractor={(item) => item.species_id}
+      numColumns={2}
+      contentContainerStyle={styles.gridContent}
+      showsVerticalScrollIndicator={false}
+      estimatedItemSize={160}
+      renderItem={({ item }) => {
+        const sp = species.find((s: any) => s.id === item.species_id);
+        return (
+          <View style={styles.gridCell}>
+            <Pressable
+              onPress={() => onCardPress(item.species_id)}
+              testID={`collection-card-${item.species_id}`}
+            >
+              <BirdCardThumb
+                data={{
+                  speciesName: sp?.common_name ?? "Unknown",
+                  familyName: sp?.family ?? "",
+                  speciesType: sp?.species_type_name ?? "",
+                  habitat: sp?.habitat_name ?? "",
+                  conservationTier: (sp?.conservation_status ?? "LC") as any,
+                  photoUri: item.hero_photo_url,
+                  sightingCount: item.sighting_count,
+                }}
+                testID={`collection-thumb-${item.species_id}`}
+              />
+            </Pressable>
+          </View>
+        );
+      }}
+    />
+  );
+};
+
+// ── All NA view (paginated 3-col grid) ────────────────────────────────────
+
+const AllNAView: React.FC<{
+  searchQuery: string;
+  spottedIds: Set<string>;
+  onCardPress: (id: string) => void;
+}> = ({ searchQuery, spottedIds, onCardPress }) => {
+  const { data, isLoading, isLoadingMore, hasMore, loadMore } =
+    useAllSpeciesPaginated(searchQuery);
+
+  if (isLoading) {
+    return (
+      <View style={styles.emptyState} testID="collection-all-loading">
+        <ActivityIndicator size="small" color={Colors.sage} />
+      </View>
+    );
+  }
+
+  if (data.length === 0) {
+    return (
+      <View style={styles.emptyState} testID="collection-all-empty">
+        <Text
+          variant="semiBold"
+          size="lg"
+          color={Colors.ink}
+          align="center"
+          testID="collection-all-empty-title"
+        >
+          No species match "{searchQuery}"
+        </Text>
+      </View>
+    );
+  }
+
+  return (
+    <FlashList
+      data={data}
+      keyExtractor={(item) => item.id}
+      numColumns={2}
+      contentContainerStyle={styles.gridContent}
+      showsVerticalScrollIndicator={false}
+      onEndReached={loadMore}
+      onEndReachedThreshold={0.5}
+      ListFooterComponent={
+        isLoadingMore ? (
+          <View style={styles.loadingFooter}>
+            <ActivityIndicator size="small" color={Colors.sage} />
+          </View>
+        ) : null
+      }
+      renderItem={({ item }) => {
+        const spotted = spottedIds.has(item.id);
+        return (
+          <View style={styles.gridCell}>
+            <Pressable
+              onPress={() => onCardPress(item.id)}
+              testID={`collection-card-${item.id}`}
+            >
+              <BirdCardThumb
+                data={{
+                  speciesName: item.common_name,
+                  familyName: item.family,
+                  speciesType: item.species_type_name,
+                  habitat: item.habitat_name,
+                  conservationTier: item.conservation_status as any,
+                  photoUri: null,
+                  sightingCount: spotted ? 1 : 0,
+                  locked: !spotted,
+                }}
+                testID={`collection-thumb-${item.id}`}
+              />
+            </Pressable>
+          </View>
+        );
+      }}
+    />
   );
 };
 
@@ -254,16 +302,13 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   gridContent: {
-    paddingHorizontal: Spacing.xl,
+    paddingHorizontal: Spacing.md,
     paddingBottom: Spacing["4xl"],
-  },
-  gridRow: {
-    gap: Spacing.sm,
-    marginBottom: Spacing.sm,
   },
   gridCell: {
     flex: 1,
-    maxWidth: "33%",
+    paddingHorizontal: Spacing.xs,
+    paddingVertical: Spacing.xs,
   },
   emptyState: {
     flex: 1,
@@ -271,14 +316,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingHorizontal: Spacing["3xl"],
   },
-  habitatGroup: {
-    marginBottom: Spacing.xl,
-  },
-  habitatGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: Spacing.sm,
-    marginTop: Spacing.sm,
+  loadingFooter: {
+    paddingVertical: Spacing.xl,
+    alignItems: "center",
   },
 });
 

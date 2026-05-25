@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { View, StyleSheet, Pressable } from "react-native";
+import { View, StyleSheet, Pressable, ImageBackground } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -36,8 +36,7 @@ export const CaptureHubScreen: React.FC = () => {
   const lastCapture = streakData?.last_capture_date;
   const hasCapturedToday =
     lastCapture === new Date().toISOString().split("T")[0];
-  const isSubscribed = profile?.subscription_tier !== "free";
-  const { presentPaywall } = useRevenueCat();
+  const { isSubscribed, presentPaywall } = useRevenueCat();
   const dailyUsed = profile?.daily_captures_used ?? 0;
   const quotaRemaining = Math.max(0, 3 - dailyUsed);
 
@@ -55,99 +54,107 @@ export const CaptureHubScreen: React.FC = () => {
   }));
 
   return (
-    <SafeAreaView style={styles.container} testID="capture-hub-screen">
-      {/* Top header bar */}
-      <View style={styles.headerBar}>
-        <Text
-          variant="bold"
-          size="2xl"
-          color={Colors.sage}
-          testID="capture-hub-wordmark"
-        >
-          birdr
-        </Text>
-
-        {/* Streak chip — tappable */}
-        <Pressable
-          style={styles.streakChip}
-          onPress={() => navigation.navigate("StreakDetail")}
-          testID="capture-hub-streak-chip"
-        >
-          <Flame size={28} color={Colors.coral} strokeWidth={2} />
+    <ImageBackground
+      source={require("../../assets/capture-background.jpg")}
+      style={styles.background}
+      resizeMode="cover"
+    >
+      <SafeAreaView style={styles.container} testID="capture-hub-screen">
+        {/* Top header bar */}
+        <View style={styles.headerBar}>
           <Text
             variant="bold"
-            size="lg"
-            color={Colors.ink}
-            testID="capture-hub-streak-count"
+            size="2xl"
+            color={Colors.sage}
+            testID="capture-hub-wordmark"
           >
-            {String(currentStreak)}
+            birdr
           </Text>
-        </Pressable>
-      </View>
 
-      <View style={styles.scrollContent}>
-        {/* Big capture button with pulse */}
-        <Animated.View style={[styles.captureButton, pulseStyle]}>
+          {/* Streak chip — tappable */}
           <Pressable
-            style={({ pressed }) => [
-              pressed && { transform: [{ scale: 0.95 }] },
-            ]}
-            onPress={() => navigation.navigate("CaptureFlow")}
-            testID="capture-hub-capture-button"
-            accessible
-            accessibilityRole="button"
-            accessibilityLabel="Open camera to capture a bird"
+            style={styles.streakChip}
+            onPress={() => navigation.navigate("StreakDetail")}
+            testID="capture-hub-streak-chip"
           >
-            <LinearGradient
-              colors={[Colors.sage, Colors.sageLight]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.captureButtonGradient}
+            <Flame size={28} color={Colors.coral} strokeWidth={2} />
+            <Text
+              variant="bold"
+              size="lg"
+              color={Colors.ink}
+              testID="capture-hub-streak-count"
             >
-              <Binoculars size={40} color={Colors.white} strokeWidth={1.5} />
-            </LinearGradient>
+              {String(currentStreak)}
+            </Text>
           </Pressable>
-        </Animated.View>
+        </View>
 
-        {/* Daily quota (free tier) */}
-        {!isSubscribed && (
-          <>
-            <View style={styles.quotaBadge} testID="capture-hub-quota-badge">
-              <Text
-                variant="medium"
-                size="sm"
-                color={Colors.inkSoft}
-                testID="capture-hub-quota-text"
-              >
-                {`${quotaRemaining} of 3 captures left today`}
-              </Text>
-            </View>
+        <View style={styles.scrollContent}>
+          {/* Big capture button with pulse */}
+          <Animated.View style={[styles.captureButton, pulseStyle]}>
             <Pressable
-              style={styles.upgradeLink}
-              onPress={presentPaywall}
-              testID="capture-hub-upgrade"
+              style={({ pressed }) => [
+                pressed && { transform: [{ scale: 0.95 }] },
+              ]}
+              onPress={() => navigation.navigate("CaptureFlow")}
+              testID="capture-hub-capture-button"
+              accessible
+              accessibilityRole="button"
+              accessibilityLabel="Open camera to capture a bird"
             >
-              <Crown size={14} color={Colors.saffron} strokeWidth={2} />
-              <Text
-                variant="medium"
-                size="sm"
-                color={Colors.saffron}
-                testID="capture-hub-upgrade-text"
+              <LinearGradient
+                colors={[Colors.sage, Colors.sageLight]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.captureButtonGradient}
               >
-                Upgrade for unlimited
-              </Text>
+                <Binoculars size={40} color={Colors.white} strokeWidth={1.5} />
+              </LinearGradient>
             </Pressable>
-          </>
-        )}
-      </View>
-    </SafeAreaView>
+          </Animated.View>
+
+          {/* Daily quota (free tier) */}
+          {!isSubscribed && (
+            <>
+              <View style={styles.quotaBadge} testID="capture-hub-quota-badge">
+                <Text
+                  variant="medium"
+                  size="sm"
+                  color={Colors.inkSoft}
+                  testID="capture-hub-quota-text"
+                >
+                  {`${quotaRemaining} of 3 captures left today`}
+                </Text>
+              </View>
+              <Pressable
+                style={styles.upgradeLink}
+                onPress={presentPaywall}
+                testID="capture-hub-upgrade"
+              >
+                <Crown size={14} color={Colors.sage} strokeWidth={2} />
+                <Text
+                  variant="medium"
+                  size="sm"
+                  color={Colors.sage}
+                  testID="capture-hub-upgrade-text"
+                >
+                  Upgrade for unlimited
+                </Text>
+              </Pressable>
+            </>
+          )}
+        </View>
+      </SafeAreaView>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+  },
   container: {
     flex: 1,
-    backgroundColor: Colors.cream,
   },
   headerBar: {
     flexDirection: "row",

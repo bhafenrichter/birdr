@@ -46,11 +46,18 @@ const HABITATS = [
   "Cities & towns",
 ];
 
+const SEASONS = ["year_round", "summer", "winter", "migratory"];
+
 const SYSTEM_PROMPT = `You are a bird taxonomy expert helping curate a North American bird species database for a mobile app called birdr. For each species, provide accurate, factual data in the requested JSON format.
 
 Rules:
 - species_type must be exactly one of: ${SPECIES_TYPES.join(", ")}
 - primary_habitat must be exactly one of: ${HABITATS.join(", ")}
+- season describes the species' typical presence pattern across most of its North American range. Must be exactly one of: ${SEASONS.join(", ")}
+  - year_round: resident species present all year (e.g. Northern Cardinal)
+  - summer: breeds in NA spring/summer, migrates south for winter (e.g. Ruby-throated Hummingbird)
+  - winter: winters in NA, breeds elsewhere (e.g. Snowy Owl in lower 48)
+  - migratory: passes through during spring/fall migration, doesn't breed or winter in most of NA (e.g. many shorebirds)
 - size should be a range in cm (body length), e.g. "12-15 cm"
 - about_text should be 2-3 sentences of engaging, accurate editorial copy suitable for a casual audience. Focus on what makes this bird interesting or distinctive.
 - distinguishing_feature should be 5-8 words describing the key visual identifier, e.g. "Bright red body, black face mask"
@@ -69,6 +76,7 @@ Respond with this exact JSON structure:
 {
   "species_type": "<one of the 9 types>",
   "primary_habitat": "<one of the 9 habitats>",
+  "season": "<year_round | summer | winter | migratory>",
   "size": "<body length range in cm>",
   "about_text": "<2-3 sentence description>",
   "distinguishing_feature": "<5-8 word visual identifier>"

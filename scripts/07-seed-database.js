@@ -139,10 +139,13 @@ async function main() {
     console.log("\nSeeding species_regions...");
     const regions = JSON.parse(readFileSync(REGIONS_FILE, "utf-8"));
 
-    // Need to map common_name → species.id
-    // Fetch all species IDs
-    const allSpecies = await supabaseRequest("species?select=id,common_name");
+    // Need to map common_name → species.id and season from curated data
+    const allSpecies = await supabaseRequest("species?select=id,common_name,scientific_name");
     const speciesIdMap = new Map(allSpecies.map((sp) => [sp.common_name.toLowerCase(), sp.id]));
+    const sciNameToId = new Map(allSpecies.map((sp) => [sp.scientific_name, sp.id]));
+
+    // Build season lookup from curated data (LLM-derived)
+    const seasonMap = new Map(curated.map((sp) => [sp.scientific_name, sp.season || "year_round"]));
 
     let regionInserted = 0;
     let regionSkipped = 0;
@@ -152,16 +155,20 @@ async function main() {
       const rows = [];
 
       for (const r of batch) {
-        const speciesId = speciesIdMap.get(r.common_name.toLowerCase());
+        // Try scientific_name first, fall back to common_name
+        const speciesId = (r.scientific_name && sciNameToId.get(r.scientific_name))
+          || speciesIdMap.get(r.common_name.toLowerCase());
         if (!speciesId) {
           regionSkipped++;
           continue;
         }
+        // Use LLM-derived season if available, otherwise use region file's season
+        const season = (r.scientific_name && seasonMap.get(r.scientific_name)) || r.season || "year_round";
         rows.push({
           species_id: speciesId,
           state_code: r.state_code,
-          season: r.season,
-          peak_frequency: r.peak_frequency,
+          season,
+          peak_frequency: r.peak_frequency || null,
         });
       }
 
