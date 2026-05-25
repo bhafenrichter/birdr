@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import {
   View,
   StyleSheet,
@@ -12,9 +12,12 @@ import Animated, {
   withDelay,
   Easing,
   runOnJS,
+  interpolate,
+  Extrapolation,
 } from "react-native-reanimated";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import { SafeAreaView } from "react-native-safe-area-context";
+import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import type { RouteProp } from "@react-navigation/native";
 import {
@@ -22,10 +25,12 @@ import {
   ChevronRight,
   MapPin,
   Star,
-  ChevronsUp,
+  ChevronRight as ChevronRightSmall,
+  ChevronUp,
 } from "lucide-react-native";
 import { Colors, Spacing, BorderRadius, Shadows } from "../theme";
 import { Text } from "../components/atoms";
+import { Image } from "expo-image";
 import { BirdCard } from "../components/molecules/BirdCard";
 import { GestureCardContainer } from "../components/molecules/GestureCardContainer";
 import { ShinyCardOverlay } from "../components/molecules/ShinyCardOverlay";
@@ -48,6 +53,7 @@ export const CardDetailScreen: React.FC = () => {
   const navigation = useNavigation<Nav>();
   const route = useRoute<RouteProps>();
   const { speciesId } = route.params;
+  const insets = useSafeAreaInsets();
 
   const { data: allSpecies } = useAllSpecies();
   const { data: cards } = useCards();
@@ -72,27 +78,28 @@ export const CardDetailScreen: React.FC = () => {
     []
   );
 
+  // Bottom sheet
+  const bottomSheetRef = useRef<BottomSheet>(null);
+  const snapPoints = useMemo(() => ["12%", "50%"], []);
+  const [sheetIndex, setSheetIndex] = useState(0);
+
   // Animation values
   const overlayOpacity = useSharedValue(0);
-  const cardScale = useSharedValue(0.3);
+  const enterScale = useSharedValue(0.3);
   const cardOpacity = useSharedValue(0);
   const cardTranslateX = useSharedValue(0);
-  const sheetTranslateY = useSharedValue(60);
-  const sheetOpacity = useSharedValue(0);
+  const sheetAnimatedIndex = useSharedValue(0);
 
   useEffect(() => {
     overlayOpacity.value = withTiming(1, { duration: 250 });
-    cardScale.value = withTiming(1, { duration: 350, easing: Easing.out(Easing.cubic) });
+    enterScale.value = withTiming(1, { duration: 350, easing: Easing.out(Easing.cubic) });
     cardOpacity.value = withTiming(1, { duration: 200 });
     cardTranslateX.value = 0;
-    sheetTranslateY.value = withDelay(150, withTiming(0, { duration: 200 }));
-    sheetOpacity.value = withDelay(150, withTiming(1, { duration: 150 }));
   }, []);
 
   const animateOut = (cb: () => void) => {
-    sheetOpacity.value = withTiming(0, { duration: 120 });
-    sheetTranslateY.value = withTiming(60, { duration: 150 });
-    cardScale.value = withTiming(0.6, { duration: 200 });
+    bottomSheetRef.current?.close();
+    enterScale.value = withTiming(0.6, { duration: 200 });
     cardOpacity.value = withTiming(0, { duration: 180 });
     overlayOpacity.value = withTiming(0, { duration: 200 }, () => {
       runOnJS(cb)();
@@ -130,18 +137,31 @@ export const CardDetailScreen: React.FC = () => {
     opacity: overlayOpacity.value,
   }));
 
-  const cardAnimStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateX: cardTranslateX.value },
-      { scale: cardScale.value },
-    ],
-    opacity: cardOpacity.value,
-  }));
+  const cardAnimStyle = useAnimatedStyle(() => {
+    // animatedIndex: 0 = minimized (12%), 1 = expanded (50%)
+    const sheetScale = interpolate(
+      sheetAnimatedIndex.value,
+      [0, 1],
+      [1, 0.65],
+      Extrapolation.CLAMP,
+    );
+    const scale = Math.min(enterScale.value, sheetScale);
+    const sheetTranslateY = interpolate(
+      sheetAnimatedIndex.value,
+      [0, 1],
+      [0, -SCREEN_HEIGHT * 0.25],
+      Extrapolation.CLAMP,
+    );
+    return {
+      transform: [
+        { translateX: cardTranslateX.value },
+        { translateY: sheetTranslateY },
+        { scale },
+      ],
+      opacity: cardOpacity.value,
+    };
+  });
 
-  const sheetAnimStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: sheetTranslateY.value }],
-    opacity: sheetOpacity.value,
-  }));
 
   const species = allSpecies?.find((s) => s.id === speciesId);
   const userCard = cards?.find((c) => c.species_id === speciesId);
@@ -183,24 +203,27 @@ export const CardDetailScreen: React.FC = () => {
 
   const isSpotted = !!userCard;
   const lastSighting = sightings[0];
-  const lastSpottedLabel = lastSighting
-    ? getRelativeDate(lastSighting.captured_at)
-    : null;
 
   return (
     <View style={styles.container} testID="card-detail-screen">
       {/* Animated dark overlay */}
       <Animated.View style={[StyleSheet.absoluteFill, styles.overlayBg, overlayStyle]} />
 
-      {/* Tap backdrop to close */}
+      {/* Tap backdrop — minimize sheet if expanded, otherwise close */}
       <Pressable
         style={StyleSheet.absoluteFill}
-        onPress={handleBack}
+        onPress={() => {
+          if (sheetIndex > 0) {
+            bottomSheetRef.current?.snapToIndex(0);
+          } else {
+            handleBack();
+          }
+        }}
         testID="card-detail-backdrop"
       />
 
-      <SafeAreaView style={styles.safeArea} pointerEvents="box-none">
-        {/* Top bar */}
+      {/* Top bar — absolute, above everything */}
+      <View style={[styles.topBarSafe, { paddingTop: insets.top }]} pointerEvents="box-none">
         <View style={styles.topBar} pointerEvents="box-none">
           <Pressable
             style={styles.backBtn}
@@ -210,7 +233,11 @@ export const CardDetailScreen: React.FC = () => {
             <ChevronLeft size={24} color={Colors.white} strokeWidth={2} />
           </Pressable>
         </View>
+      </View>
 
+      {/* Bottom sheet — absolute bottom, overlays card */}
+
+      <SafeAreaView style={styles.cardArea} pointerEvents="box-none">
         {/* Card + nav arrows */}
         <GestureDetector gesture={swipeGesture}>
         <Animated.View style={[styles.cardRow, cardAnimStyle]} pointerEvents="box-none">
@@ -272,83 +299,183 @@ export const CardDetailScreen: React.FC = () => {
           </Pressable>
         </Animated.View>
         </GestureDetector>
+      </SafeAreaView>
 
-        {/* Bottom sheet */}
-        <Animated.View style={[styles.bottomSheet, sheetAnimStyle]} testID="card-detail-bottom-sheet">
-          {isSpotted && lastSighting ? (
+      {/* Bottom Sheet */}
+      <BottomSheet
+        key={speciesId}
+        ref={bottomSheetRef}
+        index={0}
+        snapPoints={snapPoints}
+        onChange={setSheetIndex}
+        animatedIndex={sheetAnimatedIndex}
+        enableDynamicSizing={false}
+        enablePanDownToClose={false}
+        backgroundStyle={styles.sheetBackground}
+        handleIndicatorStyle={styles.sheetHandle}
+        style={styles.sheetContainer}
+      >
+        <Pressable
+          onPress={() => {
+            bottomSheetRef.current?.snapToIndex(sheetIndex === 0 ? 1 : 0);
+          }}
+        >
+        <BottomSheetScrollView contentContainerStyle={styles.sheetContent} scrollEnabled={sheetIndex > 0}>
+          {isSpotted && sightings.length > 0 ? (
             <>
-              <View style={styles.sheetRow}>
-                <View style={styles.locationPin}>
-                  <MapPin size={18} color={Colors.coral} strokeWidth={2} />
-                </View>
-                <View style={styles.sheetInfo}>
-                  <Text
-                    variant="regular"
-                    size="xs"
-                    color={Colors.inkFaint}
-                    testID="card-detail-last-spotted-label"
-                    style={{ textTransform: "uppercase", letterSpacing: 1 }}
-                  >
-                    {`Last spotted ${lastSpottedLabel}`}
+              {/* Header */}
+              <View style={styles.sheetSummaryRow}>
+                <MapPin size={22} color={Colors.coral} strokeWidth={2} />
+                <View style={styles.sightingInfo}>
+                  <Text variant="semiBold" size="lg" color={Colors.ink}>
+                    Your sightings
                   </Text>
-                  <Text
-                    variant="semiBold"
-                    size="base"
-                    color={Colors.ink}
-                    testID="card-detail-location"
-                  >
-                    {lastSighting.named_location ?? "Unknown location"}
+                  <Text variant="regular" size="xs" color={Colors.inkSoft}>
+                    {`${sightings.length} spot${sightings.length === 1 ? "" : "s"}${uniqueLocations(sightings) > 1 ? ` across ${uniqueLocations(sightings)} locations` : ""} · since ${formatShortDate(userCard!.first_seen_at)}`}
                   </Text>
                 </View>
                 <View style={styles.sightingsBadge}>
                   <Star size={12} color={Colors.saffron} strokeWidth={2} fill={Colors.saffron} />
-                  <Text
-                    variant="semiBold"
-                    size="xs"
-                    color={Colors.saffron}
-                    testID="card-detail-sighting-count"
-                  >
-                    {`${userCard!.sighting_count} sighting${userCard!.sighting_count === 1 ? "" : "s"}`}
+                  <Text variant="semiBold" size="xs" color={Colors.saffron}>
+                    {`${sightings.length}`}
                   </Text>
                 </View>
+                <Pressable
+                  style={styles.expandBtn}
+                  onPress={() => bottomSheetRef.current?.snapToIndex(sheetIndex < 1 ? 1 : 0)}
+                  testID="card-detail-expand-sheet"
+                >
+                  <ChevronUp
+                    size={20}
+                    color={Colors.inkSoft}
+                    strokeWidth={2}
+                    style={undefined}
+                  />
+                </Pressable>
               </View>
-              {sightings.length > 1 && (
-                <View style={styles.sheetHint}>
-                  <ChevronsUp size={14} color={Colors.inkFaint} strokeWidth={1.5} />
-                  <Text variant="regular" size="xs" color={Colors.inkFaint}>
-                    Swipe up for sightings
+
+              {/* Recent sightings */}
+              <View style={[styles.sectionHeader, { marginTop: Spacing.lg }]}>
+                <Text
+                  variant="semiBold"
+                  size="xs"
+                  color={Colors.inkFaint}
+                  style={{ textTransform: "uppercase", letterSpacing: 1 }}
+                >
+                  Recent sightings
+                </Text>
+                {sightings.length > 3 && (
+                  <Text variant="semiBold" size="xs" color={Colors.sage}>
+                    {`View all ${sightings.length} →`}
                   </Text>
+                )}
+              </View>
+
+              {sightings.slice(0, 5).map((sighting) => (
+                <View key={sighting.id} style={styles.sightingRow} testID={`sighting-${sighting.id}`}>
+                  {sighting.photo_url ? (
+                    <View style={styles.sightingPhoto}>
+                      <Image
+                        source={{ uri: sighting.photo_url }}
+                        style={{ width: "100%", height: "100%" }}
+                        contentFit="cover"
+                      />
+                    </View>
+                  ) : (
+                    <View style={[styles.sightingPhoto, { backgroundColor: Colors.sageTint, alignItems: "center", justifyContent: "center" }]}>
+                      <MapPin size={16} color={Colors.sage} strokeWidth={1.5} />
+                    </View>
+                  )}
+                  <View style={styles.sightingInfo}>
+                    <Text variant="semiBold" size="sm" color={Colors.ink}>
+                      {`${getRelativeLabel(sighting.captured_at)} · ${formatTime(sighting.captured_at)}`}
+                    </Text>
+                    <Text variant="regular" size="xs" color={Colors.inkSoft}>
+                      {sighting.named_location ?? "Unknown location"}
+                    </Text>
+                  </View>
+                  <ChevronRightSmall size={16} color={Colors.inkFaint} strokeWidth={1.5} />
                 </View>
-              )}
+              ))}
+
+              {/* Map placeholder — only at highest snap */}
+              <View style={styles.mapPreview} testID="card-detail-map">
+                <MapPin size={28} color={Colors.coral} strokeWidth={1.5} />
+                <Text variant="regular" size="xs" color={Colors.inkSoft} style={{ marginTop: Spacing.xs }}>
+                  {`${sightings[0]?.named_location ?? "Your area"} · ${sightings.length} spot${sightings.length === 1 ? "" : "s"}`}
+                </Text>
+              </View>
             </>
           ) : (
-            <View style={styles.unspottedSheet}>
-              <Text
-                variant="semiBold"
-                size="base"
-                color={Colors.ink}
-                align="center"
-                testID="card-detail-unspotted-text"
-              >
-                Not yet spotted
-              </Text>
-              <Text
-                variant="regular"
-                size="sm"
-                color={Colors.inkSoft}
-                align="center"
-                testID="card-detail-unspotted-hint"
-                style={{ marginTop: Spacing.xs }}
-              >
-                Head out and capture one to add it to your collection
-              </Text>
-            </View>
+            <>
+              {/* Not spotted */}
+              <View style={[styles.sheetSummaryRow, { paddingVertical: Spacing.md }]}>
+                <MapPin size={22} color={Colors.inkFaint} strokeWidth={2} />
+                <View style={styles.sightingInfo}>
+                  <Text variant="semiBold" size="lg" color={Colors.ink}>
+                    Not yet spotted
+                  </Text>
+                  <Text variant="regular" size="xs" color={Colors.inkSoft}>
+                    Swipe up to see where to find them
+                  </Text>
+                </View>
+                <Pressable
+                  style={styles.expandBtn}
+                  onPress={() => bottomSheetRef.current?.snapToIndex(sheetIndex < 1 ? 1 : 0)}
+                  testID="card-detail-expand-sheet-empty"
+                >
+                  <ChevronUp
+                    size={20}
+                    color={Colors.inkSoft}
+                    strokeWidth={2}
+                    style={undefined}
+                  />
+                </Pressable>
+              </View>
+
+              <View style={[styles.mapPreview, { marginTop: Spacing.lg }]} testID="card-detail-map-empty">
+                <MapPin size={28} color={Colors.inkFaint} strokeWidth={1.5} />
+                <Text variant="regular" size="xs" color={Colors.inkFaint} style={{ marginTop: Spacing.xs }}>
+                  Your sightings will appear here
+                </Text>
+              </View>
+            </>
           )}
-        </Animated.View>
-      </SafeAreaView>
+        </BottomSheetScrollView>
+        </Pressable>
+      </BottomSheet>
     </View>
   );
 };
+
+function uniqueLocations(sightings: { named_location: string | null }[]): number {
+  return new Set(sightings.map((s) => s.named_location).filter(Boolean)).size;
+}
+
+function formatShortDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+}
+
+function getRelativeLabel(iso: string): string {
+  const now = new Date();
+  const date = new Date(iso);
+  const diffMs = now.getTime() - date.getTime();
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) return "Today";
+  if (diffDays === 1) return "Yesterday";
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+function formatTime(iso: string): string {
+  return new Date(iso).toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-US", {
@@ -358,18 +485,6 @@ function formatDate(iso: string): string {
   });
 }
 
-function getRelativeDate(iso: string): string {
-  const now = new Date();
-  const date = new Date(iso);
-  const diffMs = now.getTime() - date.getTime();
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-  if (diffDays === 0) return "today";
-  if (diffDays === 1) return "yesterday";
-  if (diffDays < 7) return `${diffDays} days ago`;
-  if (diffDays < 30) return `${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) === 1 ? "" : "s"} ago`;
-  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-}
 
 const styles = StyleSheet.create({
   container: {
@@ -382,9 +497,16 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.75)",
   },
-  safeArea: {
+  topBarSafe: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 20,
+  },
+  cardArea: {
     flex: 1,
-    justifyContent: "space-between",
+    justifyContent: "center",
   },
   centered: {
     flex: 1,
@@ -423,18 +545,27 @@ const styles = StyleSheet.create({
   cardWrapper: {
     marginHorizontal: Spacing.sm,
   },
-  bottomSheet: {
-    marginHorizontal: Spacing.lg,
-    marginBottom: Spacing.md,
+  sheetContainer: {
+    zIndex: 10,
+  },
+  sheetBackground: {
     backgroundColor: Colors.white,
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.lg,
+    borderTopLeftRadius: BorderRadius.xl,
+    borderTopRightRadius: BorderRadius.xl,
     ...Shadows.md,
   },
-  sheetRow: {
+  sheetHandle: {
+    backgroundColor: Colors.paper,
+    width: 36,
+  },
+  sheetContent: {
+    paddingHorizontal: Spacing.lg,
+    paddingBottom: Spacing["4xl"],
+  },
+  sheetSummaryRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: Spacing.md,
+    gap: Spacing.sm,
   },
   locationPin: {
     width: 36,
@@ -443,10 +574,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.cream,
     alignItems: "center",
     justifyContent: "center",
-  },
-  sheetInfo: {
-    flex: 1,
-    gap: 2,
   },
   sightingsBadge: {
     flexDirection: "row",
@@ -457,18 +584,50 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.xs,
     borderRadius: BorderRadius.md,
   },
-  sheetHint: {
-    flexDirection: "row",
+  expandBtn: {
+    minWidth: 32,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: Colors.paper,
     alignItems: "center",
     justifyContent: "center",
-    gap: Spacing.xs,
-    marginTop: Spacing.md,
-    paddingTop: Spacing.sm,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: Colors.paper,
+    flexShrink: 0,
+    flexGrow: 0,
   },
-  unspottedSheet: {
-    paddingVertical: Spacing.sm,
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: Spacing.sm,
+  },
+  sightingRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.md,
+    paddingVertical: Spacing.md,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: Colors.paper,
+  },
+  sightingPhoto: {
+    width: 44,
+    height: 44,
+    borderRadius: BorderRadius.md,
+    overflow: "hidden",
+  },
+  sightingInfo: {
+    flex: 1,
+    flexShrink: 1,
+    gap: 2,
+  },
+  mapPreview: {
+    marginTop: Spacing.md,
+    height: 100,
+    borderRadius: BorderRadius.lg,
+    backgroundColor: Colors.paper,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
   },
 });
 

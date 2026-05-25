@@ -6,7 +6,7 @@ import {
   TextInput as RNTextInput,
   ActivityIndicator,
 } from "react-native";
-import Animated from "react-native-reanimated";
+import Animated, { FadeIn } from "react-native-reanimated";
 import { FlashList } from "@shopify/flash-list";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Search } from "lucide-react-native";
@@ -20,7 +20,7 @@ import {
   FontSizes,
   Shadows,
 } from "../theme";
-import { Text, SegmentedControl } from "../components/atoms";
+import { Text, SegmentedControl, CardSkeletonGrid } from "../components/atoms";
 import { BirdCardThumb } from "../components/molecules/BirdCard";
 import {
   useCards,
@@ -63,7 +63,7 @@ export const CollectionScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container} testID="collection-screen">
+    <SafeAreaView style={styles.container} edges={["top", "left", "right"]} testID="collection-screen">
       {/* Header */}
       <View style={styles.header}>
         <Text
@@ -161,10 +161,14 @@ const SpottedView: React.FC<{
       numColumns={2}
       contentContainerStyle={styles.gridContent}
       showsVerticalScrollIndicator={false}
-      renderItem={({ item }) => {
+      renderItem={({ item, index }) => {
         const sp = species.find((s: any) => s.id === item.species_id);
+        const delay = Math.min(index, 7) * 80;
         return (
-          <View style={styles.gridCell}>
+          <Animated.View
+            style={styles.gridCell}
+            entering={FadeIn.delay(delay).duration(400)}
+          >
             <Pressable
               onPress={() => onCardPress(item.species_id)}
               testID={`collection-card-${item.species_id}`}
@@ -184,7 +188,7 @@ const SpottedView: React.FC<{
                 />
               </Animated.View>
             </Pressable>
-          </View>
+          </Animated.View>
         );
       }}
     />
@@ -202,11 +206,7 @@ const AllNAView: React.FC<{
     useAllSpeciesPaginated(searchQuery);
 
   if (isLoading) {
-    return (
-      <View style={styles.emptyState} testID="collection-all-loading">
-        <ActivityIndicator size="small" color={Colors.sage} />
-      </View>
-    );
+    return <CardSkeletonGrid count={6} testID="collection-all-loading" />;
   }
 
   if (data.length === 0) {
@@ -241,10 +241,14 @@ const AllNAView: React.FC<{
           </View>
         ) : null
       }
-      renderItem={({ item }) => {
+      renderItem={({ item, index }) => {
         const spotted = spottedIds.has(item.id);
+        const delay = Math.min(index, 7) * 80;
         return (
-          <View style={styles.gridCell}>
+          <Animated.View
+            style={styles.gridCell}
+            entering={FadeIn.delay(delay).duration(400)}
+          >
             <Pressable
               onPress={() => onCardPress(item.id)}
               testID={`collection-card-${item.id}`}
@@ -265,7 +269,7 @@ const AllNAView: React.FC<{
                 />
               </Animated.View>
             </Pressable>
-          </View>
+          </Animated.View>
         );
       }}
     />
@@ -284,13 +288,13 @@ const styles = StyleSheet.create({
   },
   segmentWrapper: {
     paddingHorizontal: Spacing.xl,
-    paddingBottom: Spacing.md,
+    paddingBottom: Spacing.xs,
   },
   searchBar: {
     flexDirection: "row",
     alignItems: "center",
     marginHorizontal: Spacing.xl,
-    marginBottom: Spacing.md,
+    marginBottom: Spacing.xs,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
     backgroundColor: Colors.white,

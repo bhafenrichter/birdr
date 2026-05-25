@@ -17,7 +17,7 @@ export const SignOutConfirmScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container} testID="sign-out-confirm-screen">
+    <SafeAreaView style={styles.container} edges={["top", "left", "right"]} testID="sign-out-confirm-screen">
       <View style={styles.content}>
         <View style={styles.iconCircle}>
           <LogOut size={28} color={Colors.coral} strokeWidth={2} />

@@ -98,7 +98,7 @@ export const LocationPickerScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container} testID="location-picker-screen">
+    <SafeAreaView style={styles.container} edges={["top", "left", "right"]} testID="location-picker-screen">
       {/* Top bar with close button */}
       <View style={styles.topBar}>
         <View style={{ width: 36 }} />

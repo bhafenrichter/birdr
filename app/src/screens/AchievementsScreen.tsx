@@ -79,7 +79,7 @@ export const AchievementsScreen: React.FC = () => {
   ];
 
   return (
-    <SafeAreaView style={styles.container} testID="achievements-screen">
+    <SafeAreaView style={styles.container} edges={["top", "left", "right"]} testID="achievements-screen">
       {/* Top bar */}
       <View style={styles.topBar}>
         <CircleBtn
@@ -139,7 +139,7 @@ export const AchievementsScreen: React.FC = () => {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
-        stickySectionHeadersEnabled={false}
+        stickySectionHeadersEnabled={true}
         renderSectionHeader={({ section: { title, data } }) => (
           <View style={styles.sectionHeader}>
             <Text
@@ -295,6 +295,7 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
   listContent: {
+    paddingTop: Spacing.md,
     paddingHorizontal: Spacing.xl,
     paddingBottom: Spacing["4xl"],
   },
@@ -302,8 +303,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: Spacing.xl,
-    marginBottom: Spacing.sm,
+    paddingTop: Spacing.xl,
+    paddingBottom: Spacing.sm,
+    backgroundColor: Colors.cream,
   },
   achievementRow: {
     flexDirection: "row",

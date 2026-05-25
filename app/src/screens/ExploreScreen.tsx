@@ -3,34 +3,36 @@ import { View, StyleSheet, Pressable } from "react-native";
 import * as Location from "expo-location";
 import { FlashList } from "@shopify/flash-list";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Check, MapPin } from "lucide-react-native";
+import { MapPin } from "lucide-react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import type { NativeStackNavigationProp, NativeStackScreenProps } from "@react-navigation/native-stack";
-import { Colors, Spacing, BorderRadius, Shadows, Fonts, FontSizes } from "../theme";
-import { Text, SegmentedControl, Pill, LocationCard } from "../components/atoms";
+import type {
+  NativeStackNavigationProp,
+  NativeStackScreenProps,
+} from "@react-navigation/native-stack";
+import { Colors, Spacing, BorderRadius, Shadows } from "../theme";
+import {
+  Text,
+  SegmentedControl,
+  Pill,
+  LocationCard,
+  CardSkeletonGrid,
+} from "../components/atoms";
+import { BirdCardThumb } from "../components/molecules/BirdCard";
 import { useExploreSpecies, useProfile, useCards } from "../hooks/useApi";
-import Skeleton from "react-native-reanimated-skeleton";
 import type { ExploreStackParamList } from "../navigation/stacks/ExploreStack";
 
 type Nav = NativeStackNavigationProp<ExploreStackParamList>;
 
-const SEASON_LABELS: Record<string, string> = {
-  year_round: "Year-round",
-  summer: "Summer",
-  winter: "Winter",
-  migratory: "Migratory",
-  rare: "Rare",
-};
-
-const formatSeason = (slug: string) => SEASON_LABELS[slug] ?? slug;
-
 export const ExploreScreen: React.FC = () => {
   const [segmentIndex, setSegmentIndex] = useState(0);
   const navigation = useNavigation<Nav>();
-  const route = useRoute<NativeStackScreenProps<ExploreStackParamList, "ExploreHome">["route"]>();
+  const route =
+    useRoute<
+      NativeStackScreenProps<ExploreStackParamList, "ExploreHome">["route"]
+    >();
 
   return (
-    <SafeAreaView style={styles.container} testID="explore-screen">
+    <SafeAreaView style={styles.container} edges={["top", "left", "right"]} testID="explore-screen">
       {/* Header */}
       <View style={styles.header}>
         <Text
@@ -68,8 +70,12 @@ const NearMeView: React.FC<{
   navigation: Nav;
   routeParams?: { lat?: number; lon?: number; name?: string };
 }> = ({ navigation, routeParams }) => {
-  const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null);
-  const [locationName, setLocationName] = useState<string>("Finding location...");
+  const [location, setLocation] = useState<{ lat: number; lon: number } | null>(
+    null,
+  );
+  const [locationName, setLocationName] = useState<string>(
+    "Finding location...",
+  );
   const [locationError, setLocationError] = useState(false);
 
   useEffect(() => {
@@ -93,7 +99,10 @@ const NearMeView: React.FC<{
           longitude: pos.coords.longitude,
         });
         if (place) {
-          setLocationName([place.city, place.region].filter(Boolean).join(", ") || "Current location");
+          setLocationName(
+            [place.city, place.region].filter(Boolean).join(", ") ||
+              "Current location",
+          );
         }
       } catch {
         setLocationError(true);
@@ -101,7 +110,9 @@ const NearMeView: React.FC<{
     })();
   }, [routeParams?.lat, routeParams?.lon]);
 
-  const params = location ? { lat: location.lat, lon: location.lon, mode: "near_me" as const } : null;
+  const params = location
+    ? { lat: location.lat, lon: location.lon, mode: "near_me" as const }
+    : null;
   const { data: exploreData, isLoading } = useExploreSpecies(params);
   const list = exploreData?.species ?? [];
 
@@ -160,55 +171,17 @@ const NearMeView: React.FC<{
       </View>
 
       {/* Loading skeleton */}
-      {(isLoading || !location) ? (
-        <View style={styles.skeletonList} testID="explore-loading">
-          <Skeleton
-            isLoading
-            containerStyle={{ flex: 0 }}
-            boneColor={Colors.paper}
-            highlightColor={Colors.cream}
-            duration={1200}
-            layout={Array.from({ length: 8 }).map((_, i) => ({
-              key: `row-${i}`,
-              flexDirection: "row" as const,
-              alignItems: "center" as const,
-              paddingVertical: Spacing.md,
-              gap: Spacing.md,
-              borderBottomWidth: 1,
-              borderBottomColor: Colors.paper,
-              children: [
-                {
-                  key: `avatar-${i}`,
-                  width: 44,
-                  height: 44,
-                  borderRadius: 22,
-                },
-                {
-                  key: `text-${i}`,
-                  flex: 1,
-                  children: [
-                    {
-                      key: `line1-${i}`,
-                      width: "65%" as any,
-                      height: 12,
-                      borderRadius: 6,
-                      marginBottom: 6,
-                    },
-                    {
-                      key: `line2-${i}`,
-                      width: "40%" as any,
-                      height: 12,
-                      borderRadius: 6,
-                    },
-                  ],
-                },
-              ],
-            }))}
-          />
-        </View>
+      {isLoading || !location ? (
+        <CardSkeletonGrid count={6} testID="explore-loading" />
       ) : list.length === 0 ? (
         <View style={styles.emptyState} testID="explore-empty">
-          <Text variant="semiBold" size="lg" color={Colors.ink} align="center" testID="explore-empty-title">
+          <Text
+            variant="semiBold"
+            size="lg"
+            color={Colors.ink}
+            align="center"
+            testID="explore-empty-title"
+          >
             No birds found
           </Text>
           <Text
@@ -226,63 +199,38 @@ const NearMeView: React.FC<{
         <FlashList
           data={list}
           keyExtractor={(item) => item.species_id}
-          contentContainerStyle={styles.listContent}
+          numColumns={2}
+          contentContainerStyle={styles.gridContent}
           showsVerticalScrollIndicator={false}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
-          renderItem={({ item }) => <SpeciesRow item={item} />}
+          renderItem={({ item }) => (
+            <View style={styles.gridCell}>
+              <Pressable
+                onPress={() =>
+                  navigation.navigate("CardDetail" as any, {
+                    speciesId: item.species_id,
+                  })
+                }
+                testID={`explore-card-${item.species_id}`}
+              >
+                <BirdCardThumb
+                  data={{
+                    speciesName: item.common_name,
+                    familyName: item.scientific_name,
+                    speciesType: item.species_type,
+                    habitat: item.habitat,
+                    conservationTier: item.conservation_status as any,
+                    photoUri: null,
+                    sightingCount: item.sighting_count,
+                    locked: !item.spotted,
+                  }}
+                  testID={`explore-thumb-${item.species_id}`}
+                />
+              </Pressable>
+            </View>
+          )}
         />
       )}
-
     </View>
-  );
-};
-
-const SpeciesRow: React.FC<{ item: any }> = ({ item }) => {
-  return (
-    <Pressable
-      style={styles.speciesRow}
-      testID={`explore-species-${item.species_id}`}
-    >
-      <View style={styles.speciesAvatar}>
-        <Text variant="bold" size="lg" color={Colors.white} testID={`explore-avatar-${item.species_id}`}>
-          {item.common_name.charAt(0)}
-        </Text>
-      </View>
-
-      <View style={styles.speciesInfo}>
-        <Text
-          variant="medium"
-          size="base"
-          color={Colors.ink}
-          testID={`explore-name-${item.species_id}`}
-        >
-          {item.common_name}
-        </Text>
-        <Text
-          variant="regular"
-          size="xs"
-          color={Colors.inkSoft}
-          testID={`explore-meta-${item.species_id}`}
-        >
-          {`${item.species_type} · ${formatSeason(item.season)}`}
-        </Text>
-      </View>
-
-      {item.spotted ? (
-        <View style={styles.spottedBadge} testID={`explore-spotted-${item.species_id}`}>
-          <Check size={14} color={Colors.white} strokeWidth={2.5} />
-        </View>
-      ) : (
-        <Text
-          variant="regular"
-          size="xs"
-          color={Colors.inkFaint}
-          testID={`explore-unspotted-${item.species_id}`}
-        >
-          Not yet
-        </Text>
-      )}
-    </Pressable>
   );
 };
 
@@ -308,11 +256,7 @@ const MyMapView: React.FC = () => {
           label="Species"
           testID="explore-stat-species"
         />
-        <StatBlock
-          value="—"
-          label="States"
-          testID="explore-stat-states"
-        />
+        <StatBlock value="—" label="States" testID="explore-stat-states" />
       </View>
 
       {/* Map placeholder */}
@@ -349,7 +293,12 @@ const StatBlock: React.FC<{
   testID: string;
 }> = ({ value, label, testID }) => (
   <View style={styles.statBlock} testID={testID}>
-    <Text variant="bold" size="xl" color={Colors.ink} testID={`${testID}-value`}>
+    <Text
+      variant="bold"
+      size="xl"
+      color={Colors.ink}
+      testID={`${testID}-value`}
+    >
       {value}
     </Text>
     <Text
@@ -381,39 +330,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.xl,
     marginBottom: Spacing.md,
   },
-  listContent: {
-    paddingHorizontal: Spacing.xl,
+  gridContent: {
+    paddingHorizontal: Spacing.md,
     paddingBottom: Spacing["4xl"],
   },
-  separator: {
-    height: 1,
-    backgroundColor: Colors.paper,
-  },
-  speciesRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: Spacing.md,
-    gap: Spacing.md,
-  },
-  speciesAvatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: Colors.sage,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  speciesInfo: {
+  gridCell: {
     flex: 1,
-    gap: 2,
-  },
-  spottedBadge: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: Colors.sage,
-    alignItems: "center",
-    justifyContent: "center",
+    paddingHorizontal: Spacing.xs,
+    paddingVertical: Spacing.xs,
   },
   myMapContainer: {
     flex: 1,
@@ -436,9 +360,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: Spacing.xl,
-  },
-  skeletonList: {
     paddingHorizontal: Spacing.xl,
   },
   mapPlaceholder: {

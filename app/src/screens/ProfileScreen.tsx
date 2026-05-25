@@ -55,7 +55,7 @@ export const ProfileScreen: React.FC = () => {
   const totalCount = 105; // Fixed: 9 collection + 6 streak + 45 family + 45 habitat
 
   return (
-    <SafeAreaView style={styles.container} testID="profile-screen">
+    <SafeAreaView style={styles.container} edges={["top", "left", "right"]} testID="profile-screen">
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}

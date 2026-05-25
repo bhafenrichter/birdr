@@ -52,7 +52,7 @@ export const SubscriptionScreen: React.FC = () => {
   const [selectedPlan, setSelectedPlan] = useState<Plan>("yearly");
 
   return (
-    <SafeAreaView style={styles.container} testID="subscription-screen">
+    <SafeAreaView style={styles.container} edges={["top", "left", "right"]} testID="subscription-screen">
       {/* Top bar */}
       <View style={styles.topBar}>
         <CircleBtn

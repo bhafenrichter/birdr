@@ -47,7 +47,7 @@ export const StreakDetailScreen: React.FC = () => {
   }, []);
 
   return (
-    <SafeAreaView style={styles.container} testID="streak-detail-screen">
+    <SafeAreaView style={styles.container} edges={["top", "left", "right"]} testID="streak-detail-screen">
 
       <ScrollView
         contentContainerStyle={styles.scrollContent}

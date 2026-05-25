@@ -1,5 +1,9 @@
 import React, { useState } from "react";
-import { View, ViewStyle, ImageSourcePropType, LayoutChangeEvent } from "react-native";
+import { View, ViewStyle, ImageSourcePropType, LayoutChangeEvent, Dimensions } from "react-native";
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
+const CARD_WIDTH = SCREEN_WIDTH * 0.85;
+const CARD_HEIGHT = SCREEN_HEIGHT * 0.6;
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import {
@@ -370,7 +374,7 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
     <View
       style={{
         borderRadius: BorderRadius.xl,
-        aspectRatio: 3 / 5,
+        aspectRatio: CARD_WIDTH / CARD_HEIGHT,
         ...Shadows.sm,
       }}
       onLayout={onLayout}
