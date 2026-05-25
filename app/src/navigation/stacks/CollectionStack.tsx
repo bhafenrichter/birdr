@@ -13,7 +13,14 @@ const Stack = createNativeStackNavigator<CollectionStackParamList>();
 export const CollectionStack: React.FC = () => (
   <Stack.Navigator screenOptions={{ headerShown: false }}>
     <Stack.Screen name="CollectionGrid" component={CollectionScreen} />
-    <Stack.Screen name="CardDetail" component={CardDetailScreen} />
+    <Stack.Screen
+      name="CardDetail"
+      component={CardDetailScreen}
+      options={{
+        presentation: "transparentModal",
+        animation: "none",
+      }}
+    />
   </Stack.Navigator>
 );
 

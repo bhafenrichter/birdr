@@ -57,5 +57,10 @@
     "web": "expo start --web",
     "postinstall": "node scripts/patch-supabase-otel.js"
   },
-  "private": true
+  "private": true,
+  "reanimated": {
+    "staticFeatureFlags": {
+      "ENABLE_SHARED_ELEMENT_TRANSITIONS": true
+    }
+  }
 }

@@ -34,7 +34,10 @@ export const AchievementsScreen: React.FC = () => {
   const navigation = useNavigation();
   const { data: userAchievements } = useAchievements();
   const userMap = useMemo(() => {
-    const map = new Map<string, { progress: number; unlocked_at: string | null }>();
+    const map = new Map<
+      string,
+      { progress: number; unlocked_at: string | null }
+    >();
     for (const ua of userAchievements ?? []) {
       map.set(ua.achievement_id, {
         progress: ua.progress,
@@ -164,7 +167,8 @@ const AchievementRow: React.FC<{ achievement: AchievementRowData }> = ({
   const colorKey = CATEGORY_COLOR_KEY[achievement.category] ?? "collection";
   const categoryColor =
     (AchievementColors as Record<string, string>)[colorKey] ?? Colors.sage;
-  const categoryLabel = CATEGORY_LABELS[achievement.category] ?? achievement.category;
+  const categoryLabel =
+    CATEGORY_LABELS[achievement.category] ?? achievement.category;
 
   return (
     <View

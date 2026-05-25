@@ -6,6 +6,7 @@ import {
   TextInput as RNTextInput,
   ActivityIndicator,
 } from "react-native";
+import Animated from "react-native-reanimated";
 import { FlashList } from "@shopify/flash-list";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Search } from "lucide-react-native";
@@ -160,7 +161,6 @@ const SpottedView: React.FC<{
       numColumns={2}
       contentContainerStyle={styles.gridContent}
       showsVerticalScrollIndicator={false}
-      estimatedItemSize={160}
       renderItem={({ item }) => {
         const sp = species.find((s: any) => s.id === item.species_id);
         return (
@@ -169,18 +169,20 @@ const SpottedView: React.FC<{
               onPress={() => onCardPress(item.species_id)}
               testID={`collection-card-${item.species_id}`}
             >
-              <BirdCardThumb
-                data={{
-                  speciesName: sp?.common_name ?? "Unknown",
-                  familyName: sp?.family ?? "",
-                  speciesType: sp?.species_type_name ?? "",
-                  habitat: sp?.habitat_name ?? "",
-                  conservationTier: (sp?.conservation_status ?? "LC") as any,
-                  photoUri: item.hero_photo_url,
-                  sightingCount: item.sighting_count,
-                }}
-                testID={`collection-thumb-${item.species_id}`}
-              />
+              <Animated.View sharedTransitionTag={`card-${item.species_id}`}>
+                <BirdCardThumb
+                  data={{
+                    speciesName: sp?.common_name ?? "Unknown",
+                    familyName: sp?.family ?? "",
+                    speciesType: sp?.species_type_name ?? "",
+                    habitat: sp?.habitat_name ?? "",
+                    conservationTier: (sp?.conservation_status ?? "LC") as any,
+                    photoUri: item.hero_photo_url,
+                    sightingCount: item.sighting_count,
+                  }}
+                  testID={`collection-thumb-${item.species_id}`}
+                />
+              </Animated.View>
             </Pressable>
           </View>
         );
@@ -247,19 +249,21 @@ const AllNAView: React.FC<{
               onPress={() => onCardPress(item.id)}
               testID={`collection-card-${item.id}`}
             >
-              <BirdCardThumb
-                data={{
-                  speciesName: item.common_name,
-                  familyName: item.family,
-                  speciesType: item.species_type_name,
-                  habitat: item.habitat_name,
-                  conservationTier: item.conservation_status as any,
-                  photoUri: null,
-                  sightingCount: spotted ? 1 : 0,
-                  locked: !spotted,
-                }}
-                testID={`collection-thumb-${item.id}`}
-              />
+              <Animated.View sharedTransitionTag={`card-${item.id}`}>
+                <BirdCardThumb
+                  data={{
+                    speciesName: item.common_name,
+                    familyName: item.family,
+                    speciesType: item.species_type_name,
+                    habitat: item.habitat_name,
+                    conservationTier: item.conservation_status as any,
+                    photoUri: null,
+                    sightingCount: spotted ? 1 : 0,
+                    locked: !spotted,
+                  }}
+                  testID={`collection-thumb-${item.id}`}
+                />
+              </Animated.View>
             </Pressable>
           </View>
         );

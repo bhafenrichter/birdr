@@ -110,7 +110,7 @@ export const RevenueCatProvider: React.FC<{ children: React.ReactNode }> = ({
     const listener = (info: CustomerInfo) => handleCustomerInfoUpdate(info);
     Purchases.addCustomerInfoUpdateListener(listener);
 
-    return () => Purchases.removeCustomerInfoUpdateListener(listener);
+    return () => { Purchases.removeCustomerInfoUpdateListener(listener); };
   }, []);
 
   // ── Identify user with RevenueCat using customer_id ────────────────────

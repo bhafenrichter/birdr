@@ -94,24 +94,36 @@ export const BirdCard: React.FC<BirdCardProps> = ({
   const tierColor = ConservationTierColors[data.conservationTier];
   const isLocked = data.locked;
 
-  const outerFrame: ViewStyle = {
-    borderRadius: BorderRadius["2xl"],
-    backgroundColor: tierColor,
-    padding: 4,
-    ...Shadows.md,
-  };
-
-  const innerBody: ViewStyle = {
-    borderRadius: BorderRadius["2xl"] - 2,
-    backgroundColor: Colors.cardBody,
-    overflow: "hidden",
-  };
-
   return (
-    <View style={outerFrame} testID={testID}>
-      {/* Glossy sheen overlay */}
-      <View style={innerBody}>
-        <GlossySheen />
+    <View style={{ flex: 1, borderRadius: BorderRadius["2xl"], ...Shadows.md }} testID={testID}>
+      <LinearGradient
+        colors={["#f8e15c", "#edb915"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={{
+          flex: 1,
+          borderRadius: BorderRadius["2xl"],
+          padding: 8,
+        }}
+      >
+      {/* Inner card body */}
+      <View style={{
+        flex: 1,
+        borderRadius: BorderRadius["2xl"] - 4,
+        backgroundColor: isLocked ? "transparent" : Colors.cardBody,
+        overflow: "hidden",
+      }}>
+        {/* Habitat background — covers entire card when locked */}
+        {isLocked && getHabitatBackground(data.habitat) && (
+          <Image
+            source={getHabitatBackground(data.habitat)!}
+            style={{ position: "absolute", width: "120%", height: "120%", top: "-10%", left: "-10%" }}
+            contentFit="cover"
+            testID={`${testID}-habitat-bg`}
+          />
+        )}
+
+        {!isLocked && <GlossySheen />}
 
         {/* Header: family + name left, habitat pill right */}
         <View
@@ -126,71 +138,61 @@ export const BirdCard: React.FC<BirdCardProps> = ({
         >
           <View style={{ flex: 1, marginRight: Spacing.sm }}>
             <Text
-              variant="regular"
-              size="xs"
-              color={Colors.inkFaint}
+              variant="medium"
+              size="sm"
+              color={isLocked ? Colors.white : Colors.inkSoft}
+              style={{ textShadowColor: "rgba(0,0,0,0.6)", textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 3 }}
               testID={`${testID}-family`}
             >
-              {data.familyName}
+              {data.speciesType || data.familyName}
             </Text>
             <Text
               variant="bold"
               size="lg"
-              color={Colors.ink}
+              color={isLocked ? Colors.white : Colors.ink}
+              style={isLocked ? { textShadowColor: "rgba(0,0,0,0.5)", textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 3 } : undefined}
               testID={`${testID}-name`}
             >
               {data.speciesName}
             </Text>
           </View>
-          <HabitatPill
-            habitat={data.habitat}
-            onPress={onHabitatPress}
-            testID={`${testID}-habitat-pill`}
-          />
         </View>
 
-        {/* Hero photo with tier-color border */}
-        <View
-          style={{
-            marginHorizontal: Spacing.lg,
-            borderRadius: BorderRadius.lg,
-            borderWidth: 2,
-            borderColor: tierColor,
-            overflow: "hidden",
-            aspectRatio: 4 / 3,
-            backgroundColor: Colors.paper,
-          }}
-        >
+        {/* Hero photo with gold gradient border */}
+        <View style={{ marginHorizontal: Spacing.lg }}>
+          <LinearGradient
+            colors={["#f8e15c", "#edb915"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{
+              borderRadius: BorderRadius.lg,
+              padding: 4,
+            }}
+          >
+            <View
+              style={{
+                borderRadius: BorderRadius.lg - 2,
+                overflow: "hidden",
+                aspectRatio: 4 / 3,
+                backgroundColor: isLocked ? getHabitatColor(data.habitat) : Colors.paper,
+              }}
+            >
           {isLocked ? (
-            <View style={{ flex: 1 }}>
-              {getHabitatBackground(data.habitat) && (
-                <Image
-                  source={getHabitatBackground(data.habitat)!}
-                  style={{ position: "absolute", width: "120%", height: "120%", top: "-10%", left: "-10%" }}
-                  contentFit="cover"
-                  testID={`${testID}-habitat-bg`}
-                />
-              )}
-              <LinearGradient
-                colors={["transparent", "rgba(0,0,0,0.4)"]}
-                style={{ position: "absolute", width: "100%", height: "100%" }}
-              />
-              <View
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
+            <View
+              style={{
+                flex: 1,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Text
+                variant="bold"
+                size="3xl"
+                color={Colors.white}
+                testID={`${testID}-locked-placeholder`}
               >
-                <Text
-                  variant="bold"
-                  size="3xl"
-                  color={Colors.white}
-                  testID={`${testID}-locked-placeholder`}
-                >
-                  ?
-                </Text>
-              </View>
+                ?
+              </Text>
             </View>
           ) : data.photoUri ? (
             <Image
@@ -219,6 +221,8 @@ export const BirdCard: React.FC<BirdCardProps> = ({
               </Text>
             </View>
           )}
+            </View>
+          </LinearGradient>
         </View>
 
         {/* Body text: Size, About, First Sight — inline label: value */}
@@ -233,13 +237,14 @@ export const BirdCard: React.FC<BirdCardProps> = ({
               <Text
                 variant="regular"
                 size="sm"
-                color={Colors.ink}
+                color={isLocked ? Colors.white : Colors.ink}
+                style={isLocked ? { textShadowColor: "rgba(0,0,0,0.4)", textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 2 } : undefined}
                 testID={`${testID}-size-text`}
               >
                 <Text
                   variant="bold"
                   size="base"
-                  color={Colors.ink}
+                  color={isLocked ? Colors.white : Colors.ink}
                   testID={`${testID}-size-label`}
                 >
                   {"Size: "}
@@ -256,13 +261,14 @@ export const BirdCard: React.FC<BirdCardProps> = ({
               <Text
                 variant="regular"
                 size="base"
-                color={Colors.ink}
+                color={isLocked ? Colors.white : Colors.ink}
+                style={isLocked ? { textShadowColor: "rgba(0,0,0,0.4)", textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 2 } : undefined}
                 testID={`${testID}-about-text`}
               >
                 <Text
                   variant="bold"
                   size="base"
-                  color={Colors.ink}
+                  color={isLocked ? Colors.white : Colors.ink}
                   testID={`${testID}-about-label`}
                 >
                   {"About: "}
@@ -279,13 +285,14 @@ export const BirdCard: React.FC<BirdCardProps> = ({
               <Text
                 variant="regular"
                 size="base"
-                color={Colors.ink}
+                color={isLocked ? Colors.white : Colors.ink}
+                style={isLocked ? { textShadowColor: "rgba(0,0,0,0.4)", textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 2 } : undefined}
                 testID={`${testID}-firstsight-text`}
               >
                 <Text
                   variant="bold"
                   size="base"
-                  color={Colors.ink}
+                  color={isLocked ? Colors.white : Colors.ink}
                   testID={`${testID}-firstsight-label`}
                 >
                   {"First Sight: "}
@@ -329,6 +336,7 @@ export const BirdCard: React.FC<BirdCardProps> = ({
           )}
         </View>
       </View>
+      </LinearGradient>
     </View>
   );
 };
@@ -402,7 +410,7 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
               variant="regular"
               size="xs"
               color={isLocked ? "rgba(255,255,255,0.75)" : Colors.inkFaint}
-              style={isLocked ? { textShadowColor: "rgba(0,0,0,1)", textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 2 } : undefined}
+              style={isLocked ? { textShadowColor: "rgba(0,0,0,0.5)", textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 2 } : undefined}
               testID={`${testID}-thumb-type`}
             >
               {data.speciesType}

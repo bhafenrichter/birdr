@@ -54,8 +54,8 @@ export const RootNavigator: React.FC = () => {
   // Not signed in → show onboarding / sign-in
   return (
     <OnboardingStack
-      // @ts-ignore — using screenListeners to detect completion
       initialRouteName={onboardingComplete ? "SignIn" : "Welcome"}
+      // @ts-expect-error screenListeners works at runtime but isn't in the type
       screenListeners={{
         state: (e: any) => {
           const routes = e.data?.state?.routes;
