@@ -77,7 +77,7 @@ supabase/.temp/
 
 # ---- Scripts / data pipeline ----
 scripts/node_modules/
-data/
+/data/
 scripts/.env
 scripts/.env.*
 !scripts/.env.example
