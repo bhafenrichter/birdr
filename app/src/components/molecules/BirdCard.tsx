@@ -1,5 +1,5 @@
-import React from "react";
-import { View, ViewStyle, ImageSourcePropType } from "react-native";
+import React, { useState } from "react";
+import { View, ViewStyle, ImageSourcePropType, LayoutChangeEvent } from "react-native";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import {
@@ -17,6 +17,7 @@ import { ConservationBadge } from "../atoms/ConservationBadge";
 import { AudioBadge } from "../atoms/AudioBadge";
 import { SightingBadge } from "../atoms/SightingBadge";
 import { HabitatPill } from "../atoms/HabitatPill";
+import { ShinyCardOverlay } from "./ShinyCardOverlay";
 
 // ── Habitat background images ─────────────────────────────────────────────
 
@@ -356,6 +357,14 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
 }) => {
   const tierColor = ConservationTierColors[data.conservationTier];
   const isLocked = data.locked;
+  const [cardSize, setCardSize] = useState({ w: 0, h: 0 });
+
+  const onLayout = (e: LayoutChangeEvent) => {
+    const { width, height } = e.nativeEvent.layout;
+    if (width !== cardSize.w || height !== cardSize.h) {
+      setCardSize({ w: width, h: height });
+    }
+  };
 
   return (
     <View
@@ -364,6 +373,7 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
         aspectRatio: 3 / 5,
         ...Shadows.sm,
       }}
+      onLayout={onLayout}
       testID={testID}
     >
       {/* Gradient border */}
@@ -516,6 +526,14 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
         </View>
       </View>
       </LinearGradient>
+      {cardSize.w > 0 && (
+        <ShinyCardOverlay
+          width={cardSize.w}
+          height={cardSize.h}
+          borderRadius={BorderRadius.xl}
+          gradientCenter={{ x: cardSize.w / 2, y: cardSize.h / 2 }}
+        />
+      )}
     </View>
   );
 };

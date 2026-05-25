@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   StyleSheet,
@@ -27,6 +27,8 @@ import {
 import { Colors, Spacing, BorderRadius, Shadows } from "../theme";
 import { Text } from "../components/atoms";
 import { BirdCard } from "../components/molecules/BirdCard";
+import { GestureCardContainer } from "../components/molecules/GestureCardContainer";
+import { ShinyCardOverlay } from "../components/molecules/ShinyCardOverlay";
 import {
   useCards,
   useAllSpecies,
@@ -50,6 +52,25 @@ export const CardDetailScreen: React.FC = () => {
   const { data: allSpecies } = useAllSpecies();
   const { data: cards } = useCards();
   const { data: sightingsData } = useSightingsForSpecies(speciesId);
+
+  // Shiny card gradient center
+  const [gradientCenter, setGradientCenter] = useState({
+    x: CARD_WIDTH / 2,
+    y: CARD_HEIGHT / 2,
+  });
+
+  const MAX_ANGLE = 8;
+
+  const handleRotationChange = useCallback(
+    (rx: number, ry: number) => {
+      "worklet";
+      runOnJS(setGradientCenter)({
+        x: CARD_WIDTH / 2 + (CARD_WIDTH / 2) * (ry / MAX_ANGLE),
+        y: CARD_HEIGHT / 2 + (CARD_HEIGHT / 2) * (rx / MAX_ANGLE),
+      });
+    },
+    []
+  );
 
   // Animation values
   const overlayOpacity = useSharedValue(0);
@@ -203,26 +224,41 @@ export const CardDetailScreen: React.FC = () => {
             <ChevronLeft size={28} color={Colors.white} strokeWidth={2.5} />
           </Pressable>
 
-          {/* Card */}
-          <View style={[styles.cardWrapper, { width: CARD_WIDTH, height: CARD_HEIGHT }]}>
-            <BirdCard
-              data={{
-                speciesName: species.common_name,
-                familyName: species.family,
-                speciesType: species.species_type_name,
-                habitat: species.habitat_name,
-                conservationTier: species.conservation_status as any,
-                photoUri: userCard?.hero_photo_url ?? null,
-                size: species.size,
-                about: species.about_text,
-                firstSight: isSpotted
-                  ? `${formatDate(userCard!.first_seen_at)}${lastSighting?.named_location ? `, ${lastSighting.named_location}` : ""}`
-                  : undefined,
-                sightingCount: userCard?.sighting_count,
-                locked: !isSpotted,
-              }}
-              testID="card-detail-bird-card"
-            />
+          {/* Card with shiny effect */}
+          <View style={styles.cardWrapper}>
+            <GestureCardContainer
+              width={CARD_WIDTH}
+              height={CARD_HEIGHT}
+              maxAngle={MAX_ANGLE}
+              onRotationChange={handleRotationChange}
+            >
+              <View style={{ width: CARD_WIDTH, height: CARD_HEIGHT }}>
+                <BirdCard
+                  data={{
+                    speciesName: species.common_name,
+                    familyName: species.family,
+                    speciesType: species.species_type_name,
+                    habitat: species.habitat_name,
+                    conservationTier: species.conservation_status as any,
+                    photoUri: userCard?.hero_photo_url ?? null,
+                    size: species.size,
+                    about: species.about_text,
+                    firstSight: isSpotted
+                      ? `${formatDate(userCard!.first_seen_at)}${lastSighting?.named_location ? `, ${lastSighting.named_location}` : ""}`
+                      : undefined,
+                    sightingCount: userCard?.sighting_count,
+                    locked: !isSpotted,
+                  }}
+                  testID="card-detail-bird-card"
+                />
+                <ShinyCardOverlay
+                  width={CARD_WIDTH}
+                  height={CARD_HEIGHT}
+                  borderRadius={BorderRadius["2xl"]}
+                  gradientCenter={gradientCenter}
+                />
+              </View>
+            </GestureCardContainer>
           </View>
 
           {/* Right arrow */}
