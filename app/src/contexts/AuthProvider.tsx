@@ -10,6 +10,7 @@ import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import Toast from "react-native-toast-message";
 import { supabase } from "../services/supabase";
 import { logger } from "../services/logger";
+import { clearCache } from "../services/cache";
 import { usePostHog } from "./PostHogProvider";
 import { ENV } from "../config/env";
 import type { Session, User } from "@supabase/supabase-js";
@@ -228,6 +229,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     } else {
       posthog.capture("sign_out_completed");
       posthog.reset();
+      await clearCache();
     }
   }, [posthog]);
 
