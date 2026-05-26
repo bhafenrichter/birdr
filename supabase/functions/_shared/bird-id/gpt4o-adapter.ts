@@ -85,7 +85,7 @@ Rules:
                 type: "image_url",
                 image_url: {
                   url: `data:${request.mimeType};base64,${base64Image}`,
-                  detail: "high",
+                  detail: request.detail ?? "high",
                 },
               },
               {

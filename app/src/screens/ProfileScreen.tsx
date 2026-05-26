@@ -251,7 +251,7 @@ export const ProfileScreen: React.FC = () => {
           <ProfileRow
             icon={MessageSquare}
             label="Send feedback"
-            onPress={() => {}}
+            onPress={() => navigation.navigate("SendFeedback")}
             testID="profile-row-feedback"
           />
           <ProfileRow

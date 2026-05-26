@@ -141,12 +141,15 @@ Deno.serve(async (req) => {
 
     console.log("[identify-bird] Step 4: Calling bird ID provider...");
     const provider = createBirdIdProvider();
+    const detail = isSubscribed ? "high" : "low";
+    console.log("[identify-bird] Image detail level:", detail, "(subscribed:", isSubscribed, ")");
     const idResult = await provider.identify({
       imageBytes,
       mimeType: imageMimeType,
       lat,
       lon,
       stateCode,
+      detail,
     });
 
     console.log("[identify-bird] Step 5: Provider returned", {

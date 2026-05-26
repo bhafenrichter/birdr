@@ -10,12 +10,15 @@ export interface BirdIdCandidate {
   confidence: number; // 0.0 - 1.0
 }
 
+export type ImageDetail = "low" | "high";
+
 export interface BirdIdRequest {
   imageBytes: Uint8Array;
   mimeType: string;
   lat?: number;
   lon?: number;
   stateCode?: string; // e.g. "US-NC" for region context
+  detail?: ImageDetail; // "low" for free users, "high" for subscribers
 }
 
 export type PhotoQuality = "pristine" | "good" | "fair" | "poor";
