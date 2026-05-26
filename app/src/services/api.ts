@@ -279,7 +279,7 @@ export async function fetchSpecies(speciesId: string): Promise<
   const { data, error } = await supabase
     .from("species")
     .select(
-      `*, species_types!inner(name), habitats!inner(name)`
+      `*, species_types(name), habitats(name)`
     )
     .eq("id", speciesId)
     .single();
@@ -297,27 +297,51 @@ export async function fetchSpecies(speciesId: string): Promise<
   };
 }
 
-/** Fetch all species (for collection All NA view). */
+/** Fetch all species (for collection All NA view). Cached for 24 hours. */
+const ALL_SPECIES_CACHE_KEY = "all_species";
+const ALL_SPECIES_CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
+
 export async function fetchAllSpecies(): Promise<
   (Species & { species_type_name: string; habitat_name: string })[]
 > {
-  const { data, error } = await supabase
-    .from("species")
-    .select(
-      `*, species_types!inner(name), habitats!inner(name)`
-    )
-    .order("common_name");
-
-  if (error) {
-    logger.error("Failed to fetch all species", { code: error.code, message: error.message });
-    throw new ApiError(error.message, 500, error.code);
+  const cached = await getCached<(Species & { species_type_name: string; habitat_name: string })[]>(ALL_SPECIES_CACHE_KEY);
+  if (cached) {
+    logger.info("All species cache hit");
+    return cached;
   }
 
-  return ((data ?? []) as any[]).map((row) => ({
+  // Supabase caps at 1000 rows per request — paginate to get all
+  const PAGE_SIZE = 1000;
+  let allRows: any[] = [];
+  let from = 0;
+
+  while (true) {
+    const { data, error } = await supabase
+      .from("species")
+      .select(`*, species_types(name), habitats(name)`)
+      .order("common_name")
+      .range(from, from + PAGE_SIZE - 1);
+
+    if (error) {
+      logger.error("Failed to fetch all species", { code: error.code, message: error.message });
+      throw new ApiError(error.message, 500, error.code);
+    }
+
+    allRows = allRows.concat(data ?? []);
+    if (!data || data.length < PAGE_SIZE) break;
+    from += PAGE_SIZE;
+  }
+
+  const result = allRows.map((row: any) => ({
     ...row,
     species_type_name: row.species_types?.name ?? "",
     habitat_name: row.habitats?.name ?? "",
   }));
+
+  await setCache(ALL_SPECIES_CACHE_KEY, result, ALL_SPECIES_CACHE_TTL);
+  logger.info("All species cached", { count: result.length });
+
+  return result;
 }
 
 const ALL_SPECIES_PAGE_SIZE = 60;
@@ -334,7 +358,7 @@ export async function fetchAllSpeciesPaginated(
 
   let query = supabase
     .from("species")
-    .select(`*, species_types!inner(name), habitats!inner(name)`, { count: "exact" })
+    .select(`*, species_types(name), habitats(name)`, { count: "exact" })
     .order("common_name")
     .range(from, to);
 
@@ -379,4 +403,21 @@ export async function fetchRecentSightings(
     throw new ApiError(error.message, 500, error.code);
   }
   return (data ?? []) as (Sighting & { species: Species })[];
+}
+
+/** Fetch state codes where a species is found. */
+export async function fetchSpeciesStates(
+  speciesId: string
+): Promise<string[]> {
+  const { data, error } = await supabase
+    .from("species_regions")
+    .select("state_code")
+    .eq("species_id", speciesId);
+
+  if (error) {
+    logger.error("Failed to fetch species states", { code: error.code, message: error.message });
+    return [];
+  }
+
+  return (data ?? []).map((r) => r.state_code);
 }

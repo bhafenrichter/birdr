@@ -25,6 +25,18 @@ config.resolver = {
         filePath: require.resolve("./src/shims/react-native-linear-gradient.js"),
       };
     }
+    // @posthog/core uses package.json "exports" for subpaths, but
+    // unstable_enablePackageExports is off — resolve manually.
+    if (moduleName.startsWith("@posthog/core/")) {
+      const subpath = moduleName.replace("@posthog/core/", "");
+      const resolved = require("path").resolve(
+        __dirname,
+        "node_modules/@posthog/core/dist",
+        subpath,
+        "index.js"
+      );
+      return { type: "sourceFile", filePath: resolved };
+    }
     if (moduleName === "ws") {
       return {
         type: "sourceFile",

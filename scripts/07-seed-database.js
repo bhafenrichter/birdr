@@ -121,7 +121,7 @@ async function main() {
     }
 
     if (rows.length > 0) {
-      await supabaseRequest("species", {
+      await supabaseRequest("species?on_conflict=scientific_name", {
         method: "POST",
         body: rows,
         prefer: "resolution=merge-duplicates",
@@ -139,8 +139,20 @@ async function main() {
     console.log("\nSeeding species_regions...");
     const regions = JSON.parse(readFileSync(REGIONS_FILE, "utf-8"));
 
-    // Need to map common_name → species.id and season from curated data
-    const allSpecies = await supabaseRequest("species?select=id,common_name,scientific_name");
+    // Need to map scientific_name → species.id
+    // Fetch ALL species (Supabase REST defaults to 1000 rows)
+    const allSpecies = [];
+    let offset = 0;
+    const PAGE = 500;
+    while (true) {
+      const page = await supabaseRequest(
+        `species?select=id,common_name,scientific_name&offset=${offset}&limit=${PAGE}`
+      );
+      allSpecies.push(...page);
+      if (page.length < PAGE) break;
+      offset += PAGE;
+    }
+    console.log(`  Fetched ${allSpecies.length} species for ID mapping`);
     const speciesIdMap = new Map(allSpecies.map((sp) => [sp.common_name.toLowerCase(), sp.id]));
     const sciNameToId = new Map(allSpecies.map((sp) => [sp.scientific_name, sp.id]));
 
@@ -173,7 +185,7 @@ async function main() {
       }
 
       if (rows.length > 0) {
-        await supabaseRequest("species_regions", {
+        await supabaseRequest("species_regions?on_conflict=species_id,state_code", {
           method: "POST",
           body: rows,
           prefer: "resolution=merge-duplicates",

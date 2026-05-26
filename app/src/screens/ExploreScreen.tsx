@@ -222,6 +222,7 @@ const NearMeView: React.FC<{
                     photoUri: null,
                     sightingCount: item.sighting_count,
                     locked: !item.spotted,
+                    about: item.about_text,
                   }}
                   testID={`explore-thumb-${item.species_id}`}
                 />

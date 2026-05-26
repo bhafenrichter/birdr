@@ -1060,6 +1060,18 @@
   resolved "https://registry.yarnpkg.com/@msgpackr-extract/msgpackr-extract-win32-x64/-/msgpackr-extract-win32-x64-3.0.3.tgz#0aa5502d547b57abfc4ac492de68e2006e417242"
   integrity sha512-x0fWaQtYp4E6sktbsdAqnehxDgEc/VwM7uLsRCYWaiGu0ykYdZPiS8zCWdnjHwyiumousxfBm4SO31eXqwEZhQ==
 
+"@posthog/core@1.29.9":
+  version "1.29.9"
+  resolved "https://registry.yarnpkg.com/@posthog/core/-/core-1.29.9.tgz#58133ce5d21ff21574f3629e227df766ccab6a6e"
+  integrity sha512-DjvuIyBZ2Z/gBhtZlITlM2D8PlnMsHSQ1D78dbUYoVsgGguvanpJTobZObjLlFkybyvfZFYkpoJkFNI/2Pw4IQ==
+  dependencies:
+    "@posthog/types" "1.376.0"
+
+"@posthog/types@1.376.0":
+  version "1.376.0"
+  resolved "https://registry.yarnpkg.com/@posthog/types/-/types-1.376.0.tgz#e69201709db3baee4caaf9b95c06e7d294ff2c9a"
+  integrity sha512-gbFfxCuZDs/D4QZMwdE+smD1jsuqgGpS6yKGHZZ19foxMy8RYHsU1E47iG1b88n/uN02fAabLibVwuxLtq8juw==
+
 "@react-native-async-storage/async-storage@2.2.0":
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/@react-native-async-storage/async-storage/-/async-storage-2.2.0.tgz#a3aa565253e46286655560172f4e366e8969f5ad"
@@ -3590,6 +3602,14 @@ postcss@^8.5.14:
     nanoid "^3.3.12"
     picocolors "^1.1.1"
     source-map-js "^1.2.1"
+
+posthog-react-native@^4.45.14:
+  version "4.45.14"
+  resolved "https://registry.yarnpkg.com/posthog-react-native/-/posthog-react-native-4.45.14.tgz#af642109ef111885e4a2501b4552937c7517c0cd"
+  integrity sha512-C5549ztBFzqkX+MLJVuYiAXSGjurO0mfK1OOaOsk0lvitzTB1IQWgCKeWXqjq0rkxh0+9KgHz0SDEn2JxjaA9w==
+  dependencies:
+    "@posthog/core" "1.29.9"
+    "@posthog/types" "1.376.0"
 
 pretty-format@^29.7.0:
   version "29.7.0"

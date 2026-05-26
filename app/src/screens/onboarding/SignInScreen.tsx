@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { View, StyleSheet, Pressable, Platform } from "react-native";
+import { Image } from "expo-image";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -8,7 +9,6 @@ import { Text } from "../../components/atoms";
 import { useAuth } from "../../contexts/AuthProvider";
 import type { OnboardingStackParamList } from "../../navigation/stacks/OnboardingStack";
 import AppleLogo from "../../../assets/apple-logo.svg";
-import GoogleLogo from "../../../assets/google-logo.svg";
 
 export const SignInScreen: React.FC = () => {
   const { signInWithApple, signInWithGoogle, isSignedIn } = useAuth();
@@ -23,6 +23,14 @@ export const SignInScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container} testID="sign-in-screen">
       <View style={styles.content}>
+        {/* App icon */}
+        <Image
+          source={require("../../../assets/icon.png")}
+          style={styles.appIcon}
+          contentFit="contain"
+          testID="sign-in-icon"
+        />
+
         {/* Wordmark */}
         <Text
           variant="bold"
@@ -55,7 +63,7 @@ export const SignInScreen: React.FC = () => {
           accessibilityRole="button"
           accessibilityLabel="Continue with Apple"
         >
-          <AppleLogo width={20} height={20} style={styles.buttonIcon} />
+          <AppleLogo width={28} height={28} fill="#FFFFFF" style={styles.buttonIcon} />
           <Text variant="semiBold" size="base" color={Colors.white} testID="sign-in-apple-label">
             Continue with Apple
           </Text>
@@ -70,7 +78,11 @@ export const SignInScreen: React.FC = () => {
           accessibilityRole="button"
           accessibilityLabel="Continue with Google"
         >
-          <GoogleLogo width={20} height={20} style={styles.buttonIcon} />
+          <Image
+            source={require("../../../assets/google.png")}
+            style={styles.googleIcon}
+            contentFit="contain"
+          />
           <Text variant="semiBold" size="base" color={Colors.ink} testID="sign-in-google-label">
             Continue with Google
           </Text>
@@ -103,6 +115,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  appIcon: {
+    width: 120,
+    height: 120,
+    marginBottom: Spacing.lg,
+    borderRadius: BorderRadius.xl,
+    borderWidth: 1,
+    borderColor: Colors.sage,
+  },
   buttons: {
     paddingHorizontal: Spacing.xl,
     gap: Spacing.md,
@@ -111,12 +131,17 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: Colors.ink,
-    paddingVertical: Spacing.lg,
+    backgroundColor: "#000000",
+    height: 56,
     borderRadius: BorderRadius.lg,
     ...Shadows.sm,
   },
   buttonIcon: {
+    marginRight: Spacing.sm,
+  },
+  googleIcon: {
+    width: 24,
+    height: 24,
     marginRight: Spacing.sm,
   },
   googleButton: {
@@ -124,10 +149,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: Colors.white,
-    paddingVertical: Spacing.lg,
+    height: 56,
     borderRadius: BorderRadius.lg,
     borderWidth: 1,
-    borderColor: Colors.paper,
+    borderColor: "#DADCE0",
     ...Shadows.sm,
   },
   legal: {

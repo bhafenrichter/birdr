@@ -10,6 +10,7 @@ import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import Toast from "react-native-toast-message";
 import { supabase } from "../services/supabase";
 import { logger } from "../services/logger";
+import { usePostHog } from "./PostHogProvider";
 import { ENV } from "../config/env";
 import type { Session, User } from "@supabase/supabase-js";
 import type { Profile } from "../types/api";
@@ -46,6 +47,7 @@ const AuthContext = createContext<AuthContextType>({
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  const posthog = usePostHog();
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -70,8 +72,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }
     if (data) {
       setProfile(data as Profile);
+      posthog.identify(userId, {
+        display_name: (data as Profile).display_name,
+        subscription_tier: (data as Profile).subscription_tier,
+      });
     }
-  }, []);
+  }, [posthog]);
 
   const refreshProfile = useCallback(async () => {
     if (user?.id) {
@@ -213,8 +219,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         text1: "Sign out failed",
         text2: "We couldn't sign you out. Please try again.",
       });
+    } else {
+      posthog.reset();
     }
-  }, []);
+  }, [posthog]);
 
   return (
     <AuthContext.Provider

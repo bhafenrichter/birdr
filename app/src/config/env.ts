@@ -4,4 +4,6 @@ export const ENV = {
   GOOGLE_IOS_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID ?? "",
   GOOGLE_WEB_CLIENT_ID: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID ?? "",
   REVENUECAT_API_KEY: process.env.EXPO_PUBLIC_REVENUECAT_API_KEY ?? "",
+  POSTHOG_API_KEY: process.env.EXPO_PUBLIC_POSTHOG_API_KEY ?? "",
+  POSTHOG_HOST: process.env.EXPO_PUBLIC_POSTHOG_HOST ?? "https://us.i.posthog.com",
 } as const;

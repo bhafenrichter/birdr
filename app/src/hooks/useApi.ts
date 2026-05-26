@@ -95,6 +95,16 @@ export function useExploreSpecies(
   );
 }
 
+export function useSpecies(speciesId: string): UseQueryResult<
+  Species & { species_type_name: string; habitat_name: string }
+> {
+  return useQuery(() => api.fetchSpecies(speciesId), [speciesId]);
+}
+
+export function useSpeciesStates(speciesId: string): UseQueryResult<string[]> {
+  return useQuery(() => api.fetchSpeciesStates(speciesId), [speciesId]);
+}
+
 export function useAllSpecies(): UseQueryResult<
   (Species & { species_type_name: string; habitat_name: string })[]
 > {

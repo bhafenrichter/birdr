@@ -1,8 +1,16 @@
 import React from "react";
 import { View, ViewStyle } from "react-native";
-import { ConservationTierColors, Colors, Fonts, FontSizes } from "../../theme";
+import { ConservationTierColors, Colors } from "../../theme";
 import type { ConservationTier } from "../../theme";
 import { Text } from "./Text";
+
+const TIER_LABELS: Record<ConservationTier, string> = {
+  LC: "Least Concern",
+  NT: "Near Threatened",
+  VU: "Vulnerable",
+  EN: "Endangered",
+  CR: "Critically Endangered",
+};
 
 export interface ConservationBadgeProps {
   tier: ConservationTier;
@@ -27,13 +35,8 @@ export const ConservationBadge: React.FC<ConservationBadgeProps> = ({
   };
 
   return (
-    <View style={containerStyle} testID={testID} accessible accessibilityLabel={`Conservation status: ${tier}`}>
-      <Text
-        variant="bold"
-        size="xs"
-        color={Colors.white}
-        testID={`${testID}-label`}
-      >
+    <View style={containerStyle} testID={testID} accessible accessibilityLabel={`Conservation status: ${TIER_LABELS[tier]}`}>
+      <Text variant="bold" size="xs" color={Colors.white} testID={`${testID}-label`}>
         {tier}
       </Text>
     </View>
