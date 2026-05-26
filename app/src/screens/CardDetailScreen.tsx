@@ -185,6 +185,7 @@ export const CardDetailScreen: React.FC = () => {
   const isSpotted = !!userCard;
   const dataReady = !cardsLoading && !sightingsLoading;
   const lastSighting = sightings[0];
+  const firstSighting = sightings.length > 0 ? sightings[sightings.length - 1] : null;
 
   return (
     <View style={styles.container} testID="card-detail-screen">
@@ -249,7 +250,7 @@ export const CardDetailScreen: React.FC = () => {
                     size: species.size,
                     about: species.about_text,
                     firstSight: isSpotted
-                      ? `${formatDate(userCard!.first_seen_at)}${lastSighting?.named_location ? `, ${lastSighting.named_location}` : ""}`
+                      ? `${formatDate(userCard!.first_seen_at)}${firstSighting?.setting ? `, ${firstSighting.setting}` : ""}${firstSighting?.named_location ? `, ${firstSighting.named_location}` : ""}`
                       : undefined,
                     sightingCount: userCard?.sighting_count,
                     locked: dataReady && !isSpotted,

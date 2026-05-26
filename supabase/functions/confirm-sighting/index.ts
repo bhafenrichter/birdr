@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
     const admin = createAdminClient();
 
     const body = await req.json();
-    const { species_id, photo_base64, photo_mime_type, lat, lon, named_location } = body;
+    const { species_id, photo_base64, photo_mime_type, lat, lon, named_location, setting, photo_quality } = body;
 
     if (!species_id || !photo_base64) {
       return new Response(
@@ -116,6 +116,8 @@ Deno.serve(async (req) => {
         lat: lat ?? null,
         lon: lon ?? null,
         named_location: named_location ?? null,
+        setting: setting ?? null,
+        photo_quality: photo_quality ?? null,
       })
       .select("id, captured_at")
       .single();
@@ -163,6 +165,7 @@ Deno.serve(async (req) => {
         streak: {
           current_streak: streak.current_streak,
           longest_streak: streak.longest_streak,
+          streak_extended: streak.streak_extended,
         },
         achievements_unlocked: achievementsUnlocked,
       }),
@@ -207,7 +210,7 @@ async function updateStreak(
 
   if (streak.last_capture_date === todayStr) {
     // Already captured today, no streak change
-    return streak;
+    return { ...streak, streak_extended: false };
   }
 
   let newStreak: number;
@@ -243,7 +246,8 @@ async function updateStreak(
     .select()
     .single();
 
-  return updated ?? { ...streak, current_streak: newStreak, longest_streak: newLongest };
+  const result = updated ?? { ...streak, current_streak: newStreak, longest_streak: newLongest };
+  return { ...result, streak_extended: true };
 }
 
 /**

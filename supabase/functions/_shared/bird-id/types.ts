@@ -18,10 +18,15 @@ export interface BirdIdRequest {
   stateCode?: string; // e.g. "US-NC" for region context
 }
 
+export type PhotoQuality = "pristine" | "good" | "fair" | "poor";
+
 export interface BirdIdResponse {
   candidates: BirdIdCandidate[];
   provider: string;
   raw?: unknown; // Provider-specific raw response for debugging
+  photo_quality: PhotoQuality;
+  is_screen_photo: boolean;
+  setting: string | null; // e.g. "on a bird feeder", "in a forest"
 }
 
 export interface BirdIdProvider {

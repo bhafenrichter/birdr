@@ -7,7 +7,7 @@ import CandidatePickerScreen from "../../screens/capture/CandidatePickerScreen";
 import TryAgainScreen from "../../screens/capture/TryAgainScreen";
 import CardRevealScreen from "../../screens/capture/CardRevealScreen";
 import HardPaywallScreen from "../../screens/capture/HardPaywallScreen";
-import type { IdentifyCandidate, ConservationStatus } from "../../types/api";
+import type { IdentifyCandidate, ConservationStatus, PhotoQuality } from "../../types/api";
 
 export type CaptureFlowParamList = {
   Viewfinder: undefined;
@@ -17,6 +17,8 @@ export type CaptureFlowParamList = {
     photoUri: string;
     candidates: IdentifyCandidate[];
     location?: { lat: number; lon: number };
+    setting?: string;
+    photo_quality?: PhotoQuality;
   };
   TryAgain: { photoUri: string };
   CardReveal: {
@@ -25,6 +27,8 @@ export type CaptureFlowParamList = {
     commonName: string;
     conservationStatus: string;
     location?: { lat: number; lon: number };
+    setting?: string;
+    photo_quality?: PhotoQuality;
   };
   HardPaywall: undefined;
 };

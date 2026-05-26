@@ -10,6 +10,7 @@ export type Rarity = "common" | "uncommon" | "rare" | "epic" | "legendary";
 export type Season = "year_round" | "summer" | "winter" | "migratory" | "rare";
 export type SubscriptionTier = "free" | "weekly" | "yearly";
 export type AchievementCategory = "collection" | "streak" | "family" | "habitat";
+export type PhotoQuality = "pristine" | "good" | "fair" | "poor";
 
 // ── DB Row Types ───────────────────────────────────────────────────────────
 
@@ -67,6 +68,8 @@ export interface Sighting {
   lon: number | null;
   named_location: string | null;
   display_location: string | null;
+  setting: string | null;
+  photo_quality: PhotoQuality | null;
   created_at: string;
 }
 
@@ -115,6 +118,9 @@ export interface IdentifyBirdResponse {
   candidates: IdentifyCandidate[];
   captures_remaining: number;
   provider: string;
+  photo_quality: PhotoQuality;
+  is_screen_photo: boolean;
+  setting: string | null;
 }
 
 // ── Edge Function: confirm-sighting ────────────────────────────────────────
@@ -126,6 +132,8 @@ export interface ConfirmSightingRequest {
   lat?: number;
   lon?: number;
   named_location?: string;
+  setting?: string;
+  photo_quality?: PhotoQuality;
 }
 
 export interface ConfirmSightingResponse {
@@ -142,6 +150,7 @@ export interface ConfirmSightingResponse {
   streak: {
     current_streak: number;
     longest_streak: number;
+    streak_extended: boolean;
   };
   achievements_unlocked: {
     achievement_id: string;

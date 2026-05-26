@@ -16,7 +16,7 @@ type Route = RouteProp<CaptureFlowParamList, "CandidatePicker">;
 export const CandidatePickerScreen: React.FC = () => {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
-  const { photoUri, candidates, location } = route.params;
+  const { photoUri, candidates, location, setting, photo_quality } = route.params;
 
   const handleSelect = (candidate: IdentifyCandidate) => {
     if (!candidate.species_id) return;
@@ -26,6 +26,8 @@ export const CandidatePickerScreen: React.FC = () => {
       commonName: candidate.common_name,
       conservationStatus: candidate.conservation_status ?? "LC",
       location,
+      setting,
+      photo_quality,
     });
   };
 

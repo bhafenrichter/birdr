@@ -19,9 +19,17 @@ export class Gpt4oAdapter implements BirdIdProvider {
   }
 
   async identify(request: BirdIdRequest): Promise<BirdIdResponse> {
-    const base64Image = btoa(
-      String.fromCharCode(...request.imageBytes)
-    );
+    console.log("[gpt4o] Starting identification", { imageSize: request.imageBytes.length, mime: request.mimeType, lat: request.lat, lon: request.lon, stateCode: request.stateCode });
+
+    console.log("[gpt4o] Converting image to base64...");
+    let binaryStr = "";
+    const bytes = request.imageBytes;
+    const chunkSize = 8192;
+    for (let i = 0; i < bytes.length; i += chunkSize) {
+      binaryStr += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+    }
+    const base64Image = btoa(binaryStr);
+    console.log("[gpt4o] Base64 ready, length:", base64Image.length);
 
     const locationContext = request.stateCode
       ? `The photo was taken in ${request.stateCode}, USA.`
@@ -39,7 +47,10 @@ You MUST respond with valid JSON only. No markdown, no explanation. Use this exa
       "scientific_name": "Genus species",
       "confidence": 0.95
     }
-  ]
+  ],
+  "photo_quality": "good",
+  "is_screen_photo": false,
+  "setting": "on a bird feeder"
 }
 
 Rules:
@@ -48,8 +59,12 @@ Rules:
 - Only include North American bird species
 - Use standard AOU/eBird common names
 - If you cannot identify any bird in the image, return an empty candidates array
-- Consider the location context to weight species likelihood`;
+- Consider the location context to weight species likelihood
+- photo_quality: Rate the photo as "pristine" (sharp, well-lit, bird fills frame, full body visible), "good" (clearly identifiable, decent lighting, reasonable distance), "fair" (identifiable with difficulty — distant, partially hidden, poor lighting, motion blur), or "poor" (barely identifiable — extreme blur, silhouette, tiny in frame)
+- is_screen_photo: Set to true if the image appears to be a photograph of a screen, monitor, phone, TV, or tablet displaying a bird image, or a photograph of a printed photo, poster, or book rather than a direct photograph of a real live bird. Look for screen bezels, pixel grids, moiré patterns, reflections, screen glare, paper edges, glossy print reflections, or unnatural flatness
+- setting: A short phrase (2-5 words) describing where the bird is observed in the photo, e.g. "on a bird feeder", "in a forest", "at a lake shore", "on a power line", "in a backyard", "on a branch", "in flight". Set to null if no bird is visible or the setting cannot be determined`;
 
+    console.log("[gpt4o] Calling OpenAI API...");
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -60,7 +75,7 @@ Rules:
         model: "gpt-4o",
         response_format: { type: "json_object" },
         temperature: 0.2,
-        max_tokens: 500,
+        max_tokens: 600,
         messages: [
           { role: "system", content: systemPrompt },
           {
@@ -83,19 +98,42 @@ Rules:
       }),
     });
 
+    console.log("[gpt4o] OpenAI response status:", response.status);
+
     if (!response.ok) {
       const errorText = await response.text();
+      console.error("[gpt4o] OpenAI API error", { status: response.status, body: errorText.slice(0, 500) });
       throw new Error(`GPT-4o API error ${response.status}: ${errorText}`);
     }
 
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content;
+    console.log("[gpt4o] Response content length:", content?.length, "usage:", data.usage);
 
     if (!content) {
+      console.error("[gpt4o] No content in response", { choices: JSON.stringify(data.choices).slice(0, 200) });
       throw new Error("No content in GPT-4o response");
     }
 
-    const parsed = JSON.parse(content);
+    let parsed: any;
+    try {
+      parsed = JSON.parse(content);
+    } catch (parseErr) {
+      console.error("[gpt4o] JSON parse failed", { content: content.slice(0, 500) });
+      throw new Error(`Failed to parse GPT-4o response: ${content.slice(0, 200)}`);
+    }
+
+    console.log("[gpt4o] Parsed response", {
+      candidateCount: parsed.candidates?.length,
+      photo_quality: parsed.photo_quality,
+      is_screen_photo: parsed.is_screen_photo,
+      setting: parsed.setting,
+    });
+
+    const validQualities = ["pristine", "good", "fair", "poor"];
+    const quality = validQualities.includes(parsed.photo_quality)
+      ? parsed.photo_quality
+      : "fair";
 
     return {
       candidates: (parsed.candidates || []).map(
@@ -107,6 +145,9 @@ Rules:
       ),
       provider: "gpt-4o",
       raw: data,
+      photo_quality: quality,
+      is_screen_photo: parsed.is_screen_photo === true,
+      setting: typeof parsed.setting === "string" ? parsed.setting : null,
     };
   }
 }

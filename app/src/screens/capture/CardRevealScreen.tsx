@@ -50,7 +50,7 @@ const RARITY_SCALE: Record<
 export const CardRevealScreen: React.FC = () => {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
-  const { photoUri, speciesId, commonName, conservationStatus, location } =
+  const { photoUri, speciesId, commonName, conservationStatus, location, setting, photo_quality } =
     route.params;
   const { refreshProfile } = useAuth();
 
@@ -104,6 +104,8 @@ export const CardRevealScreen: React.FC = () => {
           photo_mime_type: "image/jpeg",
           lat: location?.lat,
           lon: location?.lon,
+          setting,
+          photo_quality,
         });
 
         setConfirmResult(result);
@@ -303,8 +305,8 @@ export const CardRevealScreen: React.FC = () => {
           style={[styles.settledContainer, bonusStyle]}
           testID="card-reveal-settled"
         >
-          {/* Achievement cards */}
-          {confirmResult?.streak && confirmResult.streak.current_streak > 0 && (
+          {/* Achievement cards — show streak + first achievement, then summarize the rest */}
+          {confirmResult?.streak && confirmResult.streak.streak_extended && (
             <View style={styles.achievementCard}>
               <Text variant="bold" size="sm" color={Colors.coral}>🔥</Text>
               <View style={{ flex: 1, marginLeft: Spacing.sm }}>
@@ -317,7 +319,7 @@ export const CardRevealScreen: React.FC = () => {
               </View>
             </View>
           )}
-          {confirmResult?.achievements_unlocked.map((ach) => (
+          {confirmResult?.achievements_unlocked.slice(0, 1).map((ach) => (
             <View key={ach.achievement_id} style={styles.achievementCard}>
               <Text variant="bold" size="sm" color={Colors.saffron}>🏆</Text>
               <View style={{ flex: 1, marginLeft: Spacing.sm }}>
@@ -330,6 +332,19 @@ export const CardRevealScreen: React.FC = () => {
               </View>
             </View>
           ))}
+          {(confirmResult?.achievements_unlocked.length ?? 0) > 1 && (
+            <View style={styles.achievementCard}>
+              <Text variant="bold" size="sm" color={Colors.saffron}>🏆</Text>
+              <View style={{ flex: 1, marginLeft: Spacing.sm }}>
+                <Text variant="semiBold" size="sm" color={Colors.white}>
+                  {`+${confirmResult!.achievements_unlocked.length - 1} more achievement${confirmResult!.achievements_unlocked.length - 1 > 1 ? "s" : ""}`}
+                </Text>
+                <Text variant="regular" size="xs" color="rgba(255,255,255,0.6)">
+                  Check your profile to see them all
+                </Text>
+              </View>
+            </View>
+          )}
 
           {/* Continue button */}
           <Pressable

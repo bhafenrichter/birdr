@@ -36,10 +36,11 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // 1. Authenticate
+    console.log("[identify-bird] Step 1: Authenticating...");
     const { user, client } = await getAuthUser(req);
+    console.log("[identify-bird] Authenticated user:", user.id);
 
-    // 2. Check daily quota
+    console.log("[identify-bird] Step 2: Checking daily quota...");
     const { data: profile, error: profileError } = await client
       .from("profiles")
       .select("subscription_tier, daily_captures_used, daily_captures_reset_at")
@@ -47,11 +48,13 @@ Deno.serve(async (req) => {
       .single();
 
     if (profileError || !profile) {
+      console.error("[identify-bird] Profile not found", { profileError, userId: user.id });
       return new Response(
         JSON.stringify({ error: "Profile not found" }),
         { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+    console.log("[identify-bird] Profile loaded", { tier: profile.subscription_tier, used: profile.daily_captures_used });
 
     // Reset daily counter if it's a new day (UTC)
     const resetAt = new Date(profile.daily_captures_reset_at);
@@ -83,17 +86,17 @@ Deno.serve(async (req) => {
       );
     }
 
-    // 3. Parse request body (JSON with base64 image, or multipart form data)
+    console.log("[identify-bird] Step 3: Parsing request body...");
+    const contentType = req.headers.get("content-type") || "";
+    console.log("[identify-bird] Content-Type:", contentType);
     let imageBytes: Uint8Array;
     let imageMimeType = "image/jpeg";
     let lat: number | undefined;
     let lon: number | undefined;
 
-    const contentType = req.headers.get("content-type") || "";
-
     if (contentType.includes("application/json")) {
-      // JSON body with base64-encoded image
       const body = await req.json();
+      console.log("[identify-bird] JSON body received", { hasImage: !!body.image_base64, imageLen: body.image_base64?.length, imageType: body.image_type, lat: body.lat, lon: body.lon });
 
       if (!body.image_base64) {
         return new Response(
@@ -111,7 +114,7 @@ Deno.serve(async (req) => {
       lat = body.lat ? parseFloat(body.lat) : undefined;
       lon = body.lon ? parseFloat(body.lon) : undefined;
     } else {
-      // Multipart form data (legacy / web)
+      console.log("[identify-bird] Multipart form data");
       const formData = await req.formData();
       const imageFile = formData.get("image");
 
@@ -128,13 +131,15 @@ Deno.serve(async (req) => {
       lon = formData.get("lon") ? parseFloat(formData.get("lon") as string) : undefined;
     }
 
+    console.log("[identify-bird] Image ready", { bytes: imageBytes.length, mime: imageMimeType, lat, lon });
+
     // Resolve lat/lon to US state code for provider context
     let stateCode: string | undefined;
     if (lat !== undefined && lon !== undefined) {
       stateCode = resolveStateCode(lat, lon);
     }
 
-    // 4. Call bird ID provider
+    console.log("[identify-bird] Step 4: Calling bird ID provider...");
     const provider = createBirdIdProvider();
     const idResult = await provider.identify({
       imageBytes,
@@ -144,10 +149,21 @@ Deno.serve(async (req) => {
       stateCode,
     });
 
-    // 5. Match candidates against our species DB
+    console.log("[identify-bird] Step 5: Provider returned", {
+      candidateCount: idResult.candidates.length,
+      topCandidate: idResult.candidates[0]?.common_name,
+      topConfidence: idResult.candidates[0]?.confidence,
+      photo_quality: idResult.photo_quality,
+      is_screen_photo: idResult.is_screen_photo,
+      setting: idResult.setting,
+    });
+
+    console.log("[identify-bird] Step 6: Matching candidates against species DB...");
     const matchedCandidates = await matchSpecies(client, idResult.candidates);
 
-    // 6. Increment daily capture count
+    console.log("[identify-bird] Matched candidates:", matchedCandidates.length, matchedCandidates.map(c => `${c.common_name} (${c.confidence})`));
+
+    // 7. Increment daily capture count
     await client
       .from("profiles")
       .update({ daily_captures_used: capturesUsed + 1 })
@@ -169,6 +185,8 @@ Deno.serve(async (req) => {
       result = "retry";
     }
 
+    console.log("[identify-bird] DONE", { result, topConfidence, capturesRemaining, matchedCount: matchedCandidates.length });
+
     return new Response(
       JSON.stringify({
         result,
@@ -177,6 +195,9 @@ Deno.serve(async (req) => {
           : matchedCandidates.slice(0, 3),
         captures_remaining: capturesRemaining,
         provider: idResult.provider,
+        photo_quality: idResult.photo_quality,
+        is_screen_photo: idResult.is_screen_photo,
+        setting: idResult.setting,
       }),
       {
         status: 200,
@@ -185,7 +206,9 @@ Deno.serve(async (req) => {
     );
   } catch (err) {
     const message = err instanceof Error ? err.message : "Internal server error";
+    const stack = err instanceof Error ? err.stack : undefined;
     const status = message === "Unauthorized" ? 401 : 500;
+    console.error("[identify-bird] FAILED", { message, stack, status });
 
     return new Response(
       JSON.stringify({ error: message }),

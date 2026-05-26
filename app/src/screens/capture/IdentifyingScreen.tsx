@@ -1,12 +1,13 @@
 import React, { useEffect, useState, useRef } from "react";
-import { View, StyleSheet, ActivityIndicator } from "react-native";
+import { View, StyleSheet, ActivityIndicator, Pressable, Platform } from "react-native";
 import { Image } from "expo-image";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import type { RouteProp } from "@react-navigation/native";
 import * as Location from "expo-location";
 import Toast from "react-native-toast-message";
-import { Colors, Spacing } from "../../theme";
+import { AlertCircle } from "lucide-react-native";
+import { Colors, Spacing, BorderRadius } from "../../theme";
 import { Text, PrimaryButton } from "../../components/atoms";
 import { identifyBird, confirmSighting } from "../../services/api";
 import { useAuth } from "../../contexts/AuthProvider";
@@ -60,18 +61,30 @@ export const IdentifyingScreen: React.FC = () => {
         // Refresh profile to get updated quota
         await refreshProfile();
 
+        // Block screen photos
+        if (result.is_screen_photo) {
+          Toast.show({
+            type: "error",
+            text1: "Screen photo detected",
+            text2: "Please photograph a real bird, not a screen or printed image.",
+          });
+          navigation.replace("TryAgain", { photoUri });
+          return;
+        }
+
         // Branch on confidence
         switch (result.result) {
           case "auto_accepted": {
             const candidate = result.candidates[0];
             if (candidate.species_id) {
-              // Auto-confirm the sighting
               navigation.replace("CardReveal", {
                 photoUri,
                 speciesId: candidate.species_id,
                 commonName: candidate.common_name,
                 conservationStatus: candidate.conservation_status ?? "LC",
                 location,
+                setting: result.setting ?? undefined,
+                photo_quality: result.photo_quality,
               });
             }
             break;
@@ -82,6 +95,8 @@ export const IdentifyingScreen: React.FC = () => {
               photoUri,
               candidates: result.candidates,
               location,
+              setting: result.setting ?? undefined,
+              photo_quality: result.photo_quality,
             });
             break;
 
@@ -130,17 +145,34 @@ export const IdentifyingScreen: React.FC = () => {
           </>
         ) : (
           <>
-            <Text
-              variant="semiBold"
-              size="lg"
-              color={Colors.white}
-              testID="identifying-error-title"
-            >
-              Something went wrong
-            </Text>
-            <View style={{ marginTop: Spacing.xl, width: "60%" }}>
+            <View style={styles.errorCard}>
+              <AlertCircle size={32} color={Colors.coral} strokeWidth={1.5} />
+              <Text
+                variant="semiBold"
+                size="lg"
+                color={Colors.white}
+                align="center"
+                testID="identifying-error-title"
+                style={{ marginTop: Spacing.md }}
+              >
+                Something went wrong
+              </Text>
+              <Text
+                variant="regular"
+                size="sm"
+                color="rgba(255,255,255,0.6)"
+                align="center"
+                style={{ marginTop: Spacing.xs }}
+              >
+                We couldn't identify this photo. Try again or retake.
+              </Text>
+            </View>
+
+            <View style={styles.errorButtons}>
               <PrimaryButton
-                label="Try again"
+                title="Try again"
+                size="lg"
+                fullWidth
                 onPress={() => {
                   called.current = false;
                   setStatus("identifying");
@@ -148,6 +180,15 @@ export const IdentifyingScreen: React.FC = () => {
                 }}
                 testID="identifying-retry"
               />
+              <Pressable
+                style={({ pressed }) => [styles.retakeBtn, pressed && { opacity: 0.7 }]}
+                onPress={() => navigation.goBack()}
+                testID="identifying-retake"
+              >
+                <Text variant="medium" size="md" color={Colors.white}>
+                  Retake photo
+                </Text>
+              </Pressable>
             </View>
           </>
         )}
@@ -165,6 +206,28 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+  },
+  errorCard: {
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.6)",
+    borderRadius: BorderRadius.xl,
+    paddingVertical: Spacing["3xl"],
+    paddingHorizontal: Spacing.xl,
+    marginHorizontal: Spacing.xl,
+  },
+  errorButtons: {
+    position: "absolute",
+    bottom: Platform.OS === "ios" ? 50 : 30,
+    left: Spacing.xl,
+    right: Spacing.xl,
+    gap: Spacing.md,
+  },
+  retakeBtn: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: Spacing.lg,
+    borderRadius: BorderRadius.full,
+    backgroundColor: "rgba(255,255,255,0.2)",
   },
 });
 

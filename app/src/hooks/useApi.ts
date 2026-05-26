@@ -60,11 +60,23 @@ function useQuery<T>(
 // ── Typed hooks ────────────────────────────────────────────────────────────
 
 export function useProfile(): UseQueryResult<Profile | null> {
-  return useQuery(() => api.fetchProfile());
+  const result = useQuery(() => api.fetchProfile());
+
+  useEffect(() => {
+    return on(CAPTURE_COMPLETED, result.refetch);
+  }, [result.refetch]);
+
+  return result;
 }
 
 export function useStreak(): UseQueryResult<Streak | null> {
-  return useQuery(() => api.fetchStreak());
+  const result = useQuery(() => api.fetchStreak());
+
+  useEffect(() => {
+    return on(CAPTURE_COMPLETED, result.refetch);
+  }, [result.refetch]);
+
+  return result;
 }
 
 export function useCards(): UseQueryResult<Card[]> {
