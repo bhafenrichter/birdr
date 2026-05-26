@@ -4,6 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { Search as SearchIcon, Navigation, MapPin, X } from "lucide-react-native";
 import * as Location from "expo-location";
+import Toast from "react-native-toast-message";
 import { Colors, Spacing, BorderRadius, Shadows, Fonts, FontSizes } from "../theme";
 import { Text } from "../components/atoms";
 
@@ -85,7 +86,20 @@ export const LocationPickerScreen: React.FC = () => {
 
   const handleCurrentLocation = async () => {
     try {
-      const pos = await Location.getCurrentPositionAsync({});
+      // Request permission if not already granted
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        Toast.show({
+          type: "error",
+          text1: "Location access needed",
+          text2: "Enable location in Settings to use this feature.",
+        });
+        return;
+      }
+
+      const pos = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Balanced,
+      });
       const [place] = await Location.reverseGeocodeAsync({
         latitude: pos.coords.latitude,
         longitude: pos.coords.longitude,
@@ -94,7 +108,14 @@ export const LocationPickerScreen: React.FC = () => {
         ? [place.city, place.region].filter(Boolean).join(", ") || "Current location"
         : "Current location";
       selectLocation(pos.coords.latitude, pos.coords.longitude, name);
-    } catch {}
+    } catch (e) {
+      console.error("[LocationPicker] Failed to get location", e);
+      Toast.show({
+        type: "error",
+        text1: "Couldn't get location",
+        text2: "Please try again or select a state.",
+      });
+    }
   };
 
   return (

@@ -20,14 +20,6 @@ export const RootNavigator: React.FC = () => {
     });
   }, []);
 
-  // Listen for onboarding completion
-  useEffect(() => {
-    if (isSignedIn && onboardingComplete === false) {
-      // After sign-in during onboarding, the Permissions screen will advance
-      // When OnboardingStack reaches "Complete", mark it done
-    }
-  }, [isSignedIn]);
-
   if (authLoading || onboardingComplete === null) {
     return (
       <View
@@ -43,18 +35,22 @@ export const RootNavigator: React.FC = () => {
     );
   }
 
-  // Already signed in → skip onboarding, go to main app
-  if (isSignedIn) {
-    if (!onboardingComplete) {
-      AsyncStorage.setItem(ONBOARDING_COMPLETE_KEY, "true");
-    }
+  // Signed in AND onboarding complete → main app
+  if (isSignedIn && onboardingComplete) {
     return <TabNavigator />;
   }
 
-  // Not signed in → show onboarding / sign-in
+  // Not signed in, or signed in but still onboarding → show onboarding
+  // New users sign in on the SignIn screen, then continue to Permissions/Tutorial
+  const initialRoute = onboardingComplete
+    ? "SignIn"
+    : isSignedIn
+      ? "Permissions"
+      : "Welcome";
+
   return (
     <OnboardingStack
-      initialRouteName={onboardingComplete ? "SignIn" : "Welcome"}
+      initialRouteName={initialRoute}
       // @ts-expect-error screenListeners works at runtime but isn't in the type
       screenListeners={{
         state: (e: any) => {

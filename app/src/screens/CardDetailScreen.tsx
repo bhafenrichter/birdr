@@ -33,6 +33,8 @@ import {
   Eye,
 } from "lucide-react-native";
 import { BlurView } from "expo-blur";
+import Toast from "react-native-toast-message";
+import { toastConfig } from "../config/toast";
 import { Colors, Spacing, BorderRadius, Shadows, RarityConfig } from "../theme";
 import { Text, InfoCard } from "../components/atoms";
 import { Image } from "expo-image";
@@ -256,6 +258,13 @@ export const CardDetailScreen: React.FC = () => {
                     locked: dataReady && !isSpotted,
                     rarity: species.rarity,
                     allPhotos: sightings.length > 1 ? sightings.map((s) => s.photo_url) : undefined,
+                  }}
+                  onAudioPress={() => {
+                    Toast.show({
+                      type: "info",
+                      text1: "Coming soon",
+                      text2: "Bird calls will be available in a future update.",
+                    });
                   }}
                   testID="card-detail-bird-card"
                 />
@@ -491,6 +500,8 @@ export const CardDetailScreen: React.FC = () => {
             )}
           </BottomSheetScrollView>
       </BottomSheet>
+
+      <Toast config={toastConfig} topOffset={60} />
     </View>
   );
 };

@@ -36,8 +36,8 @@ export const CollectionScreen: React.FC = () => {
   const [segmentIndex, setSegmentIndex] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data: cards } = useCards();
-  const { data: allSpecies } = useAllSpecies();
+  const { data: cards, isLoading: cardsLoading } = useCards();
+  const { data: allSpecies, isLoading: speciesLoading } = useAllSpecies();
   const spottedCards = cards ?? [];
   const species = allSpecies ?? [];
   const spottedIds = new Set(spottedCards.map((c) => c.species_id));
@@ -105,6 +105,7 @@ export const CollectionScreen: React.FC = () => {
           cards={filteredSpotted}
           species={species}
           searchQuery={searchQuery}
+          isLoading={cardsLoading || speciesLoading}
           onCardPress={handleCardPress}
         />
       ) : (
@@ -124,8 +125,13 @@ const SpottedView: React.FC<{
   cards: any[];
   species: any[];
   searchQuery: string;
+  isLoading: boolean;
   onCardPress: (id: string) => void;
-}> = ({ cards, species, searchQuery, onCardPress }) => {
+}> = ({ cards, species, searchQuery, isLoading, onCardPress }) => {
+  if (isLoading) {
+    return <CardSkeletonGrid count={6} testID="collection-spotted-skeleton" />;
+  }
+
   if (cards.length === 0) {
     return (
       <View style={styles.emptyState} testID="collection-empty">
@@ -314,6 +320,7 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   gridContent: {
+    paddingTop: Spacing.lg,
     paddingHorizontal: Spacing.md,
     paddingBottom: Spacing["4xl"],
   },

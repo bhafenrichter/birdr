@@ -510,3 +510,30 @@ export async function fetchSpeciesStates(speciesId: string): Promise<string[]> {
 
   return (data ?? []).map((r) => r.state_code);
 }
+
+/** Fetch all sightings with location data for the map view. */
+export async function fetchMapSightings(): Promise<
+  (Sighting & { species: Species })[]
+> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from("sightings")
+    .select("*, species!inner(*)")
+    .eq("user_id", user.id)
+    .not("lat", "is", null)
+    .not("lon", "is", null)
+    .order("captured_at", { ascending: false });
+
+  if (error) {
+    logger.error("Failed to fetch map sightings", {
+      code: error.code,
+      message: error.message,
+    });
+    throw new ApiError(error.message, 500, error.code);
+  }
+  return (data ?? []) as (Sighting & { species: Species })[];
+}

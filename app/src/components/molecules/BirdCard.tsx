@@ -201,28 +201,26 @@ export const BirdCard: React.FC<BirdCardProps> = ({
                 {data.speciesName}
               </Text>
             </View>
-            {data.rarity && data.rarity !== "common" && (
-              <LinearGradient
-                colors={[...rc.borderColors] as [string, string, ...string[]]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={{
-                  paddingHorizontal: Spacing.md,
-                  paddingVertical: Spacing.xs,
-                  borderRadius: BorderRadius.md,
-                  marginTop: 2,
-                }}
+            <LinearGradient
+              colors={[...rc.borderColors] as [string, string, ...string[]]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={{
+                paddingHorizontal: Spacing.md,
+                paddingVertical: Spacing.xs,
+                borderRadius: BorderRadius.md,
+                marginTop: 2,
+              }}
+            >
+              <Text
+                variant="bold"
+                size="sm"
+                color={Colors.white}
+                testID={`${testID}-rarity`}
               >
-                <Text
-                  variant="bold"
-                  size="sm"
-                  color={Colors.white}
-                  testID={`${testID}-rarity`}
-                >
-                  {rc.label}
-                </Text>
-              </LinearGradient>
-            )}
+                {rc.label}
+              </Text>
+            </LinearGradient>
           </View>
 
           {/* Hero photo with rarity gradient border */}
@@ -386,13 +384,11 @@ export const BirdCard: React.FC<BirdCardProps> = ({
               size={44}
               testID={`${testID}-conservation-badge`}
             />
-            {!isLocked && (
-              <AudioBadge
-                size={44}
-                onPress={onAudioPress}
-                testID={`${testID}-audio-badge`}
-              />
-            )}
+            <AudioBadge
+              size={44}
+              onPress={onAudioPress}
+              testID={`${testID}-audio-badge`}
+            />
           </View>
         </View>
       </LinearGradient>
@@ -511,26 +507,24 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
                 {data.speciesName}
               </Text>
             </View>
-            {data.rarity && data.rarity !== "common" && (
-              <View
-                style={{
-                  backgroundColor: rc.badgeColor,
-                  paddingHorizontal: 4,
-                  paddingVertical: 2,
-                  borderRadius: BorderRadius.sm,
-                  marginLeft: Spacing.xs,
-                }}
+            <View
+              style={{
+                backgroundColor: rc.badgeColor,
+                paddingHorizontal: 4,
+                paddingVertical: 2,
+                borderRadius: BorderRadius.sm,
+                marginLeft: Spacing.xs,
+              }}
+            >
+              <Text
+                variant="bold"
+                size="xs"
+                color={Colors.white}
+                testID={`${testID}-rarity`}
               >
-                <Text
-                  variant="bold"
-                  size="xs"
-                  color={Colors.white}
-                  testID={`${testID}-rarity`}
-                >
-                  {rc.badge}
-                </Text>
-              </View>
-            )}
+                {rc.badge}
+              </Text>
+            </View>
           </View>
 
           {/* Photo / locked area — top portion */}

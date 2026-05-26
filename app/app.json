@@ -37,7 +37,8 @@
         {
           "iosUrlScheme": "com.googleusercontent.apps.190604400136-sn3c769di33nr2sdaopjplfbvm7mnkg9"
         }
-      ]
+      ],
+      "react-native-maps"
     ],
     "extra": {
       "eas": {

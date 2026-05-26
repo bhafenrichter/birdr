@@ -34,15 +34,25 @@ export const IdentifyingScreen: React.FC = () => {
 
     (async () => {
       try {
-        // Get location
+        // Get location — request permission if not yet granted
         let location: { lat: number; lon: number } | undefined;
         try {
-          const { status: locStatus } = await Location.getForegroundPermissionsAsync();
+          let { status: locStatus } = await Location.getForegroundPermissionsAsync();
+          if (locStatus !== "granted") {
+            const response = await Location.requestForegroundPermissionsAsync();
+            locStatus = response.status;
+          }
           if (locStatus === "granted") {
             const loc = await Location.getCurrentPositionAsync({
               accuracy: Location.Accuracy.Balanced,
             });
             location = { lat: loc.coords.latitude, lon: loc.coords.longitude };
+          } else {
+            Toast.show({
+              type: "info",
+              text1: "Location unavailable",
+              text2: "Your sighting won't include a location. Enable in Settings.",
+            });
           }
         } catch {
           // Location unavailable — proceed without it

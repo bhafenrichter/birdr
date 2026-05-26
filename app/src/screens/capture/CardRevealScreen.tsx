@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { View, StyleSheet, Pressable, Platform, Dimensions } from "react-native";
 import * as FileSystem from "expo-file-system/legacy";
+import * as Location from "expo-location";
 import ConfettiCannon from "react-native-confetti-cannon";
 import Animated, {
   useSharedValue,
@@ -100,12 +101,35 @@ export const CardRevealScreen: React.FC = () => {
           encoding: FileSystem.EncodingType.Base64,
         });
 
+        // Reverse geocode lat/lon to a readable location name
+        let namedLocation: string | undefined;
+        if (location?.lat && location?.lon) {
+          try {
+            const [geo] = await Location.reverseGeocodeAsync({
+              latitude: location.lat,
+              longitude: location.lon,
+            });
+            if (geo) {
+              const city = geo.city || geo.subregion || geo.district;
+              const state = geo.region;
+              if (city && state) {
+                namedLocation = `${city}, ${state}`;
+              } else if (state) {
+                namedLocation = state;
+              } else if (city) {
+                namedLocation = city;
+              }
+            }
+          } catch {}
+        }
+
         const result = await confirmSighting({
           species_id: speciesId,
           photo_base64: base64,
           photo_mime_type: "image/jpeg",
           lat: location?.lat,
           lon: location?.lon,
+          named_location: namedLocation,
           setting,
           photo_quality,
         });

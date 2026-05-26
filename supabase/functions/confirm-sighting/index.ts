@@ -105,7 +105,30 @@ Deno.serve(async (req) => {
 
     const isFirstSight = (existingSightings ?? 0) === 0;
 
-    // 4. Insert sighting
+    // 4. Resolve named_location if not provided but lat/lon are
+    let resolvedLocation: string | null = named_location ?? null;
+    if (!resolvedLocation && lat && lon) {
+      try {
+        const geoResp = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&zoom=10`,
+          { headers: { "User-Agent": "birdr-app/1.0" } },
+        );
+        if (geoResp.ok) {
+          const geo = await geoResp.json();
+          const city = geo.address?.city || geo.address?.town || geo.address?.village || geo.address?.county;
+          const state = geo.address?.state;
+          if (city && state) {
+            resolvedLocation = `${city}, ${state}`;
+          } else if (state) {
+            resolvedLocation = state;
+          }
+        }
+      } catch {
+        // Geocoding failed — proceed without named_location
+      }
+    }
+
+    // 5. Insert sighting
     const { data: sighting, error: sightingError } = await admin
       .from("sightings")
       .insert({
@@ -115,7 +138,7 @@ Deno.serve(async (req) => {
         captured_at: new Date().toISOString(),
         lat: lat ?? null,
         lon: lon ?? null,
-        named_location: named_location ?? null,
+        named_location: resolvedLocation,
         setting: setting ?? null,
         photo_quality: photo_quality ?? null,
       })

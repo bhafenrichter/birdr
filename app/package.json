@@ -37,6 +37,7 @@
     "react-native": "0.85.3",
     "react-native-confetti-cannon": "^1.5.2",
     "react-native-gesture-handler": "~2.31.1",
+    "react-native-maps": "^1.27.2",
     "react-native-purchases": "^10.1.2",
     "react-native-purchases-ui": "^10.1.2",
     "react-native-reanimated": "4.3.1",

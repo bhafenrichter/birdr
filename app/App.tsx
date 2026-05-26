@@ -54,23 +54,25 @@ export default function App() {
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }} onLayout={onLayoutRootView}>
-      <SafeAreaProvider>
-        <NavigationProvider>
-          <PostHogProvider>
-            <AuthProvider>
-              <RevenueCatProvider>
-                <HapticProvider>
-                  <BottomSheetProvider>
-                    <RootNavigator />
-                  </BottomSheetProvider>
-                </HapticProvider>
-              </RevenueCatProvider>
-            </AuthProvider>
-          </PostHogProvider>
-        </NavigationProvider>
-      </SafeAreaProvider>
-      <Toast config={toastConfig} />
-    </GestureHandlerRootView>
+    <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <SafeAreaProvider>
+          <NavigationProvider>
+            <PostHogProvider>
+              <AuthProvider>
+                <RevenueCatProvider>
+                  <HapticProvider>
+                    <BottomSheetProvider>
+                      <RootNavigator />
+                    </BottomSheetProvider>
+                  </HapticProvider>
+                </RevenueCatProvider>
+              </AuthProvider>
+            </PostHogProvider>
+          </NavigationProvider>
+        </SafeAreaProvider>
+      </GestureHandlerRootView>
+      <Toast config={toastConfig} topOffset={60} />
+    </View>
   );
 }
