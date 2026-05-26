@@ -143,11 +143,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       if (error) {
         logger.error("Apple sign-in failed", { message: error.message });
+        posthog.capture("sign_in_completed", { provider: "apple", success: false, error: error.message });
         Toast.show({
           type: "error",
           text1: "Sign in failed",
           text2: "We couldn't sign you in. Please try again.",
         });
+      } else {
+        posthog.capture("sign_in_completed", { provider: "apple", success: true });
       }
     } catch (e: any) {
       if (e.code === "ERR_REQUEST_CANCELED") {
@@ -189,11 +192,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       if (error) {
         logger.error("Google sign-in failed", { message: error.message });
+        posthog.capture("sign_in_completed", { provider: "google", success: false, error: error.message });
         Toast.show({
           type: "error",
           text1: "Sign in failed",
           text2: "We couldn't sign you in. Please try again.",
         });
+      } else {
+        posthog.capture("sign_in_completed", { provider: "google", success: true });
       }
     } catch (e: any) {
       if (e.code === "SIGN_IN_CANCELLED") {
@@ -220,6 +226,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         text2: "We couldn't sign you out. Please try again.",
       });
     } else {
+      posthog.capture("sign_out_completed");
       posthog.reset();
     }
   }, [posthog]);

@@ -7,6 +7,7 @@ import type { RouteProp } from "@react-navigation/native";
 import { X, ChevronRight, RefreshCw } from "lucide-react-native";
 import { Colors, Spacing, BorderRadius, Shadows, Fonts, FontSizes } from "../../theme";
 import { Text, Pill } from "../../components/atoms";
+import { usePostHog } from "../../contexts/PostHogProvider";
 import type { CaptureFlowParamList } from "../../navigation/stacks/CaptureFlowStack";
 import type { IdentifyCandidate } from "../../types/api";
 
@@ -16,10 +17,13 @@ type Route = RouteProp<CaptureFlowParamList, "CandidatePicker">;
 export const CandidatePickerScreen: React.FC = () => {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
+  const posthog = usePostHog();
   const { photoUri, candidates, location, setting, photo_quality } = route.params;
 
   const handleSelect = (candidate: IdentifyCandidate) => {
     if (!candidate.species_id) return;
+    const index = candidates.indexOf(candidate);
+    posthog.capture("candidate_selected", { species_id: candidate.species_id, common_name: candidate.common_name, candidate_index: index, confidence: candidate.confidence });
     navigation.replace("CardReveal", {
       photoUri,
       speciesId: candidate.species_id,
@@ -32,6 +36,7 @@ export const CandidatePickerScreen: React.FC = () => {
   };
 
   const handleNoneMatch = () => {
+    posthog.capture("candidate_rejected");
     navigation.replace("TryAgain", { photoUri });
   };
 

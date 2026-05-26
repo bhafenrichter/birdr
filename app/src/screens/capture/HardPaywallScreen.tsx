@@ -4,14 +4,17 @@ import { useNavigation } from "@react-navigation/native";
 import { X, Check } from "lucide-react-native";
 import { Colors, Spacing, BorderRadius, Shadows } from "../../theme";
 import { Text, PrimaryButton, CircleBtn } from "../../components/atoms";
+import { usePostHog } from "../../contexts/PostHogProvider";
 
 type Plan = "weekly" | "yearly";
 
 export const HardPaywallScreen: React.FC = () => {
   const navigation = useNavigation();
+  const posthog = usePostHog();
   const [selectedPlan, setSelectedPlan] = useState<Plan>("yearly");
 
   const handleClose = () => {
+    posthog.capture("paywall_dismissed", { selected_plan: selectedPlan });
     navigation.getParent()?.goBack();
   };
 

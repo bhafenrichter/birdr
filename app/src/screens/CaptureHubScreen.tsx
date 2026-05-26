@@ -23,6 +23,7 @@ import {
 import { Text, Body, Pill } from "../components/atoms";
 import { useStreak, useProfile } from "../hooks/useApi";
 import { useRevenueCat } from "../contexts/RevenueCatProvider";
+import { usePostHog } from "../contexts/PostHogProvider";
 import { ScrollView } from "react-native-gesture-handler";
 import type { CaptureStackParamList } from "../navigation/stacks/CaptureStack";
 
@@ -37,6 +38,7 @@ export const CaptureHubScreen: React.FC = () => {
   const hasCapturedToday =
     lastCapture === new Date().toISOString().split("T")[0];
   const { isSubscribed, presentPaywall } = useRevenueCat();
+  const posthog = usePostHog();
   const dailyUsed = profile?.daily_captures_used ?? 0;
   const quotaRemaining = Math.max(0, 3 - dailyUsed);
 
@@ -98,8 +100,10 @@ export const CaptureHubScreen: React.FC = () => {
               ]}
               onPress={() => {
                 if (!isSubscribed && quotaRemaining <= 0) {
+                  posthog.capture("paywall_shown", { trigger: "capture_hub_quota_exceeded" });
                   presentPaywall();
                 } else {
+                  posthog.capture("capture_started", { quota_remaining: quotaRemaining, is_subscribed: isSubscribed });
                   navigation.navigate("CaptureFlow");
                 }
               }}

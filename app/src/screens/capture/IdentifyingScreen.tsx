@@ -11,6 +11,7 @@ import { Colors, Spacing, BorderRadius } from "../../theme";
 import { Text, PrimaryButton } from "../../components/atoms";
 import { identifyBird, confirmSighting } from "../../services/api";
 import { useAuth } from "../../contexts/AuthProvider";
+import { usePostHog } from "../../contexts/PostHogProvider";
 import type { CaptureFlowParamList } from "../../navigation/stacks/CaptureFlowStack";
 import type { IdentifyBirdResponse } from "../../types/api";
 
@@ -22,6 +23,7 @@ export const IdentifyingScreen: React.FC = () => {
   const route = useRoute<Route>();
   const { photoUri } = route.params;
   const { refreshProfile } = useAuth();
+  const posthog = usePostHog();
   const [status, setStatus] = useState<"identifying" | "error">("identifying");
   const [retryCount, setRetryCount] = useState(0);
   const called = useRef(false);
@@ -61,8 +63,18 @@ export const IdentifyingScreen: React.FC = () => {
         // Refresh profile to get updated quota
         await refreshProfile();
 
+        posthog.capture("identification_completed", {
+          result: result.result,
+          top_confidence: result.candidates[0]?.confidence ?? 0,
+          candidate_count: result.candidates.length,
+          photo_quality: result.photo_quality,
+          is_screen_photo: result.is_screen_photo,
+          captures_remaining: result.captures_remaining,
+        });
+
         // Block screen photos
         if (result.is_screen_photo) {
+          posthog.capture("screen_photo_blocked");
           Toast.show({
             type: "error",
             text1: "Screen photo detected",
@@ -106,7 +118,7 @@ export const IdentifyingScreen: React.FC = () => {
         }
       } catch (e: any) {
         if (e.status === 402) {
-          // Quota exceeded — show hard paywall
+          posthog.capture("quota_exceeded");
           navigation.replace("HardPaywall");
           return;
         }

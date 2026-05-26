@@ -9,6 +9,7 @@ import * as Location from "expo-location";
 import * as Notifications from "expo-notifications";
 import { Colors, Spacing } from "../../theme";
 import { Text, PrimaryButton, CheckboxCard } from "../../components/atoms";
+import { usePostHog } from "../../contexts/PostHogProvider";
 import type { OnboardingStackParamList } from "../../navigation/stacks/OnboardingStack";
 
 type Nav = NativeStackNavigationProp<OnboardingStackParamList>;
@@ -42,6 +43,7 @@ const PERMISSIONS = [
 
 export const PermissionsScreen: React.FC = () => {
   const navigation = useNavigation<Nav>();
+  const posthog = usePostHog();
   const [granted, setGranted] = useState<Record<string, boolean>>({
     camera: false,
     location: false,
@@ -83,13 +85,17 @@ export const PermissionsScreen: React.FC = () => {
       }
       if (result?.status === "granted") {
         setGranted((prev) => ({ ...prev, [key]: true }));
+        posthog.capture("permission_granted", { permission: key });
+      } else {
+        posthog.capture("permission_denied", { permission: key });
       }
     } catch {}
-  }, [granted]);
+  }, [granted, posthog]);
 
   const handleContinue = useCallback(() => {
+    posthog.capture("onboarding_step_completed", { step: "permissions", camera: granted.camera, location: granted.location, notifications: granted.notifications });
     navigation.navigate("TutorialCapture");
-  }, [navigation]);
+  }, [navigation, posthog, granted]);
 
   return (
     <SafeAreaView style={styles.container} testID="permissions-screen">

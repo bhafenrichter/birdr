@@ -29,6 +29,7 @@ import { BirdCardThumb } from "../../components/molecules/BirdCard";
 import { confirmSighting } from "../../services/api";
 import { useAllSpecies, useSpecies } from "../../hooks/useApi";
 import { useAuth } from "../../contexts/AuthProvider";
+import { usePostHog } from "../../contexts/PostHogProvider";
 import type { CaptureFlowParamList } from "../../navigation/stacks/CaptureFlowStack";
 import type { ConservationStatus, ConfirmSightingResponse } from "../../types/api";
 
@@ -53,6 +54,7 @@ export const CardRevealScreen: React.FC = () => {
   const { photoUri, speciesId, commonName, conservationStatus, location, setting, photo_quality } =
     route.params;
   const { refreshProfile } = useAuth();
+  const posthog = usePostHog();
 
   const { data: allSpecies } = useAllSpecies();
   const { data: singleSpecies } = useSpecies(speciesId);
@@ -110,6 +112,23 @@ export const CardRevealScreen: React.FC = () => {
 
         setConfirmResult(result);
         await refreshProfile();
+
+        posthog.capture("sighting_confirmed", {
+          species_id: speciesId,
+          common_name: commonName,
+          conservation_status: tier,
+          is_first_sight: result.is_first_sight,
+          sighting_count: result.card.sighting_count,
+          photo_quality,
+        });
+
+        if ((result.streak as any)?.streak_extended) {
+          posthog.capture("streak_extended", { current_streak: result.streak.current_streak, longest_streak: result.streak.longest_streak });
+        }
+
+        for (const ach of result.achievements_unlocked) {
+          posthog.capture("achievement_unlocked", { achievement_id: ach.achievement_id, name: ach.name, category: ach.category });
+        }
 
         // If it was a repeat sighting (not first sight), show toast and go back
         if (!result.is_first_sight) {
@@ -186,6 +205,7 @@ export const CardRevealScreen: React.FC = () => {
 
   const handleSkip = useCallback(() => {
     if (!canSkip) return;
+    posthog.capture("card_reveal_skipped", { beat });
     setBeat(5);
     bgOpacity.value = withTiming(0, { duration: 300 });
     cardOpacity.value = withTiming(1, { duration: 200 });

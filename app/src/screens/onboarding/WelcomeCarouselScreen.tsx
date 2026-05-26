@@ -12,6 +12,7 @@ import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Binoculars, BookOpen, Flame } from "lucide-react-native";
 import { Colors, Spacing, BorderRadius } from "../../theme";
 import { Text, PrimaryButton } from "../../components/atoms";
+import { usePostHog } from "../../contexts/PostHogProvider";
 import type { OnboardingStackParamList } from "../../navigation/stacks/OnboardingStack";
 
 type Nav = NativeStackNavigationProp<OnboardingStackParamList>;
@@ -38,10 +39,12 @@ const SLIDES = [
 
 export const WelcomeCarouselScreen: React.FC = () => {
   const navigation = useNavigation<Nav>();
+  const posthog = usePostHog();
   const flatListRef = useRef<FlatList>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const handleSkip = () => {
+    posthog.capture("onboarding_step_completed", { step: "welcome_carousel", action: "skipped", slide_index: currentIndex });
     navigation.navigate("SignIn");
   };
 
@@ -49,6 +52,7 @@ export const WelcomeCarouselScreen: React.FC = () => {
     if (currentIndex < SLIDES.length - 1) {
       flatListRef.current?.scrollToIndex({ index: currentIndex + 1 });
     } else {
+      posthog.capture("onboarding_step_completed", { step: "welcome_carousel", action: "completed" });
       navigation.navigate("SignIn");
     }
   };

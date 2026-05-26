@@ -15,6 +15,7 @@ import RevenueCatUI from "react-native-purchases-ui";
 import { ENV } from "../config/env";
 import { logger } from "../services/logger";
 import { useAuth } from "./AuthProvider";
+import { usePostHog } from "./PostHogProvider";
 import { useProfile } from "../hooks/useApi";
 
 // ── Entitlement + Product IDs ─────────────────────────────────────────────
@@ -59,6 +60,7 @@ export const RevenueCatProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const { user } = useAuth();
+  const posthog = usePostHog();
   const { data: profile } = useProfile();
   const [isReady, setIsReady] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -156,12 +158,13 @@ export const RevenueCatProvider: React.FC<{ children: React.ReactNode }> = ({
   const presentPaywall = useCallback(async () => {
     try {
       logger.info("Presenting RevenueCat paywall");
+      posthog.capture("paywall_shown", { trigger: "revenuecat_paywall" });
       const result = await RevenueCatUI.presentPaywall();
       logger.info("Paywall dismissed", { result });
     } catch (e: any) {
       logger.error("Failed to present paywall", { message: e.message });
     }
-  }, []);
+  }, [posthog]);
 
   // ── Present Customer Center ───────────────────────────────────────────
 
@@ -184,7 +187,11 @@ export const RevenueCatProvider: React.FC<{ children: React.ReactNode }> = ({
         logger.info("Purchasing package", { id: pkg.identifier });
         const { customerInfo: info } = await Purchases.purchasePackage(pkg);
         handleCustomerInfoUpdate(info);
-        return !!info.entitlements.active[ENTITLEMENT_ID];
+        const success = !!info.entitlements.active[ENTITLEMENT_ID];
+        if (success) {
+          posthog.capture("subscription_started", { package_id: pkg.identifier });
+        }
+        return success;
       } catch (e: any) {
         if (e.userCancelled) {
           logger.info("Purchase cancelled by user");

@@ -16,6 +16,7 @@ import { Flame, Award } from "lucide-react-native";
 import { Colors, Spacing, BorderRadius, Shadows } from "../../theme";
 import { Text, PrimaryButton, InfoCard } from "../../components/atoms";
 import { BirdCard } from "../../components/molecules/BirdCard";
+import { usePostHog } from "../../contexts/PostHogProvider";
 import type { OnboardingStackParamList } from "../../navigation/stacks/OnboardingStack";
 
 const SAMPLE_CARDINAL = {
@@ -34,6 +35,7 @@ type Nav = NativeStackNavigationProp<OnboardingStackParamList>;
 
 export const TutorialCaptureScreen: React.FC = () => {
   const navigation = useNavigation<Nav>();
+  const posthog = usePostHog();
   const [phase, setPhase] = useState<"ready" | "revealing" | "card" | "achievements">("ready");
   const confettiRef = useRef<ConfettiCannon>(null);
 
@@ -93,10 +95,12 @@ export const TutorialCaptureScreen: React.FC = () => {
   };
 
   const handleFinish = () => {
+    posthog.capture("onboarding_step_completed", { step: "tutorial", action: "completed" });
     navigation.navigate("Complete");
   };
 
   const handleSkip = () => {
+    posthog.capture("onboarding_step_completed", { step: "tutorial", action: "skipped" });
     navigation.navigate("Complete");
   };
 

@@ -31,6 +31,7 @@ import {
   useCards,
 } from "../hooks/useApi";
 import { useRevenueCat } from "../contexts/RevenueCatProvider";
+import { usePostHog } from "../contexts/PostHogProvider";
 import type { ProfileStackParamList } from "../navigation/stacks/ProfileStack";
 
 type Nav = NativeStackNavigationProp<ProfileStackParamList>;
@@ -48,6 +49,7 @@ export const ProfileScreen: React.FC = () => {
   const initial = displayName.charAt(0).toUpperCase();
   const memberSince = profile?.created_at ?? new Date().toISOString();
   const { isSubscribed, presentPaywall, presentCustomerCenter } = useRevenueCat();
+  const posthog = usePostHog();
   const currentStreak = streakData?.current_streak ?? 0;
   const totalCaptures =
     cards?.reduce((sum, c) => sum + c.sighting_count, 0) ?? 0;
@@ -184,7 +186,7 @@ export const ProfileScreen: React.FC = () => {
 
         {/* Subscription banner (free users) */}
         {!isSubscribed && (
-          <Pressable testID="profile-upgrade-banner" onPress={presentPaywall}>
+          <Pressable testID="profile-upgrade-banner" onPress={() => { posthog.capture("paywall_shown", { trigger: "profile_upgrade_banner" }); presentPaywall(); }}>
             <LinearGradient
               colors={[Colors.sage, Colors.sageLight]}
               start={{ x: 0, y: 0 }}
@@ -259,7 +261,7 @@ export const ProfileScreen: React.FC = () => {
           <ProfileRow
             icon={Trash2}
             label="Delete account"
-            onPress={() => {}}
+            onPress={() => { posthog.capture("delete_account_initiated"); }}
             destructive
             testID="profile-row-delete"
           />

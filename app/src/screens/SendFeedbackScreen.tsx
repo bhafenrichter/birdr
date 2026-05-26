@@ -17,12 +17,14 @@ import {
 } from "../theme";
 import { Text, PrimaryButton, GhostButton } from "../components/atoms";
 import { useAuth } from "../contexts/AuthProvider";
+import { usePostHog } from "../contexts/PostHogProvider";
 import { supabase } from "../services/supabase";
 import { logger } from "../services/logger";
 
 export const SendFeedbackScreen: React.FC = () => {
   const navigation = useNavigation();
   const { profile } = useAuth();
+  const posthog = usePostHog();
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -45,6 +47,7 @@ export const SendFeedbackScreen: React.FC = () => {
 
       if (error) throw error;
 
+      posthog.capture("feedback_submitted");
       setSubmitted(true);
     } catch (err) {
       logger.error("Failed to submit feedback", err);
@@ -169,7 +172,7 @@ export const SendFeedbackScreen: React.FC = () => {
           size="lg"
           fullWidth
           onPress={handleSubmit}
-          loading={isSubmitting}
+          isLoading={isSubmitting}
           disabled={!canSubmit}
           testID="feedback-submit"
         />
