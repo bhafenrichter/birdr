@@ -146,7 +146,7 @@ export const CardDetailScreen: React.FC = () => {
     };
   });
 
-  const species = allSpecies?.find((s) => s.id === speciesId) ?? singleSpecies;
+  const species = singleSpecies ?? allSpecies?.find((s) => s.id === speciesId);
   const userCard = cards?.find((c) => c.species_id === speciesId);
   const sightings = (sightingsData ?? []).sort(
     (a, b) =>

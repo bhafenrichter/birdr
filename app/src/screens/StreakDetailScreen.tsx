@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { View, StyleSheet, ScrollView } from "react-native";
+import { View, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Flame } from "lucide-react-native";
 import { Colors, Spacing, BorderRadius, Shadows, Fonts, FontSizes } from "../theme";
@@ -9,7 +9,7 @@ import { useStreak } from "../hooks/useApi";
 const WEEKDAYS = ["S", "M", "T", "W", "T", "F", "S"];
 
 export const StreakDetailScreen: React.FC = () => {
-  const { data: streakData } = useStreak();
+  const { data: streakData, isLoading } = useStreak();
   const currentStreak = streakData?.current_streak ?? 0;
   const longestStreak = streakData?.longest_streak ?? 0;
   const lastCaptureDate = streakData?.last_capture_date ?? null;
@@ -59,6 +59,16 @@ export const StreakDetailScreen: React.FC = () => {
 
     return { calendarDays: days, monthLabel: label, weekCount: days.length / 7 };
   }, [lastCaptureDate]);
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.container} edges={["top", "left", "right"]} testID="streak-detail-loading">
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="small" color={Colors.sage} />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]} testID="streak-detail-screen">
@@ -201,6 +211,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.cream,
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
   },
   scrollContent: {
     paddingHorizontal: Spacing.xl,

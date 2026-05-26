@@ -202,24 +202,26 @@ export const BirdCard: React.FC<BirdCardProps> = ({
               </Text>
             </View>
             {data.rarity && data.rarity !== "common" && (
-              <View
+              <LinearGradient
+                colors={[...rc.borderColors] as [string, string, ...string[]]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
                 style={{
-                  backgroundColor: rc.badgeColor,
-                  paddingHorizontal: Spacing.sm,
-                  paddingVertical: 2,
-                  borderRadius: BorderRadius.sm,
+                  paddingHorizontal: Spacing.md,
+                  paddingVertical: Spacing.xs,
+                  borderRadius: BorderRadius.md,
                   marginTop: 2,
                 }}
               >
                 <Text
                   variant="bold"
-                  size="xs"
+                  size="sm"
                   color={Colors.white}
                   testID={`${testID}-rarity`}
                 >
-                  {rc.badge}
+                  {rc.label}
                 </Text>
-              </View>
+              </LinearGradient>
             )}
           </View>
 
