@@ -51,6 +51,45 @@ export const ConservationTierColors = {
 
 export type ConservationTier = keyof typeof ConservationTierColors;
 
+// Rarity tier config
+export const RarityConfig = {
+  common: {
+    label: "Common",
+    badge: "C",
+    borderColors: ["#f8e15c", "#edb915"],
+    badgeColor: "#9E9E9E",
+    shimmerIntensity: 0.3,
+  },
+  uncommon: {
+    label: "Uncommon",
+    badge: "UC",
+    borderColors: ["#A8D8A8", "#4CAF50"],
+    badgeColor: "#4CAF50",
+    shimmerIntensity: 0.5,
+  },
+  rare: {
+    label: "Rare",
+    badge: "R",
+    borderColors: ["#64B5F6", "#1565C0"],
+    badgeColor: "#1565C0",
+    shimmerIntensity: 0.7,
+  },
+  epic: {
+    label: "Epic",
+    badge: "EP",
+    borderColors: ["#CE93D8", "#7B1FA2"],
+    badgeColor: "#7B1FA2",
+    shimmerIntensity: 0.85,
+  },
+  legendary: {
+    label: "Legendary",
+    badge: "LG",
+    borderColors: ["#FFD54F", "#FF6F00"],
+    badgeColor: "#FF6F00",
+    shimmerIntensity: 1.0,
+  },
+} as const;
+
 // Achievement category accent colors
 export const AchievementColors = {
   collection: Colors.sage,
@@ -141,6 +180,7 @@ export const Shadows = {
 export const Theme = {
   Colors,
   ConservationTierColors,
+  RarityConfig,
   AchievementColors,
   Fonts,
   FontSizes,

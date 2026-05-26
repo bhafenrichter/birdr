@@ -15,6 +15,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import {
   Colors,
   ConservationTierColors,
+  RarityConfig,
   Spacing,
   BorderRadius,
   Shadows,
@@ -22,6 +23,7 @@ import {
   FontSizes,
 } from "../../theme";
 import type { ConservationTier } from "../../theme";
+import type { Rarity } from "../../types/api";
 import { Text } from "../atoms/Text";
 import { ConservationBadge } from "../atoms/ConservationBadge";
 import { AudioBadge } from "../atoms/AudioBadge";
@@ -85,6 +87,7 @@ export interface BirdCardData {
   firstSight?: string;
   sightingCount?: number;
   locked?: boolean;
+  rarity?: Rarity;
 }
 
 export interface BirdCardProps {
@@ -104,6 +107,7 @@ export const BirdCard: React.FC<BirdCardProps> = ({
 }) => {
   const tierColor = ConservationTierColors[data.conservationTier];
   const isLocked = data.locked;
+  const rc = RarityConfig[data.rarity ?? "common"];
 
   return (
     <View
@@ -111,7 +115,7 @@ export const BirdCard: React.FC<BirdCardProps> = ({
       testID={testID}
     >
       <LinearGradient
-        colors={["#f8e15c", "#edb915"]}
+        colors={[...rc.borderColors] as [string, string, ...string[]]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={{
@@ -147,7 +151,7 @@ export const BirdCard: React.FC<BirdCardProps> = ({
 
           {!isLocked && <GlossySheen />}
 
-          {/* Header: family + name left, habitat pill right */}
+          {/* Header: family + name left, rarity badge right */}
           <View
             style={{
               flexDirection: "row",
@@ -190,12 +194,32 @@ export const BirdCard: React.FC<BirdCardProps> = ({
                 {data.speciesName}
               </Text>
             </View>
+            {data.rarity && data.rarity !== "common" && (
+              <View
+                style={{
+                  backgroundColor: rc.badgeColor,
+                  paddingHorizontal: Spacing.sm,
+                  paddingVertical: 2,
+                  borderRadius: BorderRadius.sm,
+                  marginTop: 2,
+                }}
+              >
+                <Text
+                  variant="bold"
+                  size="xs"
+                  color={Colors.white}
+                  testID={`${testID}-rarity`}
+                >
+                  {rc.badge}
+                </Text>
+              </View>
+            )}
           </View>
 
-          {/* Hero photo with gold gradient border */}
+          {/* Hero photo with rarity gradient border */}
           <View style={{ marginHorizontal: Spacing.lg }}>
             <LinearGradient
-              colors={["#f8e15c", "#edb915"]}
+              colors={[...rc.borderColors] as [string, string, ...string[]]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={{
@@ -416,6 +440,7 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
 }) => {
   const tierColor = ConservationTierColors[data.conservationTier];
   const isLocked = data.locked;
+  const rc = RarityConfig[data.rarity ?? "common"];
   const [cardSize, setCardSize] = useState({ w: 0, h: 0 });
 
   const onLayout = (e: LayoutChangeEvent) => {
@@ -437,13 +462,13 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
     >
       {/* Gradient border */}
       <LinearGradient
-        colors={["#f8e15c", "#edb915"]}
+        colors={[...rc.borderColors] as [string, string, ...string[]]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={{
           flex: 1,
           borderRadius: BorderRadius.xl,
-          padding: 8,
+          padding: 6,
         }}
       >
         {/* Inner card body */}
@@ -471,51 +496,74 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
             />
           )}
 
-          {/* Type + Name at top */}
+          {/* Type + Name + Rarity badge */}
           <View
             style={{
+              flexDirection: "row",
+              alignItems: "flex-start",
               paddingHorizontal: Spacing.sm,
               paddingTop: Spacing.sm,
               paddingBottom: Spacing.xs,
-              justifyContent: "center",
             }}
           >
-            {data.speciesType && (
+            <View style={{ flex: 1 }}>
+              {data.speciesType && (
+                <Text
+                  variant="regular"
+                  size="xs"
+                  color={isLocked ? "rgba(255,255,255,0.75)" : Colors.inkFaint}
+                  style={
+                    isLocked
+                      ? {
+                          textShadowColor: "rgba(0,0,0,0.5)",
+                          textShadowOffset: { width: 0, height: 1 },
+                          textShadowRadius: 2,
+                        }
+                      : undefined
+                  }
+                  testID={`${testID}-thumb-type`}
+                >
+                  {data.speciesType}
+                </Text>
+              )}
               <Text
-                variant="regular"
+                variant="semiBold"
                 size="xs"
-                color={isLocked ? "rgba(255,255,255,0.75)" : Colors.inkFaint}
+                color={isLocked ? Colors.white : Colors.ink}
                 style={
                   isLocked
                     ? {
-                        textShadowColor: "rgba(0,0,0,0.5)",
+                        textShadowColor: "rgba(0,0,0,1)",
                         textShadowOffset: { width: 0, height: 1 },
-                        textShadowRadius: 2,
+                        textShadowRadius: 3,
                       }
                     : undefined
                 }
-                testID={`${testID}-thumb-type`}
+                testID={`${testID}-thumb-name`}
               >
-                {data.speciesType}
+                {data.speciesName}
               </Text>
+            </View>
+            {data.rarity && data.rarity !== "common" && (
+              <View
+                style={{
+                  backgroundColor: rc.badgeColor,
+                  paddingHorizontal: 4,
+                  paddingVertical: 2,
+                  borderRadius: BorderRadius.sm,
+                  marginLeft: Spacing.xs,
+                }}
+              >
+                <Text
+                  variant="bold"
+                  size="xs"
+                  color={Colors.white}
+                  testID={`${testID}-rarity`}
+                >
+                  {rc.badge}
+                </Text>
+              </View>
             )}
-            <Text
-              variant="semiBold"
-              size="xs"
-              color={isLocked ? Colors.white : Colors.ink}
-              style={
-                isLocked
-                  ? {
-                      textShadowColor: "rgba(0,0,0,1)",
-                      textShadowOffset: { width: 0, height: 1 },
-                      textShadowRadius: 3,
-                    }
-                  : undefined
-              }
-              testID={`${testID}-thumb-name`}
-            >
-              {data.speciesName}
-            </Text>
           </View>
 
           {/* Photo / locked area — top portion */}
@@ -528,7 +576,7 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
           >
             {isLocked ? (
               <LinearGradient
-                colors={["#f8e15c", "#edb915"]}
+                colors={[...rc.borderColors] as [string, string, ...string[]]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={{
@@ -558,7 +606,7 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
               </LinearGradient>
             ) : (
               <LinearGradient
-                colors={["#f8e15c", "#edb915"]}
+                colors={[...rc.borderColors] as [string, string, ...string[]]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={{
@@ -616,20 +664,100 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
             ) : (
               <View style={{ gap: 5 }} testID={`${testID}-thumb-skeleton`}>
                 {/* Size skeleton */}
-                <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
-                  <View style={{ width: 28, height: 6, borderRadius: 3, backgroundColor: isLocked ? "rgba(255,255,255,0.4)" : Colors.sageTint }} />
-                  <View style={{ width: 44, height: 6, borderRadius: 3, backgroundColor: isLocked ? "rgba(255,255,255,0.3)" : Colors.sageTint }} />
+                <View
+                  style={{ flexDirection: "row", alignItems: "center", gap: 4 }}
+                >
+                  <View
+                    style={{
+                      width: 28,
+                      height: 6,
+                      borderRadius: 3,
+                      backgroundColor: isLocked
+                        ? "rgba(255,255,255,0.4)"
+                        : Colors.sageTint,
+                    }}
+                  />
+                  <View
+                    style={{
+                      width: 44,
+                      height: 6,
+                      borderRadius: 3,
+                      backgroundColor: isLocked
+                        ? "rgba(255,255,255,0.3)"
+                        : Colors.sageTint,
+                    }}
+                  />
                 </View>
                 {/* About skeleton */}
                 <View style={{ gap: 4 }}>
-                  <View style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
-                    <View style={{ width: 32, height: 6, borderRadius: 3, backgroundColor: isLocked ? "rgba(255,255,255,0.4)" : Colors.sageTint }} />
-                    <View style={{ flex: 1, height: 6, borderRadius: 3, backgroundColor: isLocked ? "rgba(255,255,255,0.3)" : Colors.sageTint }} />
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 4,
+                    }}
+                  >
+                    <View
+                      style={{
+                        width: 32,
+                        height: 6,
+                        borderRadius: 3,
+                        backgroundColor: isLocked
+                          ? "rgba(255,255,255,0.4)"
+                          : Colors.sageTint,
+                      }}
+                    />
+                    <View
+                      style={{
+                        flex: 1,
+                        height: 6,
+                        borderRadius: 3,
+                        backgroundColor: isLocked
+                          ? "rgba(255,255,255,0.3)"
+                          : Colors.sageTint,
+                      }}
+                    />
                   </View>
-                  <View style={{ width: "90%", height: 6, borderRadius: 3, backgroundColor: isLocked ? "rgba(255,255,255,0.25)" : Colors.paper }} />
-                  <View style={{ width: "75%", height: 6, borderRadius: 3, backgroundColor: isLocked ? "rgba(255,255,255,0.25)" : Colors.paper }} />
-                  <View style={{ width: "85%", height: 6, borderRadius: 3, backgroundColor: isLocked ? "rgba(255,255,255,0.2)" : Colors.paper }} />
-                  <View style={{ width: "60%", height: 6, borderRadius: 3, backgroundColor: isLocked ? "rgba(255,255,255,0.2)" : Colors.paper }} />
+                  <View
+                    style={{
+                      width: "90%",
+                      height: 6,
+                      borderRadius: 3,
+                      backgroundColor: isLocked
+                        ? "rgba(255,255,255,0.25)"
+                        : Colors.paper,
+                    }}
+                  />
+                  <View
+                    style={{
+                      width: "75%",
+                      height: 6,
+                      borderRadius: 3,
+                      backgroundColor: isLocked
+                        ? "rgba(255,255,255,0.25)"
+                        : Colors.paper,
+                    }}
+                  />
+                  <View
+                    style={{
+                      width: "85%",
+                      height: 6,
+                      borderRadius: 3,
+                      backgroundColor: isLocked
+                        ? "rgba(255,255,255,0.2)"
+                        : Colors.paper,
+                    }}
+                  />
+                  <View
+                    style={{
+                      width: "60%",
+                      height: 6,
+                      borderRadius: 3,
+                      backgroundColor: isLocked
+                        ? "rgba(255,255,255,0.2)"
+                        : Colors.paper,
+                    }}
+                  />
                 </View>
               </View>
             )}
@@ -642,6 +770,7 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
           height={cardSize.h}
           borderRadius={BorderRadius.xl}
           gradientCenter={{ x: cardSize.w / 2, y: cardSize.h / 2 }}
+          intensity={rc.shimmerIntensity}
         />
       )}
     </View>

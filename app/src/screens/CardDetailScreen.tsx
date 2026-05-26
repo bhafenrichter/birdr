@@ -34,7 +34,7 @@ import {
   Eye,
 } from "lucide-react-native";
 import { BlurView } from "expo-blur";
-import { Colors, Spacing, BorderRadius, Shadows } from "../theme";
+import { Colors, Spacing, BorderRadius, Shadows, RarityConfig } from "../theme";
 import { Text, InfoCard } from "../components/atoms";
 import { Image } from "expo-image";
 import { BirdCard } from "../components/molecules/BirdCard";
@@ -303,6 +303,7 @@ export const CardDetailScreen: React.FC = () => {
                         : undefined,
                       sightingCount: userCard?.sighting_count,
                       locked: !isSpotted,
+                      rarity: species.rarity,
                     }}
                     testID="card-detail-bird-card"
                   />
@@ -311,6 +312,7 @@ export const CardDetailScreen: React.FC = () => {
                     height={CARD_HEIGHT}
                     borderRadius={BorderRadius["2xl"]}
                     gradientCenter={gradientCenter}
+                    intensity={RarityConfig[species.rarity ?? "common"].shimmerIntensity}
                   />
                 </View>
               </GestureCardContainer>

@@ -183,6 +183,7 @@ const SpottedView: React.FC<{
                     conservationTier: (sp?.conservation_status ?? "LC") as any,
                     photoUri: item.hero_photo_url,
                     sightingCount: item.sighting_count,
+                    rarity: sp?.rarity as any,
                     about: sp?.about_text,
                   }}
                   testID={`collection-thumb-${item.species_id}`}
@@ -265,6 +266,7 @@ const AllNAView: React.FC<{
                     photoUri: null,
                     sightingCount: spotted ? 1 : 0,
                     locked: !spotted,
+                    rarity: item.rarity as any,
                     about: item.about_text,
                   }}
                   testID={`collection-thumb-${item.id}`}
