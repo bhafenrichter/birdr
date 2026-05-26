@@ -1,11 +1,11 @@
 import React from "react";
-import { View, StyleSheet, Platform } from "react-native";
+import { View, StyleSheet, Platform, Pressable } from "react-native";
 import { Image } from "expo-image";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import type { RouteProp } from "@react-navigation/native";
-import { Colors, Spacing, BorderRadius } from "../../theme";
-import { PrimaryButton, GhostButton } from "../../components/atoms";
+import { Colors, Spacing, BorderRadius, Shadows } from "../../theme";
+import { Text, PrimaryButton } from "../../components/atoms";
 import type { CaptureFlowParamList } from "../../navigation/stacks/CaptureFlowStack";
 
 type Nav = NativeStackNavigationProp<CaptureFlowParamList>;
@@ -36,20 +36,27 @@ export const PhotoPreviewScreen: React.FC = () => {
 
       {/* Bottom action bar */}
       <View style={styles.actionBar}>
-        <GhostButton
-          title="Retake"
-          size="lg"
+        <Pressable
+          style={({ pressed }) => [styles.retakeBtn, pressed && { opacity: 0.7 }]}
           onPress={handleRetake}
           testID="photo-preview-retake"
-          style={{ flex: 1 }}
-        />
-        <PrimaryButton
-          title="Identify"
-          size="lg"
-          onPress={handleIdentify}
-          testID="photo-preview-identify"
-          style={{ flex: 1 }}
-        />
+          accessible
+          accessibilityRole="button"
+          accessibilityLabel="Retake"
+        >
+          <Text variant="medium" size="md" color={Colors.white} testID="photo-preview-retake-label">
+            Retake
+          </Text>
+        </Pressable>
+        <View style={{ flex: 1 }}>
+          <PrimaryButton
+            title="Identify"
+            size="lg"
+            onPress={handleIdentify}
+            fullWidth
+            testID="photo-preview-identify"
+          />
+        </View>
       </View>
     </View>
   );
@@ -66,7 +73,16 @@ const styles = StyleSheet.create({
     left: Spacing.xl,
     right: Spacing.xl,
     flexDirection: "row",
+    alignItems: "center",
     gap: Spacing.md,
+  },
+  retakeBtn: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: Spacing.lg,
+    borderRadius: BorderRadius.full,
+    backgroundColor: "rgba(255,255,255,0.2)",
   },
 });
 

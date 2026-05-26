@@ -1,9 +1,10 @@
 import React, { useRef, useState, useCallback } from "react";
 import { View, StyleSheet, Pressable, Platform } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
+import * as ImagePicker from "expo-image-picker";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { X, Zap, ZapOff } from "lucide-react-native";
+import { X, Zap, ZapOff, ImagePlus } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { Colors, Spacing, BorderRadius, Shadows, Fonts, FontSizes } from "../../theme";
 import { Text, CircleBtn, Pill } from "../../components/atoms";
@@ -44,6 +45,16 @@ export const ViewfinderScreen: React.FC = () => {
       setIsTakingPhoto(false);
     }
   }, [isTakingPhoto, navigation]);
+
+  const handlePickImage = useCallback(async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      quality: 0.8,
+    });
+    if (!result.canceled && result.assets[0]) {
+      navigation.navigate("PhotoPreview", { photoUri: result.assets[0].uri });
+    }
+  }, [navigation]);
 
   const handleClose = useCallback(() => {
     navigation.getParent()?.goBack();
@@ -159,21 +170,38 @@ export const ViewfinderScreen: React.FC = () => {
           ))}
         </View>
 
-        {/* Shutter button */}
-        <Pressable
-          style={({ pressed }) => [
-            styles.shutter,
-            pressed && { transform: [{ scale: 0.92 }] },
-          ]}
-          onPress={handleTakePhoto}
-          disabled={isTakingPhoto}
-          testID="viewfinder-shutter"
-          accessible
-          accessibilityRole="button"
-          accessibilityLabel="Take photo"
-        >
-          <View style={styles.shutterInner} />
-        </Pressable>
+        {/* Shutter row: dev upload + shutter */}
+        <View style={styles.shutterRow}>
+          {/* Dev-only: pick from gallery */}
+          {__DEV__ && (
+            <Pressable
+              style={styles.devUploadBtn}
+              onPress={handlePickImage}
+              testID="viewfinder-dev-upload"
+            >
+              <ImagePlus size={24} color={Colors.white} strokeWidth={1.5} />
+            </Pressable>
+          )}
+
+          {/* Shutter button */}
+          <Pressable
+            style={({ pressed }) => [
+              styles.shutter,
+              pressed && { transform: [{ scale: 0.92 }] },
+            ]}
+            onPress={handleTakePhoto}
+            disabled={isTakingPhoto}
+            testID="viewfinder-shutter"
+            accessible
+            accessibilityRole="button"
+            accessibilityLabel="Take photo"
+          >
+            <View style={styles.shutterInner} />
+          </Pressable>
+
+          {/* Spacer to balance the row */}
+          {__DEV__ && <View style={{ width: 48 }} />}
+        </View>
       </View>
     </View>
   );
@@ -234,6 +262,21 @@ const styles = StyleSheet.create({
   },
   zoomPillActive: {
     backgroundColor: "rgba(255,255,255,0.9)",
+  },
+  shutterRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    paddingHorizontal: Spacing["3xl"],
+  },
+  devUploadBtn: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    alignItems: "center",
+    justifyContent: "center",
   },
   shutter: {
     width: 76,

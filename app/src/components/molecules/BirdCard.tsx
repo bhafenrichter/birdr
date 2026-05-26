@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   ViewStyle,
   ImageSourcePropType,
   LayoutChangeEvent,
   Dimensions,
+  Pressable,
 } from "react-native";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
@@ -88,6 +89,8 @@ export interface BirdCardData {
   sightingCount?: number;
   locked?: boolean;
   rarity?: Rarity;
+  /** All photo URIs for carousel (expanded card only) */
+  allPhotos?: string[];
 }
 
 export interface BirdCardProps {
@@ -129,12 +132,12 @@ export const BirdCard: React.FC<BirdCardProps> = ({
           style={{
             flex: 1,
             borderRadius: BorderRadius["2xl"] - 4,
-            backgroundColor: isLocked ? "transparent" : Colors.cardBody,
+            backgroundColor: "transparent",
             overflow: "hidden",
           }}
         >
-          {/* Habitat background — covers entire card when locked */}
-          {isLocked && getHabitatBackground(data.habitat) && (
+          {/* Habitat background — covers entire card */}
+          {getHabitatBackground(data.habitat) && (
             <Image
               source={getHabitatBackground(data.habitat)!}
               style={{
@@ -166,7 +169,7 @@ export const BirdCard: React.FC<BirdCardProps> = ({
               <Text
                 variant="medium"
                 size="sm"
-                color={isLocked ? Colors.white : Colors.inkSoft}
+                color="rgba(255,255,255,0.85)"
                 style={{
                   textShadowColor: "rgba(0,0,0,0.6)",
                   textShadowOffset: { width: 0, height: 1 },
@@ -179,16 +182,12 @@ export const BirdCard: React.FC<BirdCardProps> = ({
               <Text
                 variant="bold"
                 size="lg"
-                color={isLocked ? Colors.white : Colors.ink}
-                style={
-                  isLocked
-                    ? {
-                        textShadowColor: "rgba(0,0,0,0.5)",
-                        textShadowOffset: { width: 0, height: 1 },
-                        textShadowRadius: 3,
-                      }
-                    : undefined
-                }
+                color={Colors.white}
+                style={{
+                  textShadowColor: "rgba(0,0,0,0.6)",
+                  textShadowOffset: { width: 0, height: 1 },
+                  textShadowRadius: 3,
+                }}
                 testID={`${testID}-name`}
               >
                 {data.speciesName}
@@ -254,6 +253,8 @@ export const BirdCard: React.FC<BirdCardProps> = ({
                       ?
                     </Text>
                   </View>
+                ) : data.allPhotos && data.allPhotos.length > 1 ? (
+                  <PhotoCarousel photos={data.allPhotos} testID={testID} />
                 ) : data.photoUri ? (
                   <Image
                     source={{ uri: data.photoUri }}
@@ -297,22 +298,18 @@ export const BirdCard: React.FC<BirdCardProps> = ({
                 <Text
                   variant="bold"
                   size="md"
-                  color={isLocked ? Colors.white : Colors.ink}
-                  style={
-                    isLocked
-                      ? {
-                          textShadowColor: "rgba(0,0,0,0.4)",
-                          textShadowOffset: { width: 0, height: 1 },
-                          textShadowRadius: 2,
-                        }
-                      : undefined
-                  }
+                  color={Colors.white}
+                  style={{
+                    textShadowColor: "rgba(0,0,0,0.5)",
+                    textShadowOffset: { width: 0, height: 1 },
+                    textShadowRadius: 2,
+                  }}
                   testID={`${testID}-size-text`}
                 >
                   <Text
                     variant="extraBold"
                     size="md"
-                    color={isLocked ? Colors.white : Colors.ink}
+                    color={Colors.white}
                     testID={`${testID}-size-label`}
                   >
                     {"Size: "}
@@ -329,22 +326,18 @@ export const BirdCard: React.FC<BirdCardProps> = ({
                 <Text
                   variant="bold"
                   size="md"
-                  color={isLocked ? Colors.white : Colors.ink}
-                  style={
-                    isLocked
-                      ? {
-                          textShadowColor: "rgba(0,0,0,0.4)",
-                          textShadowOffset: { width: 0, height: 1 },
-                          textShadowRadius: 2,
-                        }
-                      : undefined
-                  }
+                  color={Colors.white}
+                  style={{
+                    textShadowColor: "rgba(0,0,0,0.5)",
+                    textShadowOffset: { width: 0, height: 1 },
+                    textShadowRadius: 2,
+                  }}
                   testID={`${testID}-about-text`}
                 >
                   <Text
                     variant="extraBold"
                     size="md"
-                    color={isLocked ? Colors.white : Colors.ink}
+                    color={Colors.white}
                     testID={`${testID}-about-label`}
                   >
                     {"About: "}
@@ -359,28 +352,17 @@ export const BirdCard: React.FC<BirdCardProps> = ({
                 testID={`${testID}-firstsight`}
               >
                 <Text
-                  variant="regular"
+                  variant="bold"
                   size="base"
-                  color={isLocked ? Colors.white : Colors.ink}
-                  style={
-                    isLocked
-                      ? {
-                          textShadowColor: "rgba(0,0,0,0.4)",
-                          textShadowOffset: { width: 0, height: 1 },
-                          textShadowRadius: 2,
-                        }
-                      : undefined
-                  }
+                  color={Colors.white}
+                  style={{
+                    textShadowColor: "rgba(0,0,0,0.5)",
+                    textShadowOffset: { width: 0, height: 1 },
+                    textShadowRadius: 2,
+                  }}
                   testID={`${testID}-firstsight-text`}
                 >
-                  <Text
-                    variant="bold"
-                    size="base"
-                    color={isLocked ? Colors.white : Colors.ink}
-                    testID={`${testID}-firstsight-label`}
-                  >
-                    {"First Sight: "}
-                  </Text>
+                  {"First Sight: "}
                   {data.firstSight}
                 </Text>
               </View>
@@ -477,11 +459,11 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
             flex: 1,
             borderRadius: BorderRadius.xl - 3,
             overflow: "hidden",
-            backgroundColor: isLocked ? "transparent" : Colors.cardBody,
+            backgroundColor: "transparent",
           }}
         >
-          {/* Habitat background — covers entire card when locked */}
-          {isLocked && getHabitatBackground(data.habitat) && (
+          {/* Habitat background — covers entire card */}
+          {getHabitatBackground(data.habitat) && (
             <Image
               source={getHabitatBackground(data.habitat)!}
               style={{
@@ -511,16 +493,12 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
                 <Text
                   variant="regular"
                   size="xs"
-                  color={isLocked ? "rgba(255,255,255,0.75)" : Colors.inkFaint}
-                  style={
-                    isLocked
-                      ? {
-                          textShadowColor: "rgba(0,0,0,0.5)",
-                          textShadowOffset: { width: 0, height: 1 },
-                          textShadowRadius: 2,
-                        }
-                      : undefined
-                  }
+                  color="rgba(255,255,255,0.85)"
+                  style={{
+                    textShadowColor: "rgba(0,0,0,0.6)",
+                    textShadowOffset: { width: 0, height: 1 },
+                    textShadowRadius: 2,
+                  }}
                   testID={`${testID}-thumb-type`}
                 >
                   {data.speciesType}
@@ -529,16 +507,12 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
               <Text
                 variant="semiBold"
                 size="xs"
-                color={isLocked ? Colors.white : Colors.ink}
-                style={
-                  isLocked
-                    ? {
-                        textShadowColor: "rgba(0,0,0,1)",
-                        textShadowOffset: { width: 0, height: 1 },
-                        textShadowRadius: 3,
-                      }
-                    : undefined
-                }
+                color={Colors.white}
+                style={{
+                  textShadowColor: "rgba(0,0,0,0.7)",
+                  textShadowOffset: { width: 0, height: 1 },
+                  textShadowRadius: 3,
+                }}
                 testID={`${testID}-thumb-name`}
               >
                 {data.speciesName}
@@ -648,18 +622,14 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
               paddingVertical: Spacing.sm,
             }}
           >
-            {!isLocked && data.about ? (
+            {!isLocked && data.sightingCount != null && data.sightingCount > 1 ? (
               <Text
                 variant="regular"
                 size="xs"
-                color={Colors.inkSoft}
-                numberOfLines={4}
-                testID={`${testID}-thumb-about`}
+                color={Colors.saffron}
+                testID={`${testID}-thumb-count`}
               >
-                <Text variant="bold" size="xs" color={Colors.ink}>
-                  {"About: "}
-                </Text>
-                {data.about}
+                {`★ ${data.sightingCount} sightings`}
               </Text>
             ) : (
               <View style={{ gap: 5 }} testID={`${testID}-thumb-skeleton`}>
@@ -773,6 +743,80 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
           intensity={rc.shimmerIntensity}
         />
       )}
+    </View>
+  );
+};
+
+// ── Glossy sheen overlay ───────────────────────────────────────────────────
+
+// ── Photo Carousel (expanded card with multiple sightings) ────────────────
+
+const PhotoCarousel: React.FC<{ photos: string[]; testID: string }> = ({
+  photos,
+  testID,
+}) => {
+  const [index, setIndex] = useState(0);
+
+  return (
+    <View style={{ flex: 1 }}>
+      {/* Current photo */}
+      <Image
+        source={{ uri: photos[index] }}
+        style={{ width: "100%", height: "100%" }}
+        contentFit="cover"
+        transition={200}
+        testID={`${testID}-carousel-${index}`}
+      />
+
+      {/* Bottom-right controls: dots + arrows */}
+      <View
+        style={{
+          position: "absolute",
+          bottom: 6,
+          right: 6,
+          flexDirection: "row",
+          alignItems: "center",
+          backgroundColor: "rgba(0,0,0,0.45)",
+          borderRadius: 14,
+          paddingHorizontal: 8,
+          paddingVertical: 4,
+          gap: 6,
+        }}
+      >
+        <Pressable
+          onPress={() => setIndex((i) => Math.max(0, i - 1))}
+          disabled={index === 0}
+          hitSlop={10}
+          style={{ paddingHorizontal: 4, justifyContent: "center" }}
+        >
+          <Text
+            variant="bold"
+            size="lg"
+            color={index === 0 ? "rgba(255,255,255,0.3)" : Colors.white}
+          >
+            ‹
+          </Text>
+        </Pressable>
+
+        <Text variant="semiBold" size="sm" color={Colors.white} style={{ lineHeight: 20 }}>
+          {`${index + 1}/${photos.length}`}
+        </Text>
+
+        <Pressable
+          onPress={() => setIndex((i) => Math.min(photos.length - 1, i + 1))}
+          disabled={index === photos.length - 1}
+          hitSlop={10}
+          style={{ paddingHorizontal: 4, justifyContent: "center" }}
+        >
+          <Text
+            variant="bold"
+            size="lg"
+            color={index === photos.length - 1 ? "rgba(255,255,255,0.3)" : Colors.white}
+          >
+            ›
+          </Text>
+        </Pressable>
+      </View>
     </View>
   );
 };

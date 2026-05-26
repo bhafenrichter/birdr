@@ -2316,7 +2316,7 @@ expo-constants@~56.0.15:
   dependencies:
     "@expo/env" "~2.3.0"
 
-expo-file-system@~56.0.7:
+expo-file-system@^56.0.7, expo-file-system@~56.0.7:
   version "56.0.7"
   resolved "https://registry.yarnpkg.com/expo-file-system/-/expo-file-system-56.0.7.tgz#66a69361d839afa1773dc247b160da166e3df0da"
   integrity sha512-dcKzo8ShPloM7jgfnMcJStgQebhP8owVjCkNI/aX6NMFV1CYB8bxKGMdnzJ3mXk5nfaiW+F/lSKr2UIJ02WAUA==
@@ -2342,6 +2342,13 @@ expo-image-manipulator@~56.0.14:
   version "56.0.14"
   resolved "https://registry.yarnpkg.com/expo-image-manipulator/-/expo-image-manipulator-56.0.14.tgz#84648afb065820c54afe80b0f56b4b3d289d39a3"
   integrity sha512-LJ3gsC0fXy+3iWaqJI8LKmhOFC5WBiRmkRQRbHYA5OipbKpojsjauN4oUXLcUS25Ky2xaRo7v3NN8CptRWNFHw==
+  dependencies:
+    expo-image-loader "~56.0.3"
+
+expo-image-picker@^56.0.13:
+  version "56.0.13"
+  resolved "https://registry.yarnpkg.com/expo-image-picker/-/expo-image-picker-56.0.13.tgz#f5edffbec634d6abe572bf61434eea9e1081ba8c"
+  integrity sha512-eLO6t3jTRE2tOmCGR6tQIYAdvxj66KanyRmIOH/aISx5Zb4AG5B5VHuOXx9+1T5PtNAoXwsHML0G5+vB4OgI3w==
   dependencies:
     expo-image-loader "~56.0.3"
 
@@ -3734,6 +3741,11 @@ react-native-purchases@^10.1.2:
   dependencies:
     "@revenuecat/purchases-js-hybrid-mappings" "18.7.0"
     "@revenuecat/purchases-typescript-internal" "18.7.0"
+
+react-native-reanimated-carousel@^4.0.3:
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/react-native-reanimated-carousel/-/react-native-reanimated-carousel-4.0.3.tgz#975f4ff3f5da5bb3790fe60850a46ad8119612bc"
+  integrity sha512-YZXlvZNghR5shFcI9hTA7h7bEhh97pfUSLZvLBAshpbkuYwJDKmQXejO/199T6hqGq0wCRwR0CWf2P4Vs6A4Fw==
 
 react-native-reanimated-skeleton@^1.6.0:
   version "1.6.0"

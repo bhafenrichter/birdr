@@ -7,7 +7,7 @@ import type { RouteProp } from "@react-navigation/native";
 import * as Location from "expo-location";
 import Toast from "react-native-toast-message";
 import { Colors, Spacing } from "../../theme";
-import { Text } from "../../components/atoms";
+import { Text, PrimaryButton } from "../../components/atoms";
 import { identifyBird, confirmSighting } from "../../services/api";
 import { useAuth } from "../../contexts/AuthProvider";
 import type { CaptureFlowParamList } from "../../navigation/stacks/CaptureFlowStack";
@@ -22,7 +22,7 @@ export const IdentifyingScreen: React.FC = () => {
   const { photoUri } = route.params;
   const { refreshProfile } = useAuth();
   const [status, setStatus] = useState<"identifying" | "error">("identifying");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [retryCount, setRetryCount] = useState(0);
   const called = useRef(false);
 
   useEffect(() => {
@@ -96,10 +96,9 @@ export const IdentifyingScreen: React.FC = () => {
           return;
         }
         setStatus("error");
-        setErrorMessage(e.message ?? "Identification failed");
       }
     })();
-  }, []);
+  }, [retryCount]);
 
   return (
     <View style={styles.container} testID="identifying-screen">
@@ -139,15 +138,17 @@ export const IdentifyingScreen: React.FC = () => {
             >
               Something went wrong
             </Text>
-            <Text
-              variant="regular"
-              size="sm"
-              color="rgba(255,255,255,0.7)"
-              testID="identifying-error-message"
-              style={{ marginTop: Spacing.sm }}
-            >
-              {errorMessage}
-            </Text>
+            <View style={{ marginTop: Spacing.xl, width: "60%" }}>
+              <PrimaryButton
+                label="Try again"
+                onPress={() => {
+                  called.current = false;
+                  setStatus("identifying");
+                  setRetryCount((c) => c + 1);
+                }}
+                testID="identifying-retry"
+              />
+            </View>
           </>
         )}
       </View>

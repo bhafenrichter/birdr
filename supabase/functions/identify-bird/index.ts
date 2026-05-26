@@ -83,19 +83,50 @@ Deno.serve(async (req) => {
       );
     }
 
-    // 3. Parse multipart form data
-    const formData = await req.formData();
-    const imageFile = formData.get("image");
+    // 3. Parse request body (JSON with base64 image, or multipart form data)
+    let imageBytes: Uint8Array;
+    let imageMimeType = "image/jpeg";
+    let lat: number | undefined;
+    let lon: number | undefined;
 
-    if (!imageFile || !(imageFile instanceof File)) {
-      return new Response(
-        JSON.stringify({ error: "Missing image file in form data" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    const contentType = req.headers.get("content-type") || "";
+
+    if (contentType.includes("application/json")) {
+      // JSON body with base64-encoded image
+      const body = await req.json();
+
+      if (!body.image_base64) {
+        return new Response(
+          JSON.stringify({ error: "Missing image_base64 in request body" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const binaryString = atob(body.image_base64);
+      imageBytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        imageBytes[i] = binaryString.charCodeAt(i);
+      }
+      imageMimeType = body.image_type || "image/jpeg";
+      lat = body.lat ? parseFloat(body.lat) : undefined;
+      lon = body.lon ? parseFloat(body.lon) : undefined;
+    } else {
+      // Multipart form data (legacy / web)
+      const formData = await req.formData();
+      const imageFile = formData.get("image");
+
+      if (!imageFile || !(imageFile instanceof File)) {
+        return new Response(
+          JSON.stringify({ error: "Missing image file in form data" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      imageBytes = new Uint8Array(await imageFile.arrayBuffer());
+      imageMimeType = imageFile.type || "image/jpeg";
+      lat = formData.get("lat") ? parseFloat(formData.get("lat") as string) : undefined;
+      lon = formData.get("lon") ? parseFloat(formData.get("lon") as string) : undefined;
     }
-
-    const lat = formData.get("lat") ? parseFloat(formData.get("lat") as string) : undefined;
-    const lon = formData.get("lon") ? parseFloat(formData.get("lon") as string) : undefined;
 
     // Resolve lat/lon to US state code for provider context
     let stateCode: string | undefined;
@@ -103,13 +134,11 @@ Deno.serve(async (req) => {
       stateCode = resolveStateCode(lat, lon);
     }
 
-    const imageBytes = new Uint8Array(await imageFile.arrayBuffer());
-
     // 4. Call bird ID provider
     const provider = createBirdIdProvider();
     const idResult = await provider.identify({
       imageBytes,
-      mimeType: imageFile.type || "image/jpeg",
+      mimeType: imageMimeType,
       lat,
       lon,
       stateCode,
@@ -167,6 +196,7 @@ Deno.serve(async (req) => {
 
 /**
  * Match provider candidates against our species DB.
+ * Tries scientific_name first, falls back to common_name (case-insensitive).
  * Returns candidates enriched with species_id if found.
  */
 async function matchSpecies(
@@ -176,28 +206,43 @@ async function matchSpecies(
   if (candidates.length === 0) return [];
 
   const scientificNames = candidates.map((c) => c.scientific_name);
-  const { data: species } = await client
+  const commonNames = candidates.map((c) => c.common_name);
+
+  const { data: byScientific } = await client
     .from("species")
     .select("id, common_name, scientific_name, distinguishing_feature, conservation_status")
     .in("scientific_name", scientificNames);
 
-  const speciesMap = new Map(
-    (species || []).map((s) => [s.scientific_name.toLowerCase(), s])
+  const { data: byCommon } = await client
+    .from("species")
+    .select("id, common_name, scientific_name, distinguishing_feature, conservation_status")
+    .in("common_name", commonNames);
+
+  // Build lookup maps with lowercase keys
+  const sciMap = new Map(
+    (byScientific || []).map((s) => [s.scientific_name.toLowerCase(), s])
   );
+  const commonMap = new Map(
+    (byCommon || []).map((s) => [s.common_name.toLowerCase(), s])
+  );
+
+  console.log("[matchSpecies] sciMap hits:", sciMap.size, "commonMap hits:", commonMap.size);
 
   return candidates
     .map((c) => {
-      const match = speciesMap.get(c.scientific_name.toLowerCase());
+      // Try scientific name first, fall back to common name
+      const match = sciMap.get(c.scientific_name.toLowerCase())
+        ?? commonMap.get(c.common_name.toLowerCase());
       return {
         common_name: match?.common_name ?? c.common_name,
-        scientific_name: c.scientific_name,
+        scientific_name: match?.scientific_name ?? c.scientific_name,
         confidence: c.confidence,
         species_id: match?.id ?? null,
         distinguishing_feature: match?.distinguishing_feature ?? null,
         conservation_status: match?.conservation_status ?? null,
       };
     })
-    .filter((c) => c.species_id !== null); // Only return species in our DB
+    .filter((c) => c.species_id !== null);
 }
 
 /**

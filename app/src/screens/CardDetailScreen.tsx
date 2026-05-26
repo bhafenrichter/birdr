@@ -304,6 +304,7 @@ export const CardDetailScreen: React.FC = () => {
                       sightingCount: userCard?.sighting_count,
                       locked: !isSpotted,
                       rarity: species.rarity,
+                      allPhotos: sightings.length > 1 ? sightings.map((s) => s.photo_url) : undefined,
                     }}
                     testID="card-detail-bird-card"
                   />

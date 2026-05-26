@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { View, StyleSheet, Pressable, Platform } from "react-native";
+import { View, StyleSheet, Pressable, Platform, Dimensions } from "react-native";
+import * as FileSystem from "expo-file-system/legacy";
+import ConfettiCannon from "react-native-confetti-cannon";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -22,8 +24,10 @@ import {
   BorderRadius,
   Shadows,
 } from "../../theme";
-import { Text, PrimaryButton, GhostButton, Pill } from "../../components/atoms";
+import { Text } from "../../components/atoms";
+import { BirdCardThumb } from "../../components/molecules/BirdCard";
 import { confirmSighting } from "../../services/api";
+import { useAllSpecies, useSpecies } from "../../hooks/useApi";
 import { useAuth } from "../../contexts/AuthProvider";
 import type { CaptureFlowParamList } from "../../navigation/stacks/CaptureFlowStack";
 import type { ConservationStatus, ConfirmSightingResponse } from "../../types/api";
@@ -49,6 +53,19 @@ export const CardRevealScreen: React.FC = () => {
   const { photoUri, speciesId, commonName, conservationStatus, location } =
     route.params;
   const { refreshProfile } = useAuth();
+
+  const { data: allSpecies } = useAllSpecies();
+  const { data: singleSpecies } = useSpecies(speciesId);
+  const species = allSpecies?.find((s) => s.id === speciesId) ?? singleSpecies;
+
+  console.log("[CardReveal] species data:", {
+    hasAllSpecies: !!allSpecies?.length,
+    hasSingleSpecies: !!singleSpecies,
+    speciesId,
+    rarity: species?.rarity,
+    habitat: species?.habitat_name,
+    type: species?.species_type_name,
+  });
 
   const tier = (conservationStatus ?? "LC") as ConservationStatus;
   const tierColor = ConservationTierColors[tier];
@@ -77,15 +94,8 @@ export const CardRevealScreen: React.FC = () => {
     (async () => {
       try {
         // Read photo as base64
-        const response = await fetch(photoUri);
-        const blob = await response.blob();
-        const reader = new FileReader();
-        const base64 = await new Promise<string>((resolve) => {
-          reader.onloadend = () => {
-            const result = reader.result as string;
-            resolve(result.split(",")[1] ?? "");
-          };
-          reader.readAsDataURL(blob);
+        const base64 = await FileSystem.readAsStringAsync(photoUri, {
+          encoding: FileSystem.EncodingType.Base64,
         });
 
         const result = await confirmSighting({
@@ -187,12 +197,6 @@ export const CardRevealScreen: React.FC = () => {
     navigation.getParent()?.goBack();
   };
 
-  const handleViewCard = () => {
-    // Navigate to card detail in Collection tab
-    navigation.getParent()?.goBack();
-    // TODO(birdr): Deep-link to Collection > CardDetail for this species
-  };
-
   // Animated styles
   const bgStyle = useAnimatedStyle(() => ({
     opacity: bgOpacity.value,
@@ -227,38 +231,17 @@ export const CardRevealScreen: React.FC = () => {
         testID="card-reveal-overlay"
       />
 
-      {/* Particle burst placeholder */}
+      {/* Confetti burst */}
       {beat >= 2 && (
-        <Animated.View
-          style={[styles.particles, particleStyle]}
-          testID="card-reveal-particles"
-        >
-          {/* TODO(birdr): Replace with Lottie particle burst per conservation tier */}
-          <View
-            style={[
-              styles.particleDot,
-              { backgroundColor: tierColor, top: "30%", left: "20%" },
-            ]}
-          />
-          <View
-            style={[
-              styles.particleDot,
-              { backgroundColor: tierColor, top: "25%", right: "25%" },
-            ]}
-          />
-          <View
-            style={[
-              styles.particleDot,
-              { backgroundColor: tierColor, bottom: "35%", left: "30%" },
-            ]}
-          />
-          <View
-            style={[
-              styles.particleDot,
-              { backgroundColor: tierColor, bottom: "30%", right: "20%" },
-            ]}
-          />
-        </Animated.View>
+        <ConfettiCannon
+          count={80}
+          origin={{ x: Dimensions.get("window").width / 2, y: -20 }}
+          fadeOut
+          autoStart
+          explosionSpeed={300}
+          fallSpeed={3000}
+          colors={[tierColor, Colors.saffron, Colors.sage, Colors.white, "#FFD700"]}
+        />
       )}
 
       {/* Card */}
@@ -267,35 +250,26 @@ export const CardRevealScreen: React.FC = () => {
           style={[styles.cardContainer, cardStyle]}
           testID="card-reveal-card"
         >
-          <View
-            style={[styles.cardFrame, { backgroundColor: tierColor }]}
-          >
-            <View style={styles.cardInner}>
-              <Text
-                variant="semiBold"
-                size="xl"
-                color={Colors.ink}
-                align="center"
-                testID="card-reveal-species-name"
-              >
-                {commonName}
-              </Text>
-              <Text
-                variant="regular"
-                size="sm"
-                color={Colors.inkSoft}
-                align="center"
-                testID="card-reveal-tier"
-                style={{ marginTop: Spacing.xs }}
-              >
-                {tier}
-              </Text>
-            </View>
+          <View style={{ width: Dimensions.get("window").width * 0.65 }}>
+            <BirdCardThumb
+              data={{
+                speciesName: commonName,
+                familyName: species?.family ?? "",
+                speciesType: species?.species_type_name ?? "",
+                habitat: species?.habitat_name ?? "",
+                conservationTier: tier,
+                photoUri: photoUri,
+                sightingCount: 1,
+                rarity: species?.rarity as any,
+                about: species?.about_text,
+              }}
+              testID="card-reveal-thumb"
+            />
           </View>
         </Animated.View>
       )}
 
-      {/* First Sight banner */}
+      {/* First Sight banner — above card */}
       {beat >= 4 && (
         <Animated.View
           style={[styles.bannerContainer, bannerStyle]}
@@ -305,15 +279,17 @@ export const CardRevealScreen: React.FC = () => {
             variant="bold"
             size="xs"
             color={Colors.saffron}
+            align="center"
             testID="card-reveal-first-sight-label"
-            style={{ letterSpacing: 2 }}
+            style={{ letterSpacing: 2, textTransform: "uppercase" }}
           >
-            FIRST SIGHT
+            First Sight
           </Text>
           <Text
             variant="bold"
             size="2xl"
             color={Colors.white}
+            align="center"
             testID="card-reveal-banner-name"
           >
             {commonName}
@@ -321,63 +297,50 @@ export const CardRevealScreen: React.FC = () => {
         </Animated.View>
       )}
 
-      {/* Settled state: bonus chips + CTAs */}
+      {/* Settled state: achievements + CTA */}
       {beat >= 5 && (
         <Animated.View
           style={[styles.settledContainer, bonusStyle]}
           testID="card-reveal-settled"
         >
-          {/* Bonus chips */}
-          <View style={styles.bonusChips}>
-            {confirmResult?.streak && confirmResult.streak.current_streak > 0 && (
-              <Pill
-                label={`Streak +1 → ${confirmResult.streak.current_streak} day${confirmResult.streak.current_streak !== 1 ? "s" : ""}`}
-                color={Colors.white}
-                backgroundColor={Colors.coral}
-                testID="card-reveal-streak-chip"
-              />
-            )}
-            {confirmResult?.achievements_unlocked.map((ach) => (
-              <Pill
-                key={ach.achievement_id}
-                label={ach.name}
-                color={Colors.white}
-                backgroundColor={Colors.sage}
-                testID={`card-reveal-achievement-${ach.achievement_id}`}
-              />
-            ))}
-          </View>
-
-          {/* CTAs */}
-          <View style={styles.ctaRow}>
-            <GhostButton
-              title="Continue"
-              size="lg"
-              onPress={handleContinue}
-              testID="card-reveal-continue"
-              style={{ flex: 1 }}
-            />
-            <PrimaryButton
-              title="View card"
-              size="lg"
-              onPress={handleViewCard}
-              testID="card-reveal-view-card"
-              style={{ flex: 1 }}
-            />
-          </View>
-
-          {beat < 5 && canSkip && (
-            <Text
-              variant="regular"
-              size="xs"
-              color="rgba(255,255,255,0.5)"
-              align="center"
-              testID="card-reveal-skip-hint"
-              style={{ marginTop: Spacing.md }}
-            >
-              Tap to continue
-            </Text>
+          {/* Achievement cards */}
+          {confirmResult?.streak && confirmResult.streak.current_streak > 0 && (
+            <View style={styles.achievementCard}>
+              <Text variant="bold" size="sm" color={Colors.coral}>🔥</Text>
+              <View style={{ flex: 1, marginLeft: Spacing.sm }}>
+                <Text variant="semiBold" size="sm" color={Colors.white}>
+                  {`${confirmResult.streak.current_streak}-day streak`}
+                </Text>
+                <Text variant="regular" size="xs" color="rgba(255,255,255,0.6)">
+                  Keep it going!
+                </Text>
+              </View>
+            </View>
           )}
+          {confirmResult?.achievements_unlocked.map((ach) => (
+            <View key={ach.achievement_id} style={styles.achievementCard}>
+              <Text variant="bold" size="sm" color={Colors.saffron}>🏆</Text>
+              <View style={{ flex: 1, marginLeft: Spacing.sm }}>
+                <Text variant="semiBold" size="sm" color={Colors.white}>
+                  {ach.name}
+                </Text>
+                <Text variant="regular" size="xs" color="rgba(255,255,255,0.6)">
+                  Achievement unlocked
+                </Text>
+              </View>
+            </View>
+          ))}
+
+          {/* Continue button */}
+          <Pressable
+            style={styles.continueBtn}
+            onPress={handleContinue}
+            testID="card-reveal-continue"
+          >
+            <Text variant="semiBold" size="base" color={Colors.white}>
+              Continue
+            </Text>
+          </Pressable>
         </Animated.View>
       )}
     </Pressable>
@@ -393,56 +356,38 @@ const styles = StyleSheet.create({
     position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
     backgroundColor: Colors.stage,
   },
-  particles: {
-    position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
-    pointerEvents: "none",
-  },
-  particleDot: {
-    position: "absolute",
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
   cardContainer: {
     position: "absolute",
-    top: "25%",
+    top: "22%",
     alignSelf: "center",
-  },
-  cardFrame: {
-    borderRadius: BorderRadius["2xl"],
-    padding: 4,
-    ...Shadows.lg,
-  },
-  cardInner: {
-    backgroundColor: Colors.cardBody,
-    borderRadius: BorderRadius["2xl"] - 2,
-    paddingVertical: Spacing["4xl"],
-    paddingHorizontal: Spacing["3xl"],
-    alignItems: "center",
-    minWidth: 240,
   },
   bannerContainer: {
     position: "absolute",
-    top: "18%",
+    top: Platform.OS === "ios" ? "12%" : "8%",
     alignSelf: "center",
     alignItems: "center",
   },
   settledContainer: {
     position: "absolute",
-    bottom: Platform.OS === "ios" ? 60 : 40,
+    bottom: Platform.OS === "ios" ? 50 : 30,
     left: Spacing.xl,
     right: Spacing.xl,
   },
-  bonusChips: {
+  achievementCard: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "center",
-    gap: Spacing.sm,
-    marginBottom: Spacing.xl,
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.1)",
+    borderRadius: BorderRadius.lg,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    marginBottom: Spacing.sm,
   },
-  ctaRow: {
-    flexDirection: "row",
-    gap: Spacing.md,
+  continueBtn: {
+    backgroundColor: Colors.sage,
+    borderRadius: BorderRadius.full,
+    paddingVertical: Spacing.lg,
+    alignItems: "center",
+    marginTop: Spacing.md,
   },
 });
 

@@ -18,7 +18,7 @@ import {
   CardSkeletonGrid,
 } from "../components/atoms";
 import { BirdCardThumb } from "../components/molecules/BirdCard";
-import { useExploreSpecies, useProfile, useCards } from "../hooks/useApi";
+import { useExploreSpecies, useProfile, useCards, useAllSpecies } from "../hooks/useApi";
 import type { ExploreStackParamList } from "../navigation/stacks/ExploreStack";
 
 type Nav = NativeStackNavigationProp<ExploreStackParamList>;
@@ -114,7 +114,9 @@ const NearMeView: React.FC<{
     ? { lat: location.lat, lon: location.lon, mode: "near_me" as const }
     : null;
   const { data: exploreData, isLoading } = useExploreSpecies(params);
+  const { data: allSpecies } = useAllSpecies();
   const list = exploreData?.species ?? [];
+  const speciesMap = new Map((allSpecies ?? []).map((s) => [s.id, s]));
 
   if (locationError && !location) {
     return (
@@ -222,6 +224,7 @@ const NearMeView: React.FC<{
                     photoUri: null,
                     sightingCount: item.sighting_count,
                     locked: !item.spotted,
+                    rarity: speciesMap.get(item.species_id)?.rarity as any,
                     about: item.about_text,
                   }}
                   testID={`explore-thumb-${item.species_id}`}

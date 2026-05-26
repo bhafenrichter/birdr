@@ -3,6 +3,7 @@
  * and direct DB queries.
  */
 
+import * as FileSystem from "expo-file-system/legacy";
 import { supabase } from "./supabase";
 import { logger } from "./logger";
 import { getCached, setCache } from "./cache";
@@ -27,7 +28,7 @@ class ApiError extends Error {
   constructor(
     message: string,
     public status: number,
-    public code?: string
+    public code?: string,
   ) {
     super(message);
     this.name = "ApiError";
@@ -40,45 +41,55 @@ async function invokeFunction<T>(
     method?: "GET" | "POST";
     body?: Record<string, unknown> | FormData;
     params?: Record<string, string | number | undefined>;
-  } = {}
+  } = {},
 ): Promise<T> {
   const { method = "POST", body, params } = options;
 
   let queryString = "";
   if (params) {
-    const filtered = Object.entries(params).filter(
-      ([, v]) => v !== undefined
-    );
+    const filtered = Object.entries(params).filter(([, v]) => v !== undefined);
     if (filtered.length > 0) {
       queryString =
         "?" +
-        filtered.map(([k, v]) => `${k}=${encodeURIComponent(String(v))}`).join("&");
+        filtered
+          .map(([k, v]) => `${k}=${encodeURIComponent(String(v))}`)
+          .join("&");
     }
   }
 
-  logger.info(`Invoking edge function: ${functionName}`, { method, params });
+  console.log(`[invokeFunction] Calling ${functionName}`, {
+    method,
+    hasBody: !!body,
+    bodyType: body ? typeof body : "none",
+    queryString: queryString || "(none)",
+  });
 
   const { data, error } = await supabase.functions.invoke<T>(
     `${functionName}${queryString}`,
     {
       method,
-      body: body instanceof FormData ? body : body ? JSON.stringify(body) : undefined,
-      headers:
-        body instanceof FormData
-          ? {} // Let the browser set Content-Type with boundary
-          : { "Content-Type": "application/json" },
-    }
+      body: body ?? undefined,
+    },
   );
 
   if (error) {
     const status = (error as any).status ?? 500;
     const code = (error as any).code;
-    logger.error(`Edge function ${functionName} failed`, { status, code, message: error.message });
-    throw new ApiError(
-      error.message ?? "Edge function error",
+    console.error(`[invokeFunction] ${functionName} FAILED`, {
       status,
-      code
-    );
+      code,
+      message: error.message,
+      errorFull: JSON.stringify(error),
+    });
+    logger.error(`edge_function_error`, {
+      function_name: functionName,
+      method,
+      status,
+      code,
+      message: error.message,
+      params: params ?? {},
+    });
+    throw new ApiError(error.message ?? "Edge function error", status, code);
   }
 
   logger.info(`Edge function ${functionName} succeeded`);
@@ -93,19 +104,40 @@ async function invokeFunction<T>(
  */
 export async function identifyBird(
   imageFile: { uri: string; type: string; name: string },
-  location?: { lat: number; lon: number }
+  location?: { lat: number; lon: number },
 ): Promise<IdentifyBirdResponse> {
-  logger.info("Identifying bird", { hasLocation: !!location });
-  const formData = new FormData();
-  formData.append("image", imageFile as any);
-  if (location) {
-    formData.append("lat", String(location.lat));
-    formData.append("lon", String(location.lon));
-  }
-
-  return invokeFunction<IdentifyBirdResponse>("identify-bird", {
-    body: formData,
+  console.log("[identify-bird] Step 1: Starting identification", {
+    uri: imageFile.uri.slice(-30),
+    type: imageFile.type,
+    hasLocation: !!location,
   });
+
+  // Read image as base64 using expo-file-system (reliable in React Native)
+  console.log("[identify-bird] Step 2: Reading image as base64...");
+  const base64 = await FileSystem.readAsStringAsync(imageFile.uri, {
+    encoding: FileSystem.EncodingType.Base64,
+  });
+  console.log("[identify-bird] Step 3: Base64 ready", {
+    length: base64.length,
+    preview: base64.slice(0, 20) + "...",
+  });
+
+  console.log("[identify-bird] Step 4: Calling edge function...");
+  const result = await invokeFunction<IdentifyBirdResponse>("identify-bird", {
+    body: {
+      image_base64: base64,
+      image_type: imageFile.type,
+      lat: location?.lat,
+      lon: location?.lon,
+    },
+  });
+
+  console.log("[identify-bird] Step 5: Got result", {
+    result: result.result,
+    candidateCount: result.candidates?.length,
+    capturesRemaining: result.captures_remaining,
+  });
+  return result;
 }
 
 /**
@@ -113,12 +145,27 @@ export async function identifyBird(
  * Returns the card state, streak update, and any newly unlocked achievements.
  */
 export async function confirmSighting(
-  request: ConfirmSightingRequest
+  request: ConfirmSightingRequest,
 ): Promise<ConfirmSightingResponse> {
-  logger.info("Confirming sighting", { speciesId: (request as any).species_id });
-  return invokeFunction<ConfirmSightingResponse>("confirm-sighting", {
-    body: request as unknown as Record<string, unknown>,
+  console.log("[confirm-sighting] Step 1: Starting confirmation", {
+    speciesId: (request as any).species_id,
+    photoUrl: (request as any).photo_url?.slice(-30),
   });
+
+  console.log("[confirm-sighting] Step 2: Calling edge function...");
+  const result = await invokeFunction<ConfirmSightingResponse>(
+    "confirm-sighting",
+    {
+      body: request as unknown as Record<string, unknown>,
+    },
+  );
+
+  console.log("[confirm-sighting] Step 3: Got result", {
+    isFirstSight: result.is_first_sight,
+    streak: result.streak?.current_streak,
+    achievementsUnlocked: result.achievements_unlocked?.length ?? 0,
+  });
+  return result;
 }
 
 /**
@@ -127,7 +174,7 @@ export async function confirmSighting(
 const EXPLORE_CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
 
 export async function fetchExploreSpecies(
-  params: ExploreSpeciesParams
+  params: ExploreSpeciesParams,
 ): Promise<ExploreSpeciesResponse> {
   // Build a cache key from the params that affect the result
   const cacheKey = `explore:${params.lat.toFixed(1)}:${params.lon.toFixed(1)}:${params.mode ?? "near_me"}:${params.season_filter ?? ""}:${params.species_type_slug ?? ""}`;
@@ -139,19 +186,26 @@ export async function fetchExploreSpecies(
     return cached;
   }
 
-  logger.info("Fetching explore species", { lat: params.lat, lon: params.lon, mode: params.mode });
-  const result = await invokeFunction<ExploreSpeciesResponse>("explore-species", {
-    method: "GET",
-    params: {
-      lat: params.lat,
-      lon: params.lon,
-      mode: params.mode,
-      season_filter: params.season_filter,
-      species_type_slug: params.species_type_slug,
-      limit: params.limit,
-      offset: params.offset,
-    },
+  logger.info("Fetching explore species", {
+    lat: params.lat,
+    lon: params.lon,
+    mode: params.mode,
   });
+  const result = await invokeFunction<ExploreSpeciesResponse>(
+    "explore-species",
+    {
+      method: "GET",
+      params: {
+        lat: params.lat,
+        lon: params.lon,
+        mode: params.mode,
+        season_filter: params.season_filter,
+        species_type_slug: params.species_type_slug,
+        limit: params.limit,
+        offset: params.offset,
+      },
+    },
+  );
 
   // Cache the result
   await setCache(cacheKey, result, EXPLORE_CACHE_TTL);
@@ -183,7 +237,10 @@ export async function fetchProfile(): Promise<Profile | null> {
     .single();
 
   if (error) {
-    logger.error("Failed to fetch profile", { code: error.code, message: error.message });
+    logger.error("Failed to fetch profile", {
+      code: error.code,
+      message: error.message,
+    });
     throw new ApiError(error.message, 500, error.code);
   }
   return data as Profile;
@@ -203,7 +260,10 @@ export async function fetchStreak(): Promise<Streak | null> {
     .single();
 
   if (error) {
-    logger.error("Failed to fetch streak", { code: error.code, message: error.message });
+    logger.error("Failed to fetch streak", {
+      code: error.code,
+      message: error.message,
+    });
     throw new ApiError(error.message, 500, error.code);
   }
   return data as Streak;
@@ -223,7 +283,10 @@ export async function fetchCards(): Promise<Card[]> {
     .order("last_seen_at", { ascending: false });
 
   if (error) {
-    logger.error("Failed to fetch cards", { code: error.code, message: error.message });
+    logger.error("Failed to fetch cards", {
+      code: error.code,
+      message: error.message,
+    });
     throw new ApiError(error.message, 500, error.code);
   }
   return (data ?? []) as Card[];
@@ -231,7 +294,7 @@ export async function fetchCards(): Promise<Card[]> {
 
 /** Fetch sightings for a specific species. */
 export async function fetchSightingsForSpecies(
-  speciesId: string
+  speciesId: string,
 ): Promise<Sighting[]> {
   const {
     data: { user },
@@ -246,7 +309,11 @@ export async function fetchSightingsForSpecies(
     .order("captured_at", { ascending: false });
 
   if (error) {
-    logger.error("Failed to fetch sightings for species", { speciesId, code: error.code, message: error.message });
+    logger.error("Failed to fetch sightings for species", {
+      speciesId,
+      code: error.code,
+      message: error.message,
+    });
     throw new ApiError(error.message, 500, error.code);
   }
   return (data ?? []) as Sighting[];
@@ -266,26 +333,31 @@ export async function fetchAchievements(): Promise<UserAchievement[]> {
     .order("unlocked_at", { ascending: false, nullsFirst: false });
 
   if (error) {
-    logger.error("Failed to fetch achievements", { code: error.code, message: error.message });
+    logger.error("Failed to fetch achievements", {
+      code: error.code,
+      message: error.message,
+    });
     throw new ApiError(error.message, 500, error.code);
   }
   return (data ?? []) as UserAchievement[];
 }
 
 /** Fetch a single species by ID (with joined type and habitat names). */
-export async function fetchSpecies(speciesId: string): Promise<
-  Species & { species_type_name: string; habitat_name: string }
-> {
+export async function fetchSpecies(
+  speciesId: string,
+): Promise<Species & { species_type_name: string; habitat_name: string }> {
   const { data, error } = await supabase
     .from("species")
-    .select(
-      `*, species_types(name), habitats(name)`
-    )
+    .select(`*, species_types(name), habitats(name)`)
     .eq("id", speciesId)
     .single();
 
   if (error) {
-    logger.error("Failed to fetch species", { speciesId, code: error.code, message: error.message });
+    logger.error("Failed to fetch species", {
+      speciesId,
+      code: error.code,
+      message: error.message,
+    });
     throw new ApiError(error.message, 500, error.code);
   }
 
@@ -304,7 +376,9 @@ const ALL_SPECIES_CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
 export async function fetchAllSpecies(): Promise<
   (Species & { species_type_name: string; habitat_name: string })[]
 > {
-  const cached = await getCached<(Species & { species_type_name: string; habitat_name: string })[]>(ALL_SPECIES_CACHE_KEY);
+  const cached = await getCached<
+    (Species & { species_type_name: string; habitat_name: string })[]
+  >(ALL_SPECIES_CACHE_KEY);
   if (cached) {
     logger.info("All species cache hit");
     return cached;
@@ -323,7 +397,10 @@ export async function fetchAllSpecies(): Promise<
       .range(from, from + PAGE_SIZE - 1);
 
     if (error) {
-      logger.error("Failed to fetch all species", { code: error.code, message: error.message });
+      logger.error("Failed to fetch all species", {
+        code: error.code,
+        message: error.message,
+      });
       throw new ApiError(error.message, 500, error.code);
     }
 
@@ -348,7 +425,7 @@ const ALL_SPECIES_PAGE_SIZE = 60;
 
 export async function fetchAllSpeciesPaginated(
   page: number,
-  search?: string
+  search?: string,
 ): Promise<{
   species: (Species & { species_type_name: string; habitat_name: string })[];
   hasMore: boolean;
@@ -369,7 +446,10 @@ export async function fetchAllSpeciesPaginated(
   const { data, error, count } = await query;
 
   if (error) {
-    logger.error("Failed to fetch species page", { code: error.code, message: error.message });
+    logger.error("Failed to fetch species page", {
+      code: error.code,
+      message: error.message,
+    });
     throw new ApiError(error.message, 500, error.code);
   }
 
@@ -384,7 +464,7 @@ export async function fetchAllSpeciesPaginated(
 
 /** Fetch recent sightings for capture hub (last N). */
 export async function fetchRecentSightings(
-  limit: number = 5
+  limit: number = 5,
 ): Promise<(Sighting & { species: Species })[]> {
   const {
     data: { user },
@@ -399,23 +479,27 @@ export async function fetchRecentSightings(
     .limit(limit);
 
   if (error) {
-    logger.error("Failed to fetch recent sightings", { code: error.code, message: error.message });
+    logger.error("Failed to fetch recent sightings", {
+      code: error.code,
+      message: error.message,
+    });
     throw new ApiError(error.message, 500, error.code);
   }
   return (data ?? []) as (Sighting & { species: Species })[];
 }
 
 /** Fetch state codes where a species is found. */
-export async function fetchSpeciesStates(
-  speciesId: string
-): Promise<string[]> {
+export async function fetchSpeciesStates(speciesId: string): Promise<string[]> {
   const { data, error } = await supabase
     .from("species_regions")
     .select("state_code")
     .eq("species_id", speciesId);
 
   if (error) {
-    logger.error("Failed to fetch species states", { code: error.code, message: error.message });
+    logger.error("Failed to fetch species states", {
+      code: error.code,
+      message: error.message,
+    });
     return [];
   }
 
