@@ -66,7 +66,7 @@ export const CardDetailScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
 
   const { data: allSpecies } = useAllSpecies();
-  const { data: singleSpecies } = useSpecies(speciesId);
+  const { data: singleSpecies, isLoading: speciesLoading } = useSpecies(speciesId);
   const { data: cards, isLoading: cardsLoading } = useCards();
   const { data: sightingsData, isLoading: sightingsLoading } = useSightingsForSpecies(speciesId);
   const { data: speciesStates } = useSpeciesStates(speciesId);
@@ -155,8 +155,8 @@ export const CardDetailScreen: React.FC = () => {
       new Date(b.captured_at).getTime() - new Date(a.captured_at).getTime(),
   );
 
-  // Still loading data
-  if (!allSpecies && !singleSpecies) {
+  // Wait for the fresh species fetch before rendering the card
+  if (speciesLoading || !singleSpecies) {
     return (
       <View style={styles.container}>
         <Animated.View style={[StyleSheet.absoluteFill, overlayStyle]}>
@@ -258,6 +258,7 @@ export const CardDetailScreen: React.FC = () => {
                     locked: dataReady && !isSpotted,
                     rarity: species.rarity,
                     allPhotos: sightings.length > 1 ? sightings.map((s) => s.photo_url) : undefined,
+                    photoQuality: lastSighting?.photo_quality,
                   }}
                   onAudioPress={() => {
                     Toast.show({

@@ -57,7 +57,7 @@ export const RarityConfig = {
     label: "Common",
     badge: "C",
     borderColors: ["#f8e15c", "#edb915"],
-    badgeColor: "#9E9E9E",
+    badgeColor: "#DAA520",
     shimmerIntensity: 0.3,
   },
   uncommon: {

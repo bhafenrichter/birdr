@@ -182,6 +182,7 @@ export interface ExploreSpeciesItem {
   habitat: string;
   conservation_status: ConservationStatus;
   distinguishing_feature: string;
+  rarity: Rarity;
   season: Season;
   peak_frequency: number;
   spotted: boolean;

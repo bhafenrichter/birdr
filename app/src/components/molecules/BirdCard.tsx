@@ -8,6 +8,7 @@ import {
   Pressable,
 } from "react-native";
 import { Pressable as GHPressable } from "react-native-gesture-handler";
+import { Camera } from "lucide-react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -32,7 +33,7 @@ import {
   FontSizes,
 } from "../../theme";
 import type { ConservationTier } from "../../theme";
-import type { Rarity } from "../../types/api";
+import type { Rarity, PhotoQuality } from "../../types/api";
 import { Text } from "../atoms/Text";
 import { ConservationBadge } from "../atoms/ConservationBadge";
 import { AudioBadge } from "../atoms/AudioBadge";
@@ -81,6 +82,15 @@ function getHabitatColor(habitat: string): string {
   return HABITAT_COLORS[habitat] ?? "rgba(0, 141, 143, 1)";
 }
 
+// ── Photo quality config ─────────────────────────────────────────────────
+
+const PHOTO_QUALITY_CONFIG: Record<string, { label: string; colors: [string, string] }> = {
+  pristine: { label: "Pristine", colors: ["#CE93D8", "#7B1FA2"] },
+  good: { label: "Good", colors: ["#64B5F6", "#1565C0"] },
+  fair: { label: "Fair", colors: ["#A8D8A8", "#4CAF50"] },
+  poor: { label: "Poor", colors: ["#9E9E9E", "#616161"] },
+};
+
 // ── Types ──────────────────────────────────────────────────────────────────
 
 export interface BirdCardData {
@@ -96,6 +106,7 @@ export interface BirdCardData {
   sightingCount?: number;
   locked?: boolean;
   rarity?: Rarity;
+  photoQuality?: PhotoQuality | null;
   /** All photo URIs for carousel (expanded card only) */
   allPhotos?: string[];
 }
@@ -262,9 +273,18 @@ export const BirdCard: React.FC<BirdCardProps> = ({
                     </Text>
                   </View>
                 ) : data.allPhotos && data.allPhotos.length > 1 ? (
-                  <PhotoCarousel photos={data.allPhotos} testID={testID} />
+                  <PhotoCarousel
+                    photos={data.allPhotos}
+                    photoQuality={data.photoQuality}
+                    testID={testID}
+                  />
                 ) : data.photoUri ? (
-                  <ThumbImage uri={data.photoUri} testID={`${testID}-photo`} />
+                  <>
+                    <ThumbImage uri={data.photoUri} testID={`${testID}-photo`} />
+                    {data.photoQuality && PHOTO_QUALITY_CONFIG[data.photoQuality] && (
+                      <PhotoQualityBadge quality={data.photoQuality} />
+                    )}
+                  </>
                 ) : (
                   <View
                     style={{
@@ -507,9 +527,11 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
                 {data.speciesName}
               </Text>
             </View>
-            <View
+            <LinearGradient
+              colors={[...rc.borderColors] as [string, string, ...string[]]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
               style={{
-                backgroundColor: rc.badgeColor,
                 paddingHorizontal: 4,
                 paddingVertical: 2,
                 borderRadius: BorderRadius.sm,
@@ -524,7 +546,7 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
               >
                 {rc.badge}
               </Text>
-            </View>
+            </LinearGradient>
           </View>
 
           {/* Photo / locked area — top portion */}
@@ -691,10 +713,11 @@ const ThumbImage: React.FC<{ uri: string; testID: string }> = ({
 
 // ── Photo Carousel (expanded card with multiple sightings) ────────────────
 
-const PhotoCarousel: React.FC<{ photos: string[]; testID: string }> = ({
-  photos,
-  testID,
-}) => {
+const PhotoCarousel: React.FC<{
+  photos: string[];
+  photoQuality?: PhotoQuality | null;
+  testID: string;
+}> = ({ photos, photoQuality, testID }) => {
   const [index, setIndex] = useState(0);
   const [loaded, setLoaded] = useState(false);
 
@@ -761,11 +784,56 @@ const PhotoCarousel: React.FC<{ photos: string[]; testID: string }> = ({
           </Text>
         </GHPressable>
       </View>
+
+      {/* Photo quality badge — bottom left */}
+      {photoQuality && PHOTO_QUALITY_CONFIG[photoQuality] && (
+        <PhotoQualityBadge quality={photoQuality} />
+      )}
     </View>
   );
 };
 
 // ── Glossy sheen overlay ───────────────────────────────────────────────────
+
+// ── Photo quality badge ───────────────────────────────────────────────────
+
+const PhotoQualityBadge: React.FC<{ quality: PhotoQuality }> = ({ quality }) => {
+  const config = PHOTO_QUALITY_CONFIG[quality];
+  if (!config) return null;
+
+  return (
+    <View
+      style={{
+        position: "absolute",
+        bottom: 6,
+        left: 6,
+      }}
+    >
+      <LinearGradient
+        colors={[...config.colors] as [string, string]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          paddingHorizontal: 10,
+          paddingVertical: 5,
+          borderRadius: 16,
+          gap: 5,
+        }}
+      >
+        <Camera size={14} color={Colors.white} strokeWidth={2.5} />
+        <Text
+          variant="bold"
+          size="sm"
+          color={Colors.white}
+        >
+          {config.label}
+        </Text>
+      </LinearGradient>
+    </View>
+  );
+};
 
 const GlossySheen: React.FC = () => (
   <View
