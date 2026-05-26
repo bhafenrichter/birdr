@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
-import { View, StyleSheet, Pressable, ScrollView, Dimensions } from "react-native";
+import { View, StyleSheet, Pressable, Dimensions } from "react-native";
 import * as Location from "expo-location";
 import { FlashList } from "@shopify/flash-list";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -19,7 +19,7 @@ import {
   CardSkeletonGrid,
 } from "../components/atoms";
 import { BirdCardThumb } from "../components/molecules/BirdCard";
-import { useExploreSpecies, useProfile, useCards, useAllSpecies, useMapSightings } from "../hooks/useApi";
+import { useExploreSpecies, useProfile, useCards, useMapSightings } from "../hooks/useApi";
 import type { ExploreStackParamList } from "../navigation/stacks/ExploreStack";
 
 type Nav = NativeStackNavigationProp<ExploreStackParamList>;
@@ -250,70 +250,25 @@ const US_CENTER: Region = {
 
 const MyMapView: React.FC = () => {
   const navigation = useNavigation<Nav>();
-  const { data: cards } = useCards();
-  const { data: mapSightings } = useMapSightings();
-  const { data: allSpecies } = useAllSpecies();
+  const { data: cards, isLoading: cardsLoading } = useCards();
+  const { data: mapSightings, isLoading: sightingsLoading } = useMapSightings();
   const mapRef = useRef<MapView>(null);
-
-  const [mapCenter, setMapCenter] = useState<{ lat: number; lon: number } | null>(null);
 
   const allCards = cards ?? [];
   const sightings = mapSightings ?? [];
   const totalCaptures = allCards.reduce((sum, c) => sum + c.sighting_count, 0);
   const totalSpecies = allCards.length;
 
-  // Fetch species for the region the map is centered on
-  const { data: exploreData } = useExploreSpecies(
-    mapCenter ? { lat: mapCenter.lat, lon: mapCenter.lon, mode: "near_me" } : null,
-  );
-  const regionSpecies = exploreData?.species ?? [];
-  const regionName = exploreData?.header?.location_name ?? null;
-
-  // Lookup map for enriching explore items with rarity/family
-  const speciesMap = useMemo(() => {
-    const map = new Map<string, (typeof allSpecies extends (infer T)[] | undefined ? T : never)>();
-    for (const sp of allSpecies ?? []) {
-      map.set(sp.id, sp);
-    }
-    return map;
-  }, [allSpecies]);
-
   // Unique states from sighting locations
-  const [uniqueStates, setUniqueStates] = useState(0);
-
-  useEffect(() => {
-    if (sightings.length === 0) return;
-
-    (async () => {
-      const states = new Set<string>();
-
-      // First pass: extract from named_location
-      for (const s of sightings) {
-        if (s.named_location) {
-          const parts = s.named_location.split(", ");
-          if (parts.length >= 2) states.add(parts[parts.length - 1]);
-        }
+  const uniqueStates = useMemo(() => {
+    const states = new Set<string>();
+    for (const s of sightings) {
+      if (s.named_location) {
+        const parts = s.named_location.split(", ");
+        if (parts.length >= 2) states.add(parts[parts.length - 1]);
       }
-
-      // Second pass: reverse geocode sightings missing named_location
-      const missing = sightings.filter((s) => !s.named_location && s.lat && s.lon);
-      // Dedupe by rounding to ~10km grid to avoid excessive API calls
-      const seen = new Set<string>();
-      for (const s of missing) {
-        const key = `${Math.round(s.lat! * 10)}:${Math.round(s.lon! * 10)}`;
-        if (seen.has(key)) continue;
-        seen.add(key);
-        try {
-          const [geo] = await Location.reverseGeocodeAsync({
-            latitude: s.lat!,
-            longitude: s.lon!,
-          });
-          if (geo?.region) states.add(geo.region);
-        } catch {}
-      }
-
-      setUniqueStates(states.size);
-    })();
+    }
+    return states.size;
   }, [sightings]);
 
   // Fit map to sighting markers on first load
@@ -330,10 +285,6 @@ const MyMapView: React.FC = () => {
     }
   }, [sightings.length > 0]);
 
-  const handleRegionChange = useCallback((region: Region) => {
-    setMapCenter({ lat: region.latitude, lon: region.longitude });
-  }, []);
-
   const handleMarkerPress = useCallback(
     (speciesId: string) => {
       navigation.navigate("CardDetail", { speciesId });
@@ -342,32 +293,30 @@ const MyMapView: React.FC = () => {
   );
 
   return (
-    <ScrollView
-      style={styles.myMapContainer}
-      contentContainerStyle={styles.myMapContent}
-      showsVerticalScrollIndicator={false}
-      testID="explore-my-map"
-    >
+    <View style={styles.myMapContainer} testID="explore-my-map">
       {/* Stats trio */}
       <View style={styles.statsTrio}>
         <StatBlock
           value={String(totalCaptures)}
           label="Captures"
+          isLoading={cardsLoading}
           testID="explore-stat-captures"
         />
         <StatBlock
           value={String(totalSpecies)}
           label="Species"
+          isLoading={cardsLoading}
           testID="explore-stat-species"
         />
         <StatBlock
           value={uniqueStates > 0 ? String(uniqueStates) : "—"}
           label="States"
+          isLoading={sightingsLoading}
           testID="explore-stat-states"
         />
       </View>
 
-      {/* Square map */}
+      {/* Map */}
       <View style={styles.mapContainer} testID="explore-map">
         <MapView
           ref={mapRef}
@@ -375,7 +324,6 @@ const MyMapView: React.FC = () => {
           initialRegion={US_CENTER}
           showsUserLocation
           showsMyLocationButton={false}
-          onRegionChangeComplete={handleRegionChange}
           testID="explore-map-view"
         >
           {sightings.map((sighting) => (
@@ -413,83 +361,29 @@ const MyMapView: React.FC = () => {
           </View>
         )}
       </View>
-
-      {/* Region species list */}
-      {regionName && (
-        <View style={styles.regionHeader}>
-          <Text
-            variant="semiBold"
-            size="base"
-            color={Colors.ink}
-            testID="explore-region-title"
-          >
-            {`Birds in ${regionName}`}
-          </Text>
-          <Text
-            variant="regular"
-            size="xs"
-            color={Colors.inkSoft}
-            testID="explore-region-count"
-          >
-            {`${regionSpecies.length} species`}
-          </Text>
-        </View>
-      )}
-
-      <View style={styles.regionGrid}>
-        {regionSpecies.slice(0, 30).map((item) => {
-          const sp = speciesMap.get(item.species_id);
-          return (
-            <View key={item.species_id} style={styles.regionGridCell}>
-              <Pressable
-                onPress={() => navigation.navigate("CardDetail", { speciesId: item.species_id })}
-                testID={`explore-map-species-${item.species_id}`}
-              >
-                <BirdCardThumb
-                  data={{
-                    speciesName: item.common_name,
-                    familyName: sp?.family ?? "",
-                    speciesType: item.species_type,
-                    habitat: item.habitat,
-                    conservationTier: item.conservation_status as any,
-                    photoUri: null,
-                    sightingCount: item.sighting_count,
-                    locked: !item.spotted,
-                    rarity: sp?.rarity as any,
-                  }}
-                  testID={`explore-map-thumb-${item.species_id}`}
-                />
-              </Pressable>
-            </View>
-          );
-        })}
-      </View>
-
-      {!regionName && mapCenter && (
-        <View style={styles.regionEmpty}>
-          <Text variant="regular" size="sm" color={Colors.inkFaint} align="center">
-            Pan the map to a US state to see local species
-          </Text>
-        </View>
-      )}
-    </ScrollView>
+    </View>
   );
 };
 
 const StatBlock: React.FC<{
   value: string;
   label: string;
+  isLoading?: boolean;
   testID: string;
-}> = ({ value, label, testID }) => (
+}> = ({ value, label, isLoading, testID }) => (
   <View style={styles.statBlock} testID={testID}>
-    <Text
-      variant="bold"
-      size="xl"
-      color={Colors.ink}
-      testID={`${testID}-value`}
-    >
-      {value}
-    </Text>
+    {isLoading ? (
+      <View style={styles.statBone} />
+    ) : (
+      <Text
+        variant="bold"
+        size="xl"
+        color={Colors.ink}
+        testID={`${testID}-value`}
+      >
+        {value}
+      </Text>
+    )}
     <Text
       variant="regular"
       size="xs"
@@ -543,10 +437,7 @@ const styles = StyleSheet.create({
   },
   myMapContainer: {
     flex: 1,
-  },
-  myMapContent: {
     paddingHorizontal: Spacing.xl,
-    paddingBottom: Spacing["4xl"],
   },
   statsTrio: {
     flexDirection: "row",
@@ -561,6 +452,12 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.lg,
     ...Shadows.sm,
   },
+  statBone: {
+    width: 32,
+    height: 20,
+    borderRadius: 6,
+    backgroundColor: Colors.paper,
+  },
   emptyState: {
     flex: 1,
     alignItems: "center",
@@ -568,8 +465,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.xl,
   },
   mapContainer: {
-    width: "100%",
-    aspectRatio: 1,
+    flex: 1,
     borderRadius: BorderRadius.xl,
     overflow: "hidden",
     marginBottom: Spacing.lg,
@@ -583,26 +479,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "rgba(245, 241, 232, 0.7)",
-  },
-  regionHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: Spacing.sm,
-  },
-  regionGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    marginHorizontal: -Spacing.xs,
-  },
-  regionGridCell: {
-    width: "50%",
-    paddingHorizontal: Spacing.xs,
-    paddingVertical: Spacing.xs,
-  },
-  regionEmpty: {
-    paddingVertical: Spacing["3xl"],
-    alignItems: "center",
   },
   mapMarker: {
     width: 34,
