@@ -288,15 +288,15 @@ async function evaluateAchievements(
 }
 
 const COLLECTION_MILESTONES = [
-  { count: 1, id: "collection_1", name: "First Feather" },
-  { count: 5, id: "collection_5", name: "Getting Started" },
-  { count: 10, id: "collection_10", name: "10 Species" },
-  { count: 25, id: "collection_25", name: "25 Species" },
-  { count: 50, id: "collection_50", name: "50 Species" },
-  { count: 100, id: "collection_100", name: "100 Species" },
-  { count: 250, id: "collection_250", name: "250 Species" },
-  { count: 500, id: "collection_500", name: "500 Species" },
-  { count: 900, id: "collection_900", name: "All NA Species" },
+  { count: 1, id: "collection_1", name: "One Small Peck for Man" },
+  { count: 5, id: "collection_5", name: "Getting Your Wings" },
+  { count: 10, id: "collection_10", name: "The Hen Commandments" },
+  { count: 25, id: "collection_25", name: "The Great Gats-beak" },
+  { count: 50, id: "collection_50", name: "Fifty Shades of Grey Heron" },
+  { count: 100, id: "collection_100", name: "The Centurion Wing" },
+  { count: 250, id: "collection_250", name: "To Kill a Lot of Mockingbirds" },
+  { count: 500, id: "collection_500", name: "Five Hundred Days of Birdr" },
+  { count: 900, id: "collection_900", name: "Lord of the Wings" },
 ];
 
 async function evaluateCollectionMilestones(
@@ -359,12 +359,12 @@ async function evaluateCollectionMilestones(
 }
 
 const STREAK_TIERS = [
-  { days: 3, id: "streak_3", name: "3-Day Streak" },
-  { days: 7, id: "streak_7", name: "7-Day Streak" },
-  { days: 14, id: "streak_14", name: "14-Day Streak" },
-  { days: 30, id: "streak_30", name: "30-Day Streak" },
-  { days: 100, id: "streak_100", name: "100-Day Streak" },
-  { days: 365, id: "streak_365", name: "365-Day Streak" },
+  { days: 3, id: "streak_3", name: "Beak-end at Bernie's" },
+  { days: 7, id: "streak_7", name: "The Birdy Bunch" },
+  { days: 14, id: "streak_14", name: "2 Beak Streak" },
+  { days: 30, id: "streak_30", name: "Nest-flix and Chill" },
+  { days: 100, id: "streak_100", name: "One Hundred Beaks of Solitude" },
+  { days: 365, id: "streak_365", name: "Around the Birld in 365 Days" },
 ];
 
 async function evaluateStreakTiers(
@@ -401,11 +401,11 @@ async function evaluateStreakTiers(
 }
 
 const MASTERY_TIERS: Array<{ pct: number; tier: string; label: string }> = [
-  { pct: 0.05, tier: "spotter", label: "Spotter" },
-  { pct: 0.10, tier: "apprentice", label: "Apprentice" },
-  { pct: 0.25, tier: "adept", label: "Adept" },
-  { pct: 0.50, tier: "expert", label: "Expert" },
-  { pct: 1.00, tier: "master", label: "Master" },
+  { pct: 0.05, tier: "spotter", label: "Bird Curious" },
+  { pct: 0.10, tier: "apprentice", label: "Beak-ginner's Luck" },
+  { pct: 0.25, tier: "adept", label: "Nest in Class" },
+  { pct: 0.50, tier: "expert", label: "Glass Half Fowl" },
+  { pct: 1.00, tier: "master", label: "The Godfeather" },
 ];
 
 async function evaluateFamilyMastery(

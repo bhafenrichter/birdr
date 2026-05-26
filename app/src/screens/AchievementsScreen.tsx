@@ -7,9 +7,39 @@ import {
   ScrollView,
 } from "react-native";
 import Svg, { Circle } from "react-native-svg";
+import Animated, {
+  useSharedValue,
+  useAnimatedProps,
+  withTiming,
+  Easing,
+} from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
-import { ArrowLeft, Check, Lock, Trophy, Flame } from "lucide-react-native";
+import {
+  ArrowLeft,
+  Check,
+  Trophy,
+  Flame,
+  BookOpen,
+  Feather,
+  TreePine,
+  Music,
+  Crosshair,
+  Waves,
+  Bird,
+  Shell,
+  Anchor,
+  Target,
+  Axe,
+  Wind,
+  Wheat,
+  Cactus,
+  Droplets,
+  Mountain,
+  Snowflake,
+  Building2,
+} from "lucide-react-native";
+import type { LucideIcon } from "lucide-react-native";
 import { useGlobalSheet } from "../contexts/BottomSheetProvider";
 import Skeleton from "react-native-reanimated-skeleton";
 import {
@@ -664,6 +694,8 @@ export const AchievementsScreen: React.FC = () => {
   );
 };
 
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+
 const ProgressRing: React.FC<{
   progress: number;
   size: number;
@@ -673,7 +705,19 @@ const ProgressRing: React.FC<{
 }> = ({ progress, size, strokeWidth, color, trackColor }) => {
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference * (1 - Math.min(progress, 1));
+
+  const animatedProgress = useSharedValue(0);
+
+  React.useEffect(() => {
+    animatedProgress.value = withTiming(Math.min(progress, 1), {
+      duration: 800,
+      easing: Easing.out(Easing.cubic),
+    });
+  }, [progress]);
+
+  const animatedProps = useAnimatedProps(() => ({
+    strokeDashoffset: circumference * (1 - animatedProgress.value),
+  }));
 
   return (
     <Svg width={size} height={size}>
@@ -687,7 +731,7 @@ const ProgressRing: React.FC<{
         fill="none"
       />
       {/* Fill */}
-      <Circle
+      <AnimatedCircle
         cx={size / 2}
         cy={size / 2}
         r={radius}
@@ -695,7 +739,7 @@ const ProgressRing: React.FC<{
         strokeWidth={strokeWidth}
         fill="none"
         strokeDasharray={`${circumference}`}
-        strokeDashoffset={strokeDashoffset}
+        animatedProps={animatedProps}
         strokeLinecap="round"
         rotation="-90"
         origin={`${size / 2}, ${size / 2}`}
@@ -703,6 +747,51 @@ const ProgressRing: React.FC<{
     </Svg>
   );
 };
+
+const CATEGORY_ICONS: Record<string, LucideIcon> = {
+  collection: BookOpen,
+  streak: Flame,
+};
+
+const FAMILY_ICONS: Record<string, LucideIcon> = {
+  songbirds: Music,
+  "birds-of-prey": Crosshair,
+  waterfowl: Waves,
+  "wading-birds": Bird,
+  shorebirds: Shell,
+  seabirds: Anchor,
+  "game-birds": Target,
+  woodpeckers: Axe,
+  "aerial-specialists": Wind,
+};
+
+const HABITAT_ICONS: Record<string, LucideIcon> = {
+  forests: TreePine,
+  "grasslands-farmland": Wheat,
+  "deserts-scrublands": Cactus,
+  wetlands: Droplets,
+  freshwater: Droplets,
+  "coasts-ocean": Anchor,
+  mountains: Mountain,
+  tundra: Snowflake,
+  "cities-towns": Building2,
+};
+
+function getAchievementIcon(id: string, category: string): LucideIcon {
+  if (category === "family") {
+    const parts = id.replace("family_", "").split("_");
+    parts.pop(); // remove tier
+    const slug = parts.join("-");
+    return FAMILY_ICONS[slug] ?? Feather;
+  }
+  if (category === "habitat") {
+    const parts = id.replace("habitat_", "").split("_");
+    parts.pop();
+    const slug = parts.join("-");
+    return HABITAT_ICONS[slug] ?? TreePine;
+  }
+  return CATEGORY_ICONS[category] ?? Feather;
+}
 
 const AchievementRow: React.FC<{
   achievement: AchievementRowData;
@@ -723,27 +812,32 @@ const AchievementRow: React.FC<{
       onPress={onPress}
       testID={`achievement-${achievement.id}`}
     >
-      {/* Category color icon */}
-      <View
-        style={[
-          styles.achievementIcon,
-          {
-            backgroundColor: achievement.unlocked
-              ? categoryColor
-              : `${categoryColor}20`,
-          },
-        ]}
-      >
-        {achievement.unlocked ? (
-          <Check size={16} color={Colors.white} strokeWidth={2.5} />
-        ) : (
-          <Lock
-            size={14}
-            color={achievement.progress > 0 ? categoryColor : Colors.inkFaint}
-            strokeWidth={1.5}
-          />
-        )}
-      </View>
+      {/* Category icon */}
+      {(() => {
+        const Icon = getAchievementIcon(achievement.id, achievement.category);
+        return (
+          <View
+            style={[
+              styles.achievementIcon,
+              {
+                backgroundColor: achievement.unlocked
+                  ? categoryColor
+                  : `${categoryColor}20`,
+              },
+            ]}
+          >
+            {achievement.unlocked ? (
+              <Check size={16} color={Colors.white} strokeWidth={2.5} />
+            ) : (
+              <Icon
+                size={16}
+                color={achievement.progress > 0 ? categoryColor : Colors.inkFaint}
+                strokeWidth={1.5}
+              />
+            )}
+          </View>
+        );
+      })()}
 
       {/* Info */}
       <View style={styles.achievementInfo}>
