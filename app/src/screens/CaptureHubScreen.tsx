@@ -96,7 +96,13 @@ export const CaptureHubScreen: React.FC = () => {
               style={({ pressed }) => [
                 pressed && { transform: [{ scale: 0.95 }] },
               ]}
-              onPress={() => navigation.navigate("CaptureFlow")}
+              onPress={() => {
+                if (!isSubscribed && quotaRemaining <= 0) {
+                  presentPaywall();
+                } else {
+                  navigation.navigate("CaptureFlow");
+                }
+              }}
               testID="capture-hub-capture-button"
               accessible
               accessibilityRole="button"
