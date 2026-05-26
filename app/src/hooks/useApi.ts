@@ -5,6 +5,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import * as api from "../services/api";
 import { logger } from "../services/logger";
+import { on, CAPTURE_COMPLETED } from "../services/events";
 import type {
   Card,
   Streak,
@@ -67,7 +68,14 @@ export function useStreak(): UseQueryResult<Streak | null> {
 }
 
 export function useCards(): UseQueryResult<Card[]> {
-  return useQuery(() => api.fetchCards());
+  const result = useQuery(() => api.fetchCards());
+
+  // Auto-refetch when a new bird is captured
+  useEffect(() => {
+    return on(CAPTURE_COMPLETED, result.refetch);
+  }, [result.refetch]);
+
+  return result;
 }
 
 export function useSightingsForSpecies(

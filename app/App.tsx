@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect } from "react";
-import { View } from "react-native";
+import { View, LogBox } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import * as SplashScreen from "expo-splash-screen";
@@ -19,11 +19,15 @@ import { PostHogProvider } from "./src/contexts/PostHogProvider";
 import { AuthProvider } from "./src/contexts/AuthProvider";
 import { RevenueCatProvider } from "./src/contexts/RevenueCatProvider";
 import { HapticProvider } from "./src/contexts/HapticProvider";
+import { BottomSheetProvider } from "./src/contexts/BottomSheetProvider";
 import { RootNavigator } from "./src/navigation/RootNavigator";
 import { toastConfig } from "./src/config/toast";
 
 // Keep the splash screen visible while we load fonts
 SplashScreen.preventAutoHideAsync();
+
+// Suppress yellow warning banner in dev
+LogBox.ignoreAllLogs(true);
 
 /**
  * Provider hierarchy (per CLAUDE.md):
@@ -57,7 +61,9 @@ export default function App() {
             <AuthProvider>
               <RevenueCatProvider>
                 <HapticProvider>
-                  <RootNavigator />
+                  <BottomSheetProvider>
+                    <RootNavigator />
+                  </BottomSheetProvider>
                 </HapticProvider>
               </RevenueCatProvider>
             </AuthProvider>

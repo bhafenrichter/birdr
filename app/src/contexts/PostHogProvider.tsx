@@ -104,7 +104,7 @@ export const PostHogProvider: React.FC<{ children: React.ReactNode }> = ({
     <PostHogReactNativeProvider
       apiKey={ENV.POSTHOG_API_KEY}
       autocapture={{
-        captureScreens: true,
+        captureScreens: false,
         captureTouches: true,
       }}
       options={{

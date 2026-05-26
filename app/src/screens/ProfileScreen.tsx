@@ -25,8 +25,9 @@ import {
 } from "../theme";
 import { Text, PrimaryButton } from "../components/atoms";
 import Svg, { Path } from "react-native-svg";
+import Skeleton from "react-native-reanimated-skeleton";
+import { useAuth } from "../contexts/AuthProvider";
 import {
-  useProfile,
   useStreak,
   useAchievements,
   useCards,
@@ -38,10 +39,12 @@ type Nav = NativeStackNavigationProp<ProfileStackParamList>;
 
 export const ProfileScreen: React.FC = () => {
   const navigation = useNavigation<Nav>();
-  const { data: profile } = useProfile();
-  const { data: streakData } = useStreak();
-  const { data: achievements } = useAchievements();
-  const { data: cards } = useCards();
+  const { profile } = useAuth();
+  const { data: streakData, isLoading: streakLoading } = useStreak();
+  const { data: achievements, isLoading: achievementsLoading } = useAchievements();
+  const { data: cards, isLoading: cardsLoading } = useCards();
+
+  const isLoading = !profile || streakLoading || cardsLoading;
 
   const displayName = profile?.display_name ?? "Birder";
   const initial = displayName.charAt(0).toUpperCase();
@@ -53,6 +56,65 @@ export const ProfileScreen: React.FC = () => {
   const totalSpecies = cards?.length ?? 0;
   const unlockedCount = achievements?.filter((a) => a.unlocked_at).length ?? 0;
   const totalCount = 105; // Fixed: 9 collection + 6 streak + 45 family + 45 habitat
+
+  if (isLoading) {
+    const rowSkeleton = (i: number) => ({
+      key: `row-${i}`,
+      flexDirection: "row" as const,
+      alignItems: "center" as const,
+      paddingVertical: Spacing.lg,
+      paddingHorizontal: Spacing.lg,
+      gap: Spacing.md,
+      children: [
+        { key: `icon-${i}`, width: 20, height: 20, borderRadius: 10 },
+        { key: `label-${i}`, width: "55%" as any, height: 15, borderRadius: 7 },
+      ],
+    });
+
+    return (
+      <SafeAreaView style={styles.container} edges={["top", "left", "right"]} testID="profile-screen-loading">
+        <Skeleton
+          isLoading
+          boneColor={Colors.paper}
+          highlightColor={Colors.cream}
+          duration={1200}
+          containerStyle={styles.scrollContent}
+          layout={[
+            // Avatar section
+            { key: "avatar-wrap", alignItems: "center" as const, marginBottom: Spacing.xl, children: [
+              { key: "avatar", width: 64, height: 76, borderRadius: 32, marginBottom: Spacing.md },
+              { key: "name", width: 120, height: 20, borderRadius: 10 },
+              { key: "since", width: 160, height: 11, borderRadius: 6, marginTop: Spacing.sm },
+            ]},
+            // Stats trio
+            { key: "stats", flexDirection: "row" as const, gap: Spacing.sm, marginBottom: Spacing.xl, children: [
+              { key: "stat-0", flex: 1, height: 72, borderRadius: BorderRadius.lg },
+              { key: "stat-1", flex: 1, height: 72, borderRadius: BorderRadius.lg },
+              { key: "stat-2", flex: 1, height: 72, borderRadius: BorderRadius.lg },
+            ]},
+            // Upgrade banner
+            { key: "banner", width: "100%" as any, height: 60, borderRadius: BorderRadius.xl, marginBottom: Spacing.xl },
+            // Activity section (2 rows)
+            { key: "section-1", borderRadius: BorderRadius.xl, overflow: "hidden" as const, marginBottom: Spacing.lg, children: [
+              rowSkeleton(0),
+              rowSkeleton(1),
+            ]},
+            // Support section (3 rows)
+            { key: "section-2", borderRadius: BorderRadius.xl, overflow: "hidden" as const, marginBottom: Spacing.lg, children: [
+              rowSkeleton(2),
+              rowSkeleton(3),
+              rowSkeleton(4),
+            ]},
+            // Account section (2 rows)
+            { key: "section-3", borderRadius: BorderRadius.xl, overflow: "hidden" as const, marginBottom: Spacing.lg, children: [
+              rowSkeleton(5),
+              rowSkeleton(6),
+            ]},
+          ]}
+        />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]} testID="profile-screen">

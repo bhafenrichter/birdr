@@ -7,6 +7,14 @@ import {
   Dimensions,
   Pressable,
 } from "react-native";
+import { Pressable as GHPressable } from "react-native-gesture-handler";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withTiming,
+  Easing,
+} from "react-native-reanimated";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const CARD_WIDTH = SCREEN_WIDTH * 0.85;
@@ -28,7 +36,6 @@ import type { Rarity } from "../../types/api";
 import { Text } from "../atoms/Text";
 import { ConservationBadge } from "../atoms/ConservationBadge";
 import { AudioBadge } from "../atoms/AudioBadge";
-import { SightingBadge } from "../atoms/SightingBadge";
 import { HabitatPill } from "../atoms/HabitatPill";
 import { ShinyCardOverlay } from "./ShinyCardOverlay";
 
@@ -184,6 +191,7 @@ export const BirdCard: React.FC<BirdCardProps> = ({
                 size="lg"
                 color={Colors.white}
                 style={{
+                  marginTop: -2,
                   textShadowColor: "rgba(0,0,0,0.6)",
                   textShadowOffset: { width: 0, height: 1 },
                   textShadowRadius: 3,
@@ -256,30 +264,16 @@ export const BirdCard: React.FC<BirdCardProps> = ({
                 ) : data.allPhotos && data.allPhotos.length > 1 ? (
                   <PhotoCarousel photos={data.allPhotos} testID={testID} />
                 ) : data.photoUri ? (
-                  <Image
-                    source={{ uri: data.photoUri }}
-                    style={{ width: "100%", height: "100%" }}
-                    contentFit="cover"
-                    transition={200}
-                    testID={`${testID}-photo`}
-                  />
+                  <ThumbImage uri={data.photoUri} testID={`${testID}-photo`} />
                 ) : (
                   <View
                     style={{
                       flex: 1,
-                      alignItems: "center",
-                      justifyContent: "center",
                       backgroundColor: Colors.paper,
                     }}
+                    testID={`${testID}-no-photo`}
                   >
-                    <Text
-                      variant="regular"
-                      size="sm"
-                      color={Colors.inkFaint}
-                      testID={`${testID}-no-photo`}
-                    >
-                      No photo
-                    </Text>
+                    <ImageSkeleton color="rgba(0,0,0,0.06)" />
                   </View>
                 )}
               </View>
@@ -290,34 +284,6 @@ export const BirdCard: React.FC<BirdCardProps> = ({
           <View
             style={{ paddingHorizontal: Spacing.lg, paddingTop: Spacing.md }}
           >
-            {data.size && (
-              <View
-                style={{ marginBottom: Spacing.sm }}
-                testID={`${testID}-size`}
-              >
-                <Text
-                  variant="bold"
-                  size="md"
-                  color={Colors.white}
-                  style={{
-                    textShadowColor: "rgba(0,0,0,0.5)",
-                    textShadowOffset: { width: 0, height: 1 },
-                    textShadowRadius: 2,
-                  }}
-                  testID={`${testID}-size-text`}
-                >
-                  <Text
-                    variant="extraBold"
-                    size="md"
-                    color={Colors.white}
-                    testID={`${testID}-size-label`}
-                  >
-                    {"Size: "}
-                  </Text>
-                  {data.size}
-                </Text>
-              </View>
-            )}
             {data.about && (
               <View
                 style={{ marginBottom: Spacing.sm }}
@@ -328,6 +294,7 @@ export const BirdCard: React.FC<BirdCardProps> = ({
                   size="md"
                   color={Colors.white}
                   style={{
+                    lineHeight: 20,
                     textShadowColor: "rgba(0,0,0,0.5)",
                     textShadowOffset: { width: 0, height: 1 },
                     textShadowRadius: 2,
@@ -346,25 +313,58 @@ export const BirdCard: React.FC<BirdCardProps> = ({
                 </Text>
               </View>
             )}
-            {data.firstSight && (
+            {(data.firstSight || !isLocked) && (
               <View
                 style={{ marginBottom: Spacing.sm }}
                 testID={`${testID}-firstsight`}
               >
-                <Text
-                  variant="bold"
-                  size="base"
-                  color={Colors.white}
-                  style={{
-                    textShadowColor: "rgba(0,0,0,0.5)",
-                    textShadowOffset: { width: 0, height: 1 },
-                    textShadowRadius: 2,
-                  }}
-                  testID={`${testID}-firstsight-text`}
-                >
-                  {"First Sight: "}
-                  {data.firstSight}
-                </Text>
+                {data.firstSight ? (
+                  <Text
+                    variant="bold"
+                    size="md"
+                    color={Colors.white}
+                    style={{
+                      lineHeight: 20,
+                      textShadowColor: "rgba(0,0,0,0.5)",
+                      textShadowOffset: { width: 0, height: 1 },
+                      textShadowRadius: 2,
+                    }}
+                    testID={`${testID}-firstsight-text`}
+                  >
+                    <Text
+                      variant="extraBold"
+                      size="md"
+                      color={Colors.white}
+                      testID={`${testID}-firstsight-label`}
+                    >
+                      {"First Sight: "}
+                    </Text>
+                    {data.firstSight}
+                  </Text>
+                ) : (
+                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                    <Text
+                      variant="extraBold"
+                      size="md"
+                      color={Colors.white}
+                      style={{
+                        textShadowColor: "rgba(0,0,0,0.5)",
+                        textShadowOffset: { width: 0, height: 1 },
+                        textShadowRadius: 2,
+                      }}
+                    >
+                      {"First Sight: "}
+                    </Text>
+                    <View
+                      style={{
+                        height: 12,
+                        width: 120,
+                        backgroundColor: "rgba(255,255,255,0.25)",
+                        borderRadius: 3,
+                      }}
+                    />
+                  </View>
+                )}
               </View>
             )}
           </View>
@@ -385,20 +385,11 @@ export const BirdCard: React.FC<BirdCardProps> = ({
               testID={`${testID}-conservation-badge`}
             />
             {!isLocked && (
-              <>
-                <AudioBadge
-                  size={44}
-                  onPress={onAudioPress}
-                  testID={`${testID}-audio-badge`}
-                />
-                {data.sightingCount != null && data.sightingCount > 0 && (
-                  <SightingBadge
-                    count={data.sightingCount}
-                    size={44}
-                    testID={`${testID}-sighting-badge`}
-                  />
-                )}
-              </>
+              <AudioBadge
+                size={44}
+                onPress={onAudioPress}
+                testID={`${testID}-audio-badge`}
+              />
             )}
           </View>
         </View>
@@ -597,13 +588,7 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
                   }}
                 >
                   {data.photoUri ? (
-                    <Image
-                      source={{ uri: data.photoUri }}
-                      style={{ width: "100%", height: "100%" }}
-                      contentFit="cover"
-                      transition={200}
-                      testID={`${testID}-thumb-photo`}
-                    />
+                    <ThumbImage uri={data.photoUri} testID={`${testID}-thumb-photo`} />
                   ) : (
                     <View
                       style={{ flex: 1, backgroundColor: Colors.sageTint }}
@@ -614,7 +599,7 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
             )}
           </View>
 
-          {/* Bottom detail area — bottom half */}
+          {/* Bottom detail area */}
           <View
             style={{
               flex: 1,
@@ -622,115 +607,53 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
               paddingVertical: Spacing.sm,
             }}
           >
-            {!isLocked && data.sightingCount != null && data.sightingCount > 1 ? (
+            {!isLocked && data.sightingCount != null && data.sightingCount > 0 && (
               <Text
-                variant="regular"
+                variant="semiBold"
                 size="xs"
-                color={Colors.saffron}
+                color={Colors.white}
+                style={{
+                  marginBottom: 5,
+                  textShadowColor: "rgba(0,0,0,0.6)",
+                  textShadowOffset: { width: 0, height: 1 },
+                  textShadowRadius: 2,
+                }}
                 testID={`${testID}-thumb-count`}
               >
-                {`★ ${data.sightingCount} sightings`}
+                {data.sightingCount === 1
+                  ? "★ 1 sighting"
+                  : `★ ${data.sightingCount} sightings`}
               </Text>
-            ) : (
-              <View style={{ gap: 5 }} testID={`${testID}-thumb-skeleton`}>
-                {/* Size skeleton */}
-                <View
-                  style={{ flexDirection: "row", alignItems: "center", gap: 4 }}
-                >
-                  <View
-                    style={{
-                      width: 28,
-                      height: 6,
-                      borderRadius: 3,
-                      backgroundColor: isLocked
-                        ? "rgba(255,255,255,0.4)"
-                        : Colors.sageTint,
-                    }}
-                  />
-                  <View
-                    style={{
-                      width: 44,
-                      height: 6,
-                      borderRadius: 3,
-                      backgroundColor: isLocked
-                        ? "rgba(255,255,255,0.3)"
-                        : Colors.sageTint,
-                    }}
-                  />
-                </View>
-                {/* About skeleton */}
-                <View style={{ gap: 4 }}>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      gap: 4,
-                    }}
-                  >
-                    <View
-                      style={{
-                        width: 32,
-                        height: 6,
-                        borderRadius: 3,
-                        backgroundColor: isLocked
-                          ? "rgba(255,255,255,0.4)"
-                          : Colors.sageTint,
-                      }}
-                    />
-                    <View
-                      style={{
-                        flex: 1,
-                        height: 6,
-                        borderRadius: 3,
-                        backgroundColor: isLocked
-                          ? "rgba(255,255,255,0.3)"
-                          : Colors.sageTint,
-                      }}
-                    />
-                  </View>
-                  <View
-                    style={{
-                      width: "90%",
-                      height: 6,
-                      borderRadius: 3,
-                      backgroundColor: isLocked
-                        ? "rgba(255,255,255,0.25)"
-                        : Colors.paper,
-                    }}
-                  />
-                  <View
-                    style={{
-                      width: "75%",
-                      height: 6,
-                      borderRadius: 3,
-                      backgroundColor: isLocked
-                        ? "rgba(255,255,255,0.25)"
-                        : Colors.paper,
-                    }}
-                  />
-                  <View
-                    style={{
-                      width: "85%",
-                      height: 6,
-                      borderRadius: 3,
-                      backgroundColor: isLocked
-                        ? "rgba(255,255,255,0.2)"
-                        : Colors.paper,
-                    }}
-                  />
-                  <View
-                    style={{
-                      width: "60%",
-                      height: 6,
-                      borderRadius: 3,
-                      backgroundColor: isLocked
-                        ? "rgba(255,255,255,0.2)"
-                        : Colors.paper,
-                    }}
-                  />
-                </View>
-              </View>
             )}
+            {/* Skeleton placeholder lines */}
+            <View testID={`${testID}-thumb-skeleton`}>
+              <View
+                style={{
+                  height: 6,
+                  width: "90%",
+                  backgroundColor: "rgba(255,255,255,0.25)",
+                  borderRadius: 3,
+                  marginBottom: 5,
+                }}
+              />
+              <View
+                style={{
+                  height: 6,
+                  width: "70%",
+                  backgroundColor: "rgba(255,255,255,0.2)",
+                  borderRadius: 3,
+                  marginBottom: 5,
+                }}
+              />
+              <View
+                style={{
+                  height: 6,
+                  width: "80%",
+                  backgroundColor: "rgba(255,255,255,0.15)",
+                  borderRadius: 3,
+                }}
+              />
+            </View>
           </View>
         </View>
       </LinearGradient>
@@ -747,7 +670,28 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
   );
 };
 
-// ── Glossy sheen overlay ───────────────────────────────────────────────────
+// ── Image with loading skeleton ───────────────────────────────────────────
+
+const ThumbImage: React.FC<{ uri: string; testID: string }> = ({
+  uri,
+  testID,
+}) => {
+  const [loaded, setLoaded] = useState(false);
+
+  return (
+    <View style={{ width: "100%", height: "100%" }}>
+      {!loaded && <ImageSkeleton />}
+      <Image
+        source={{ uri }}
+        style={{ width: "100%", height: "100%" }}
+        contentFit="cover"
+        transition={200}
+        onLoadEnd={() => setLoaded(true)}
+        testID={testID}
+      />
+    </View>
+  );
+};
 
 // ── Photo Carousel (expanded card with multiple sightings) ────────────────
 
@@ -756,15 +700,19 @@ const PhotoCarousel: React.FC<{ photos: string[]; testID: string }> = ({
   testID,
 }) => {
   const [index, setIndex] = useState(0);
+  const [loaded, setLoaded] = useState(false);
 
   return (
     <View style={{ flex: 1 }}>
+      {/* Loading skeleton */}
+      {!loaded && <ImageSkeleton />}
       {/* Current photo */}
       <Image
         source={{ uri: photos[index] }}
         style={{ width: "100%", height: "100%" }}
         contentFit="cover"
         transition={200}
+        onLoadEnd={() => setLoaded(true)}
         testID={`${testID}-carousel-${index}`}
       />
 
@@ -783,8 +731,8 @@ const PhotoCarousel: React.FC<{ photos: string[]; testID: string }> = ({
           gap: 6,
         }}
       >
-        <Pressable
-          onPress={() => setIndex((i) => Math.max(0, i - 1))}
+        <GHPressable
+          onPress={() => { setLoaded(false); setIndex((i) => Math.max(0, i - 1)); }}
           disabled={index === 0}
           hitSlop={10}
           style={{ paddingHorizontal: 4, justifyContent: "center" }}
@@ -796,14 +744,14 @@ const PhotoCarousel: React.FC<{ photos: string[]; testID: string }> = ({
           >
             ‹
           </Text>
-        </Pressable>
+        </GHPressable>
 
         <Text variant="semiBold" size="sm" color={Colors.white} style={{ lineHeight: 20 }}>
           {`${index + 1}/${photos.length}`}
         </Text>
 
-        <Pressable
-          onPress={() => setIndex((i) => Math.min(photos.length - 1, i + 1))}
+        <GHPressable
+          onPress={() => { setLoaded(false); setIndex((i) => Math.min(photos.length - 1, i + 1)); }}
           disabled={index === photos.length - 1}
           hitSlop={10}
           style={{ paddingHorizontal: 4, justifyContent: "center" }}
@@ -815,7 +763,7 @@ const PhotoCarousel: React.FC<{ photos: string[]; testID: string }> = ({
           >
             ›
           </Text>
-        </Pressable>
+        </GHPressable>
       </View>
     </View>
   );
@@ -872,5 +820,41 @@ const GlossySheen: React.FC = () => (
     />
   </View>
 );
+
+// ── Image loading skeleton ────────────────────────────────────────────────
+
+const ImageSkeleton: React.FC<{ color?: string }> = ({
+  color = "rgba(255,255,255,0.15)",
+}) => {
+  const opacity = useSharedValue(0.3);
+
+  React.useEffect(() => {
+    opacity.value = withRepeat(
+      withTiming(1, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
+      -1,
+      true,
+    );
+  }, []);
+
+  const animStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
+
+  return (
+    <Animated.View
+      style={[
+        {
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: color,
+        },
+        animStyle,
+      ]}
+    />
+  );
+};
 
 export default BirdCard;

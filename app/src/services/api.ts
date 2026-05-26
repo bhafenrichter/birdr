@@ -7,6 +7,7 @@ import * as FileSystem from "expo-file-system/legacy";
 import { supabase } from "./supabase";
 import { logger } from "./logger";
 import { getCached, setCache } from "./cache";
+import { emit, CAPTURE_COMPLETED } from "./events";
 import type {
   IdentifyBirdResponse,
   ConfirmSightingRequest,
@@ -165,6 +166,10 @@ export async function confirmSighting(
     streak: result.streak?.current_streak,
     achievementsUnlocked: result.achievements_unlocked?.length ?? 0,
   });
+
+  // Notify listeners (e.g. useCards) to refetch
+  emit(CAPTURE_COMPLETED);
+
   return result;
 }
 

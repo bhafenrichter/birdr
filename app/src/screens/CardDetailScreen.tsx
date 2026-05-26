@@ -16,7 +16,7 @@ import Animated, {
   interpolate,
   Extrapolation,
 } from "react-native-reanimated";
-import { Gesture, GestureDetector, TouchableOpacity } from "react-native-gesture-handler";
+import { TouchableOpacity } from "react-native-gesture-handler";
 import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import {
   SafeAreaView,
@@ -26,7 +26,6 @@ import { useRoute, useNavigation } from "@react-navigation/native";
 import type { RouteProp } from "@react-navigation/native";
 import {
   ChevronLeft,
-  ChevronRight,
   MapPin,
   Star,
   ChevronRight as ChevronRightSmall,
@@ -55,8 +54,8 @@ type RouteProps = RouteProp<CollectionStackParamList, "CardDetail">;
 type Nav = NativeStackNavigationProp<CollectionStackParamList>;
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
-const CARD_WIDTH = SCREEN_WIDTH * 0.85;
-const CARD_HEIGHT = SCREEN_HEIGHT * 0.6;
+const CARD_WIDTH = SCREEN_WIDTH * 0.92;
+const CARD_HEIGHT = SCREEN_HEIGHT * 0.65;
 
 export const CardDetailScreen: React.FC = () => {
   const navigation = useNavigation<Nav>();
@@ -66,8 +65,8 @@ export const CardDetailScreen: React.FC = () => {
 
   const { data: allSpecies } = useAllSpecies();
   const { data: singleSpecies } = useSpecies(speciesId);
-  const { data: cards } = useCards();
-  const { data: sightingsData } = useSightingsForSpecies(speciesId);
+  const { data: cards, isLoading: cardsLoading } = useCards();
+  const { data: sightingsData, isLoading: sightingsLoading } = useSightingsForSpecies(speciesId);
   const { data: speciesStates } = useSpeciesStates(speciesId);
 
   // Shiny card gradient center
@@ -95,7 +94,6 @@ export const CardDetailScreen: React.FC = () => {
   const overlayOpacity = useSharedValue(0);
   const enterScale = useSharedValue(0.3);
   const cardOpacity = useSharedValue(0);
-  const cardTranslateX = useSharedValue(0);
   const sheetAnimatedIndex = useSharedValue(0);
 
   useEffect(() => {
@@ -105,7 +103,6 @@ export const CardDetailScreen: React.FC = () => {
       easing: Easing.out(Easing.cubic),
     });
     cardOpacity.value = withTiming(1, { duration: 200 });
-    cardTranslateX.value = 0;
   }, []);
 
   const animateOut = (cb: () => void) => {
@@ -116,29 +113,6 @@ export const CardDetailScreen: React.FC = () => {
       runOnJS(cb)();
     });
   };
-
-  const swipeToCard = (direction: "left" | "right", nextId: string) => {
-    const exitX = direction === "left" ? -SCREEN_WIDTH : SCREEN_WIDTH;
-    cardTranslateX.value = withTiming(exitX, { duration: 200 }, () => {
-      runOnJS(goToCard)(nextId);
-    });
-  };
-
-  const swipeGesture = Gesture.Pan()
-    .activeOffsetX([-20, 20])
-    .onUpdate((e) => {
-      cardTranslateX.value = e.translationX;
-    })
-    .onEnd((e) => {
-      const threshold = SCREEN_WIDTH * 0.25;
-      if (e.translationX < -threshold && hasNext) {
-        runOnJS(swipeToCard)("left", allCards[currentIndex + 1].species_id);
-      } else if (e.translationX > threshold && hasPrev) {
-        runOnJS(swipeToCard)("right", allCards[currentIndex - 1].species_id);
-      } else {
-        cardTranslateX.value = withTiming(0, { duration: 150 });
-      }
-    });
 
   const handleBack = () => {
     animateOut(() => navigation.goBack());
@@ -165,7 +139,6 @@ export const CardDetailScreen: React.FC = () => {
     );
     return {
       transform: [
-        { translateX: cardTranslateX.value },
         { translateY: sheetTranslateY },
         { scale },
       ],
@@ -179,15 +152,6 @@ export const CardDetailScreen: React.FC = () => {
     (a, b) =>
       new Date(b.captured_at).getTime() - new Date(a.captured_at).getTime(),
   );
-
-  const allCards = cards ?? [];
-  const currentIndex = allCards.findIndex((c) => c.species_id === speciesId);
-  const hasPrev = currentIndex > 0;
-  const hasNext = currentIndex < allCards.length - 1 && currentIndex >= 0;
-
-  const goToCard = (id: string) => {
-    navigation.replace("CardDetail", { speciesId: id });
-  };
 
   // Still loading data
   if (!allSpecies && !singleSpecies) {
@@ -219,6 +183,7 @@ export const CardDetailScreen: React.FC = () => {
   }
 
   const isSpotted = !!userCard;
+  const dataReady = !cardsLoading && !sightingsLoading;
   const lastSighting = sightings[0];
 
   return (
@@ -261,77 +226,49 @@ export const CardDetailScreen: React.FC = () => {
       {/* Bottom sheet — absolute bottom, overlays card */}
 
       <SafeAreaView style={styles.cardArea} pointerEvents="box-none">
-        {/* Card + nav arrows */}
-        <GestureDetector gesture={swipeGesture}>
-          <Animated.View
-            style={[styles.cardRow, cardAnimStyle]}
-            pointerEvents="box-none"
-          >
-            {/* Left arrow */}
-            <Pressable
-              style={[styles.navArrow, !hasPrev && styles.navArrowHidden]}
-              onPress={() =>
-                hasPrev && goToCard(allCards[currentIndex - 1].species_id)
-              }
-              disabled={!hasPrev}
-              testID="card-detail-prev"
+        <Animated.View
+          style={[styles.cardRow, cardAnimStyle]}
+          pointerEvents="box-none"
+        >
+          <View style={styles.cardWrapper}>
+            <GestureCardContainer
+              width={CARD_WIDTH}
+              height={CARD_HEIGHT}
+              maxAngle={MAX_ANGLE}
+              onRotationChange={handleRotationChange}
             >
-              <ChevronLeft size={28} color={Colors.white} strokeWidth={2.5} />
-            </Pressable>
-
-            {/* Card with shiny effect */}
-            <View style={styles.cardWrapper}>
-              <GestureCardContainer
-                width={CARD_WIDTH}
-                height={CARD_HEIGHT}
-                maxAngle={MAX_ANGLE}
-                onRotationChange={handleRotationChange}
-              >
-                <View style={{ width: CARD_WIDTH, height: CARD_HEIGHT }}>
-                  <BirdCard
-                    data={{
-                      speciesName: species.common_name,
-                      familyName: species.family,
-                      speciesType: species.species_type_name,
-                      habitat: species.habitat_name,
-                      conservationTier: species.conservation_status as any,
-                      photoUri: userCard?.hero_photo_url ?? null,
-                      size: species.size,
-                      about: species.about_text,
-                      firstSight: isSpotted
-                        ? `${formatDate(userCard!.first_seen_at)}${lastSighting?.named_location ? `, ${lastSighting.named_location}` : ""}`
-                        : undefined,
-                      sightingCount: userCard?.sighting_count,
-                      locked: !isSpotted,
-                      rarity: species.rarity,
-                      allPhotos: sightings.length > 1 ? sightings.map((s) => s.photo_url) : undefined,
-                    }}
-                    testID="card-detail-bird-card"
-                  />
-                  <ShinyCardOverlay
-                    width={CARD_WIDTH}
-                    height={CARD_HEIGHT}
-                    borderRadius={BorderRadius["2xl"]}
-                    gradientCenter={gradientCenter}
-                    intensity={RarityConfig[species.rarity ?? "common"].shimmerIntensity}
-                  />
-                </View>
-              </GestureCardContainer>
-            </View>
-
-            {/* Right arrow */}
-            <Pressable
-              style={[styles.navArrow, !hasNext && styles.navArrowHidden]}
-              onPress={() =>
-                hasNext && goToCard(allCards[currentIndex + 1].species_id)
-              }
-              disabled={!hasNext}
-              testID="card-detail-next"
-            >
-              <ChevronRight size={28} color={Colors.white} strokeWidth={2.5} />
-            </Pressable>
-          </Animated.View>
-        </GestureDetector>
+              <View style={{ width: CARD_WIDTH, height: CARD_HEIGHT }}>
+                <BirdCard
+                  data={{
+                    speciesName: species.common_name,
+                    familyName: species.family,
+                    speciesType: species.species_type_name,
+                    habitat: species.habitat_name,
+                    conservationTier: species.conservation_status as any,
+                    photoUri: userCard?.hero_photo_url ?? null,
+                    size: species.size,
+                    about: species.about_text,
+                    firstSight: isSpotted
+                      ? `${formatDate(userCard!.first_seen_at)}${lastSighting?.named_location ? `, ${lastSighting.named_location}` : ""}`
+                      : undefined,
+                    sightingCount: userCard?.sighting_count,
+                    locked: dataReady && !isSpotted,
+                    rarity: species.rarity,
+                    allPhotos: sightings.length > 1 ? sightings.map((s) => s.photo_url) : undefined,
+                  }}
+                  testID="card-detail-bird-card"
+                />
+                <ShinyCardOverlay
+                  width={CARD_WIDTH}
+                  height={CARD_HEIGHT}
+                  borderRadius={BorderRadius["2xl"]}
+                  gradientCenter={gradientCenter}
+                  intensity={RarityConfig[species.rarity ?? "common"].shimmerIntensity}
+                />
+              </View>
+            </GestureCardContainer>
+          </View>
+        </Animated.View>
       </SafeAreaView>
 
       {/* Bottom Sheet */}
@@ -640,17 +577,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: Spacing.sm,
-  },
-  navArrow: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: "rgba(255,255,255,0.15)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  navArrowHidden: {
-    opacity: 0,
   },
   cardWrapper: {
     marginHorizontal: Spacing.sm,

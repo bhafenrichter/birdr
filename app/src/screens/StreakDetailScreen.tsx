@@ -15,36 +15,50 @@ export const StreakDetailScreen: React.FC = () => {
   const lastCaptureDate = streakData?.last_capture_date ?? null;
   const hasCapturedToday = lastCaptureDate === new Date().toISOString().split("T")[0];
 
-  // Build 28-day calendar (4 weeks)
-  const calendarDays = useMemo(() => {
-    const today = new Date("2026-05-23"); // Current date
-    const days: { date: string; isCapture: boolean; isToday: boolean }[] = [];
+  // Build calendar month grid
+  const { calendarDays, monthLabel, weekCount } = useMemo(() => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth();
 
-    // Go back to the start of the 4-week window aligned to Sunday
-    const startOfWeek = new Date(today);
-    startOfWeek.setDate(today.getDate() - 27);
-    // Align to Sunday
-    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+    const label = today.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+
+    // First day of month and total days
+    const firstOfMonth = new Date(year, month, 1);
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const startDow = firstOfMonth.getDay(); // 0=Sun
 
     const captureSet = new Set<string>();
-    // Build capture days from streak data — in production this would come from sightings
     if (lastCaptureDate) {
       captureSet.add(lastCaptureDate);
     }
 
-    for (let i = 0; i < 28; i++) {
-      const d = new Date(startOfWeek);
-      d.setDate(startOfWeek.getDate() + i);
-      const iso = d.toISOString().split("T")[0];
+    const todayIso = today.toISOString().split("T")[0];
+    const days: { date: string; day: number | null; isCapture: boolean; isToday: boolean }[] = [];
+
+    // Leading blanks for alignment
+    for (let i = 0; i < startDow; i++) {
+      days.push({ date: "", day: null, isCapture: false, isToday: false });
+    }
+
+    // Actual days
+    for (let d = 1; d <= daysInMonth; d++) {
+      const iso = `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
       days.push({
         date: iso,
+        day: d,
         isCapture: captureSet.has(iso),
-        isToday: iso === today.toISOString().split("T")[0],
+        isToday: iso === todayIso,
       });
     }
 
-    return days;
-  }, []);
+    // Trailing blanks to fill last row
+    while (days.length % 7 !== 0) {
+      days.push({ date: "", day: null, isCapture: false, isToday: false });
+    }
+
+    return { calendarDays: days, monthLabel: label, weekCount: days.length / 7 };
+  }, [lastCaptureDate]);
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]} testID="streak-detail-screen">
@@ -125,7 +139,7 @@ export const StreakDetailScreen: React.FC = () => {
             testID="streak-detail-calendar-title"
             style={{ marginBottom: Spacing.md }}
           >
-            Past 4 weeks
+            {monthLabel}
           </Text>
 
           {/* Weekday headers */}
@@ -144,34 +158,35 @@ export const StreakDetailScreen: React.FC = () => {
             ))}
           </View>
 
-          {/* Day cells — 4 rows of 7 */}
-          {[0, 1, 2, 3].map((week) => (
+          {/* Day cells — dynamic rows */}
+          {Array.from({ length: weekCount }).map((_, week) => (
             <View key={`week-${week}`} style={styles.calendarRow}>
-              {calendarDays.slice(week * 7, (week + 1) * 7).map((day) => (
+              {calendarDays.slice(week * 7, (week + 1) * 7).map((day, i) => (
                 <View
-                  key={day.date}
+                  key={day.date || `blank-${week}-${i}`}
                   style={[
                     styles.calendarCell,
                     styles.calendarDay,
-                    day.isCapture && styles.calendarDayCapture,
-                    day.isToday && !day.isCapture && styles.calendarDayToday,
+                    day.day != null && day.isCapture && styles.calendarDayCapture,
+                    day.day != null && day.isToday && !day.isCapture && styles.calendarDayToday,
                   ]}
-                  testID={`streak-day-${day.date}`}
+                  testID={day.date ? `streak-day-${day.date}` : undefined}
                 >
-                  <Text
-                    variant={day.isCapture ? "semiBold" : "regular"}
-                    size="xs"
-                    color={
-                      day.isCapture
-                        ? Colors.white
-                        : day.isToday
-                          ? Colors.coral
-                          : Colors.inkSoft
-                    }
-                    testID={`streak-day-label-${day.date}`}
-                  >
-                    {String(new Date(day.date + "T12:00:00").getDate())}
-                  </Text>
+                  {day.day != null && (
+                    <Text
+                      variant={day.isCapture ? "semiBold" : "regular"}
+                      size="xs"
+                      color={
+                        day.isCapture
+                          ? Colors.white
+                          : day.isToday
+                            ? Colors.coral
+                            : Colors.inkSoft
+                      }
+                    >
+                      {String(day.day)}
+                    </Text>
+                  )}
                 </View>
               ))}
             </View>
