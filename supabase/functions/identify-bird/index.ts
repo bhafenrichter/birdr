@@ -26,6 +26,7 @@
 import { corsHeaders } from "../_shared/cors.ts";
 import { getAuthUser, createUserClient } from "../_shared/supabase.ts";
 import { createBirdIdProvider } from "../_shared/bird-id/provider-factory.ts";
+import { captureAiGeneration } from "../_shared/posthog.ts";
 
 const FREE_DAILY_LIMIT = 3;
 
@@ -160,6 +161,35 @@ Deno.serve(async (req) => {
       is_screen_photo: idResult.is_screen_photo,
       setting: idResult.setting,
     });
+
+    // Fire-and-forget PostHog $ai_generation event
+    captureAiGeneration({
+      distinctId: user.id,
+      traceId: crypto.randomUUID(),
+      model: `gpt-4o`,
+      provider: "openai",
+      input: [
+        { role: "system", content: "[bird identification prompt]" },
+        { role: "user", content: [{ type: "image_url", image_url: { detail } }, { type: "text", text: "Identify the bird species in this photo." }] },
+      ],
+      outputChoices: [
+        { role: "assistant", content: idResult.candidates.map((c) => `${c.common_name} (${c.confidence})`).join(", ") },
+      ],
+      inputTokens: idResult.usage?.inputTokens ?? 0,
+      outputTokens: idResult.usage?.outputTokens ?? 0,
+      latencySeconds: idResult.usage?.latencySeconds ?? 0,
+      temperature: 0.2,
+      maxTokens: 600,
+      extraProperties: {
+        bird_id_detail: detail,
+        bird_id_result: idResult.candidates.length > 0 ? "success" : "no_candidates",
+        bird_id_top_confidence: idResult.candidates[0]?.confidence ?? 0,
+        bird_id_candidate_count: idResult.candidates.length,
+        bird_id_photo_quality: idResult.photo_quality,
+        bird_id_is_screen_photo: idResult.is_screen_photo,
+        subscription_tier: profile.subscription_tier,
+      },
+    }).catch(() => {}); // swallow errors — don't block the response
 
     console.log("[identify-bird] Step 6: Matching candidates against species DB...");
     const matchedCandidates = await matchSpecies(client, idResult.candidates);

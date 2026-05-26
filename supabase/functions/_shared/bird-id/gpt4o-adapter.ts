@@ -65,6 +65,7 @@ Rules:
 - setting: A short phrase (2-5 words) describing where the bird is observed in the photo, e.g. "on a bird feeder", "in a forest", "at a lake shore", "on a power line", "in a backyard", "on a branch", "in flight". Set to null if no bird is visible or the setting cannot be determined`;
 
     console.log("[gpt4o] Calling OpenAI API...");
+    const startTime = performance.now();
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -108,7 +109,8 @@ Rules:
 
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content;
-    console.log("[gpt4o] Response content length:", content?.length, "usage:", data.usage);
+    const latencySeconds = (performance.now() - startTime) / 1000;
+    console.log("[gpt4o] Response content length:", content?.length, "usage:", data.usage, "latency:", latencySeconds.toFixed(2), "s");
 
     if (!content) {
       console.error("[gpt4o] No content in response", { choices: JSON.stringify(data.choices).slice(0, 200) });
@@ -148,6 +150,11 @@ Rules:
       photo_quality: quality,
       is_screen_photo: parsed.is_screen_photo === true,
       setting: typeof parsed.setting === "string" ? parsed.setting : null,
+      usage: {
+        inputTokens: data.usage?.prompt_tokens ?? 0,
+        outputTokens: data.usage?.completion_tokens ?? 0,
+        latencySeconds,
+      },
     };
   }
 }

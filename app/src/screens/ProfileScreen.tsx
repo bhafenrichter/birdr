@@ -1,14 +1,12 @@
 import React from "react";
-import { View, StyleSheet, ScrollView, Pressable } from "react-native";
+import { View, StyleSheet, ScrollView, Pressable, Linking } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import {
   Award,
   Flame,
   CreditCard,
-  HelpCircle,
   MessageSquare,
-  Info,
   LogOut,
   Trash2,
   ChevronRight,
@@ -243,22 +241,10 @@ export const ProfileScreen: React.FC = () => {
         {/* Support links */}
         <View style={styles.section} testID="profile-support-section">
           <ProfileRow
-            icon={HelpCircle}
-            label="Help & FAQ"
-            onPress={() => {}}
-            testID="profile-row-help"
-          />
-          <ProfileRow
             icon={MessageSquare}
             label="Send feedback"
             onPress={() => navigation.navigate("SendFeedback")}
             testID="profile-row-feedback"
-          />
-          <ProfileRow
-            icon={Info}
-            label="About · Privacy · Terms"
-            onPress={() => {}}
-            testID="profile-row-about"
           />
         </View>
 
@@ -277,6 +263,39 @@ export const ProfileScreen: React.FC = () => {
             destructive
             testID="profile-row-delete"
           />
+        </View>
+
+        {/* Footer */}
+        <View style={styles.footer} testID="profile-footer">
+          <View style={styles.footerLinks}>
+            <Pressable
+              onPress={() => Linking.openURL("https://hoftware.io/privacy")}
+              testID="profile-privacy"
+            >
+              <Text variant="regular" size="xs" color={Colors.sage}>
+                Privacy Policy
+              </Text>
+            </Pressable>
+            <Text variant="regular" size="xs" color={Colors.inkFaint}>
+              ·
+            </Text>
+            <Pressable
+              onPress={() => Linking.openURL("https://hoftware.io/terms")}
+              testID="profile-terms"
+            >
+              <Text variant="regular" size="xs" color={Colors.sage}>
+                Terms of Service
+              </Text>
+            </Pressable>
+          </View>
+          <Text
+            variant="regular"
+            size="xs"
+            color={Colors.inkFaint}
+            testID="profile-version"
+          >
+            v1.0.0
+          </Text>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -394,6 +413,17 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.xl,
     marginBottom: Spacing.lg,
     overflow: "hidden",
+  },
+  footer: {
+    alignItems: "center",
+    paddingTop: Spacing.md,
+    paddingBottom: Spacing.lg,
+    gap: Spacing.xs,
+  },
+  footerLinks: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.sm,
   },
   profileRow: {
     flexDirection: "row",

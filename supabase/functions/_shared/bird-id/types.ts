@@ -23,6 +23,12 @@ export interface BirdIdRequest {
 
 export type PhotoQuality = "pristine" | "good" | "fair" | "poor";
 
+export interface BirdIdUsage {
+  inputTokens: number;
+  outputTokens: number;
+  latencySeconds: number;
+}
+
 export interface BirdIdResponse {
   candidates: BirdIdCandidate[];
   provider: string;
@@ -30,6 +36,7 @@ export interface BirdIdResponse {
   photo_quality: PhotoQuality;
   is_screen_photo: boolean;
   setting: string | null; // e.g. "on a bird feeder", "in a forest"
+  usage?: BirdIdUsage;
 }
 
 export interface BirdIdProvider {
