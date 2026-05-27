@@ -7,6 +7,7 @@ import CandidatePickerScreen from "../../screens/capture/CandidatePickerScreen";
 import TryAgainScreen from "../../screens/capture/TryAgainScreen";
 import CardRevealScreen from "../../screens/capture/CardRevealScreen";
 import HardPaywallScreen from "../../screens/capture/HardPaywallScreen";
+import ShameCardScreen from "../../screens/capture/ShameCardScreen";
 import type { IdentifyCandidate, ConservationStatus, PhotoQuality } from "../../types/api";
 
 export type CaptureFlowParamList = {
@@ -31,6 +32,7 @@ export type CaptureFlowParamList = {
     photo_quality?: PhotoQuality;
   };
   HardPaywall: undefined;
+  ShameCard: undefined;
 };
 
 const Stack = createNativeStackNavigator<CaptureFlowParamList>();
@@ -54,6 +56,7 @@ export const CaptureFlowStack: React.FC = () => (
       component={HardPaywallScreen}
       options={{ animation: "slide_from_bottom" }}
     />
+    <Stack.Screen name="ShameCard" component={ShameCardScreen} />
   </Stack.Navigator>
 );
 

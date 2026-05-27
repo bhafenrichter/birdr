@@ -109,6 +109,10 @@ export interface BirdCardData {
   photoQuality?: PhotoQuality | null;
   /** All photo URIs for carousel (expanded card only) */
   allPhotos?: string[];
+  /** Override border colors (used for shame cards) */
+  shameBorder?: [string, string];
+  /** Show the shame photo instead of normal photo */
+  shamePhoto?: boolean;
 }
 
 export interface BirdCardProps {
@@ -129,6 +133,7 @@ export const BirdCard: React.FC<BirdCardProps> = ({
   const tierColor = ConservationTierColors[data.conservationTier];
   const isLocked = data.locked;
   const rc = RarityConfig[data.rarity ?? "common"];
+  const borderColors = data.shameBorder ?? rc.borderColors;
 
   return (
     <View
@@ -136,7 +141,7 @@ export const BirdCard: React.FC<BirdCardProps> = ({
       testID={testID}
     >
       <LinearGradient
-        colors={[...rc.borderColors] as [string, string, ...string[]]}
+        colors={[...borderColors] as [string, string, ...string[]]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={{
@@ -213,7 +218,7 @@ export const BirdCard: React.FC<BirdCardProps> = ({
               </Text>
             </View>
             <LinearGradient
-              colors={[...rc.borderColors] as [string, string, ...string[]]}
+              colors={[...borderColors] as [string, string, ...string[]]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={{
@@ -237,7 +242,7 @@ export const BirdCard: React.FC<BirdCardProps> = ({
           {/* Hero photo with rarity gradient border */}
           <View style={{ marginHorizontal: Spacing.lg }}>
             <LinearGradient
-              colors={[...rc.borderColors] as [string, string, ...string[]]}
+              colors={[...borderColors] as [string, string, ...string[]]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={{
@@ -272,6 +277,13 @@ export const BirdCard: React.FC<BirdCardProps> = ({
                       ?
                     </Text>
                   </View>
+                ) : data.shamePhoto ? (
+                  <Image
+                    source={require("../../../assets/pixel-pigeon.jpg")}
+                    style={{ width: "100%", height: "100%" }}
+                    contentFit="cover"
+                    testID={`${testID}-shame-photo`}
+                  />
                 ) : data.allPhotos && data.allPhotos.length > 1 ? (
                   <PhotoCarousel
                     photos={data.allPhotos}
@@ -432,6 +444,7 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
   const tierColor = ConservationTierColors[data.conservationTier];
   const isLocked = data.locked;
   const rc = RarityConfig[data.rarity ?? "common"];
+  const borderColors = data.shameBorder ?? rc.borderColors;
   const [cardSize, setCardSize] = useState({ w: 0, h: 0 });
 
   const onLayout = (e: LayoutChangeEvent) => {
@@ -453,7 +466,7 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
     >
       {/* Gradient border */}
       <LinearGradient
-        colors={[...rc.borderColors] as [string, string, ...string[]]}
+        colors={[...borderColors] as [string, string, ...string[]]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={{
@@ -528,7 +541,7 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
               </Text>
             </View>
             <LinearGradient
-              colors={[...rc.borderColors] as [string, string, ...string[]]}
+              colors={[...borderColors] as [string, string, ...string[]]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={{
@@ -559,7 +572,7 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
           >
             {isLocked ? (
               <LinearGradient
-                colors={[...rc.borderColors] as [string, string, ...string[]]}
+                colors={[...borderColors] as [string, string, ...string[]]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={{
@@ -589,7 +602,7 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
               </LinearGradient>
             ) : (
               <LinearGradient
-                colors={[...rc.borderColors] as [string, string, ...string[]]}
+                colors={[...borderColors] as [string, string, ...string[]]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={{
@@ -605,7 +618,14 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
                     overflow: "hidden",
                   }}
                 >
-                  {data.photoUri ? (
+                  {data.shamePhoto ? (
+                    <Image
+                      source={require("../../../assets/pixel-pigeon.jpg")}
+                      style={{ width: "100%", height: "100%" }}
+                      contentFit="cover"
+                      testID={`${testID}-shame-photo`}
+                    />
+                  ) : data.photoUri ? (
                     <ThumbImage uri={data.photoUri} testID={`${testID}-thumb-photo`} />
                   ) : (
                     <View

@@ -82,15 +82,10 @@ export const IdentifyingScreen: React.FC = () => {
           captures_remaining: result.captures_remaining,
         });
 
-        // Block screen photos
+        // Block screen photos — show shame card
         if (result.is_screen_photo) {
           posthog.capture("screen_photo_blocked");
-          Toast.show({
-            type: "error",
-            text1: "Screen photo detected",
-            text2: "Please photograph a real bird, not a screen or printed image.",
-          });
-          navigation.replace("TryAgain", { photoUri });
+          navigation.replace("ShameCard");
           return;
         }
 
