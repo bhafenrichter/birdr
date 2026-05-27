@@ -1,0 +1,193 @@
+- generic [active] [ref=e1]:
+  - link "Jump to content" [ref=e2] [cursor=pointer]:
+    - /url: "#bodyContent"
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - navigation "Site" [ref=e6]:
+        - generic "Main menu" [ref=e7]:
+          - button "Main menu" [ref=e8] [cursor=pointer]
+          - generic [ref=e11]: Main menu
+      - link "Wikimedia Commons" [ref=e12] [cursor=pointer]:
+        - /url: /wiki/Main_Page
+        - img [ref=e13]
+        - img "Wikimedia Commons" [ref=e15]
+    - generic [ref=e16]:
+      - search [ref=e17]:
+        - generic [ref=e20]:
+          - searchbox "Search Wikimedia Commons" [ref=e23]
+          - button "Search" [ref=e25]
+      - navigation "Personal tools" [ref=e26]:
+        - generic [ref=e27]:
+          - list [ref=e30]:
+            - listitem [ref=e31]:
+              - link "English" [ref=e32] [cursor=pointer]:
+                - /url: "#"
+                - generic [ref=e34]: English
+          - list [ref=e37]:
+            - listitem [ref=e38]:
+              - link "Donate" [ref=e39] [cursor=pointer]:
+                - /url: https://donate.wikimedia.org/?wmf_source=donate&wmf_medium=sidebar&wmf_campaign=commons.wikimedia.org&uselang=en
+            - listitem [ref=e40]:
+              - link "Create account" [ref=e41] [cursor=pointer]:
+                - /url: /w/index.php?title=Special:CreateAccount&returnto=Special%3AMediaSearch&returntoquery=search%3DAethia%2Bpsittacula%26type%3Dimage
+            - listitem [ref=e42]:
+              - link "Log in" [ref=e43] [cursor=pointer]:
+                - /url: /w/index.php?title=Special:UserLogin&returnto=Special%3AMediaSearch&returntoquery=search%3DAethia%2Bpsittacula%26type%3Dimage
+  - generic [ref=e45]:
+    - main [ref=e49]:
+      - generic [ref=e50]:
+        - heading "Search media" [level=1] [ref=e51]
+        - generic [ref=e52]:
+          - link "Switch to Special:Search" [ref=e54] [cursor=pointer]:
+            - /url: /w/index.php?title=Special:Search&search=Aethia+psittacula
+          - link "Help" [ref=e56] [cursor=pointer]:
+            - /url: https://www.mediawiki.org/wiki/Special:MyLanguage/Help:MediaSearch
+      - generic [ref=e58]:
+        - generic [ref=e59]:
+          - navigation "Namespaces"
+        - generic [ref=e60]:
+          - navigation "Views"
+          - navigation "Page tools" [ref=e61]:
+            - generic [ref=e62]:
+              - button "Tools" [ref=e63] [cursor=pointer]
+              - generic [ref=e65] [cursor=pointer]: Tools
+      - navigation "Appearance" [ref=e68]:
+        - generic [ref=e71]:
+          - generic [ref=e72]: Appearance
+          - button "hide" [ref=e73] [cursor=pointer]
+      - generic "Search media" [ref=e74]:
+        - generic [ref=e75]:
+          - generic [ref=e77]:
+            - generic [ref=e78]:
+              - generic [ref=e79]: Search media
+              - textbox "Search media" [ref=e81]:
+                - /placeholder: Search for images, audio, video and more
+                - text: Aethia psittacula
+            - button "Search" [ref=e83]:
+              - generic [ref=e84]: Search
+          - generic [ref=e85]:
+            - tablist [ref=e88]:
+              - tab "Images" [selected] [ref=e89]
+              - tab "Audio" [ref=e90]
+              - tab "Video" [ref=e91]
+              - tab "Other Media" [ref=e92]
+              - tab "Categories and Pages" [ref=e93]
+            - tabpanel [ref=e95]:
+              - generic [ref=e97]: 26 results
+              - generic [ref=e99]:
+                - generic [ref=e100]:
+                  - link "Parakeetauklets2.jpg" [ref=e101] [cursor=pointer]:
+                    - /url: https://commons.wikimedia.org/wiki/File:Parakeetauklets2.jpg
+                    - img "Parakeetauklets2.jpg"
+                  - link "Aethia psittacula map.svg" [ref=e102] [cursor=pointer]:
+                    - /url: https://commons.wikimedia.org/wiki/File:Aethia_psittacula_map.svg
+                    - img "Aethia psittacula map.svg"
+                  - link "Aethia psittacula -Alaska Maritime National Wildlife Refuge, Alaska, USA -two-8.jpg" [ref=e103] [cursor=pointer]:
+                    - /url: https://commons.wikimedia.org/wiki/File:Aethia_psittacula_-Alaska_Maritime_National_Wildlife_Refuge,_Alaska,_USA_-two-8.jpg
+                    - img "Aethia psittacula -Alaska Maritime National Wildlife Refuge, Alaska, USA -two-8.jpg"
+                  - link "Auklets (6383865489).jpg" [ref=e104] [cursor=pointer]:
+                    - /url: https://commons.wikimedia.org/wiki/File:Auklets_(6383865489).jpg
+                    - img "Auklets (6383865489).jpg"
+                  - link "Parakeet auklet on the Pribilof Islands by Michael Johns USFWS.jpg" [ref=e105] [cursor=pointer]:
+                    - /url: https://commons.wikimedia.org/wiki/File:Parakeet_auklet_on_the_Pribilof_Islands_by_Michael_Johns_USFWS.jpg
+                    - img "Parakeet auklet on the Pribilof Islands by Michael Johns USFWS.jpg"
+                  - link "Parakeet Auklet 2012-06-07 (3) (7982787122).jpg" [ref=e106] [cursor=pointer]:
+                    - /url: https://commons.wikimedia.org/wiki/File:Parakeet_Auklet_2012-06-07_(3)_(7982787122).jpg
+                    - img "Parakeet Auklet 2012-06-07 (3) (7982787122).jpg"
+                  - link "Parakeet Auklet 2012-06-07 (1) (7982783825).jpg" [ref=e107] [cursor=pointer]:
+                    - /url: https://commons.wikimedia.org/wiki/File:Parakeet_Auklet_2012-06-07_(1)_(7982783825).jpg
+                    - img "Parakeet Auklet 2012-06-07 (1) (7982783825).jpg"
+                  - link "Parakeet auklets.jpg" [ref=e108] [cursor=pointer]:
+                    - /url: https://commons.wikimedia.org/wiki/File:Parakeet_auklets.jpg
+                    - img "Parakeet auklets.jpg"
+                  - link "Parakeet auklet (50442491591).jpg" [ref=e109] [cursor=pointer]:
+                    - /url: https://commons.wikimedia.org/wiki/File:Parakeet_auklet_(50442491591).jpg
+                    - img "Parakeet auklet (50442491591).jpg"
+                  - link "Parakeet Auklets, St. George Island, Pribilofs - DPLA - 964061847010fd973e89025103c8a9e5.jpg" [ref=e110] [cursor=pointer]:
+                    - /url: https://commons.wikimedia.org/wiki/File:Parakeet_Auklets,_St._George_Island,_Pribilofs_-_DPLA_-_964061847010fd973e89025103c8a9e5.jpg
+                    - img "Parakeet Auklets, St. George Island, Pribilofs - DPLA - 964061847010fd973e89025103c8a9e5.jpg"
+                  - link "Parakeet auklets (31130925184).jpg" [ref=e111] [cursor=pointer]:
+                    - /url: https://commons.wikimedia.org/wiki/File:Parakeet_auklets_(31130925184).jpg
+                    - img "Parakeet auklets (31130925184).jpg"
+                  - link "Rocky coastline with birds on it.jpg" [ref=e112] [cursor=pointer]:
+                    - /url: https://commons.wikimedia.org/wiki/File:Rocky_coastline_with_birds_on_it.jpg
+                    - img "Rocky coastline with birds on it.jpg"
+                  - link "Parakeet auklets (50441799338).jpg" [ref=e113] [cursor=pointer]:
+                    - /url: https://commons.wikimedia.org/wiki/File:Parakeet_auklets_(50441799338).jpg
+                    - img "Parakeet auklets (50441799338).jpg"
+                  - link "Anim1488 - Flickr - NOAA Photo Library.jpg" [ref=e114] [cursor=pointer]:
+                    - /url: https://commons.wikimedia.org/wiki/File:Anim1488_-_Flickr_-_NOAA_Photo_Library.jpg
+                    - img "Anim1488 - Flickr - NOAA Photo Library.jpg"
+                  - link "Anim1483 - Flickr - NOAA Photo Library.jpg" [ref=e115] [cursor=pointer]:
+                    - /url: https://commons.wikimedia.org/wiki/File:Anim1483_-_Flickr_-_NOAA_Photo_Library.jpg
+                    - img "Anim1483 - Flickr - NOAA Photo Library.jpg"
+                  - link "Anim1484 - Flickr - NOAA Photo Library.jpg" [ref=e116] [cursor=pointer]:
+                    - /url: https://commons.wikimedia.org/wiki/File:Anim1484_-_Flickr_-_NOAA_Photo_Library.jpg
+                    - img "Anim1484 - Flickr - NOAA Photo Library.jpg"
+                  - link "Anim1486 - Flickr - NOAA Photo Library.jpg" [ref=e117] [cursor=pointer]:
+                    - /url: https://commons.wikimedia.org/wiki/File:Anim1486_-_Flickr_-_NOAA_Photo_Library.jpg
+                    - img "Anim1486 - Flickr - NOAA Photo Library.jpg"
+                  - link "Anim1909 - Flickr - NOAA Photo Library.jpg" [ref=e118] [cursor=pointer]:
+                    - /url: https://commons.wikimedia.org/wiki/File:Anim1909_-_Flickr_-_NOAA_Photo_Library.jpg
+                    - img "Anim1909 - Flickr - NOAA Photo Library.jpg"
+                  - link "The birds of America (Pl. 468) (8594224923).jpg" [ref=e119] [cursor=pointer]:
+                    - /url: https://commons.wikimedia.org/wiki/File:The_birds_of_America_(Pl._468)_(8594224923).jpg
+                    - img "The birds of America (Pl. 468) (8594224923).jpg"
+                  - link "Budgerigar-strzelecki-qld.jpg" [ref=e120] [cursor=pointer]:
+                    - /url: https://commons.wikimedia.org/wiki/File:Budgerigar-strzelecki-qld.jpg
+                    - img "Budgerigar-strzelecki-qld.jpg"
+                  - link "Comparison of charadriiform and sphenisciform sterni.jpg" [ref=e121] [cursor=pointer]:
+                    - /url: https://commons.wikimedia.org/wiki/File:Comparison_of_charadriiform_and_sphenisciform_sterni.jpg
+                    - img "Comparison of charadriiform and sphenisciform sterni.jpg"
+                  - link "Simorhynchus psittaculus - 1700-1880 - Print - Iconographia Zoologica - Special Collections University of Amsterdam - UBA01 IZ17800199.tif" [ref=e122] [cursor=pointer]:
+                    - /url: https://commons.wikimedia.org/wiki/File:Simorhynchus_psittaculus_-_1700-1880_-_Print_-_Iconographia_Zoologica_-_Special_Collections_University_of_Amsterdam_-_UBA01_IZ17800199.tif
+                    - img "Simorhynchus psittaculus - 1700-1880 - Print - Iconographia Zoologica - Special Collections University of Amsterdam - UBA01 IZ17800199.tif"
+                  - link "The birds of North America (PL. CVIII) (6022164149).jpg" [ref=e123] [cursor=pointer]:
+                    - /url: https://commons.wikimedia.org/wiki/File:The_birds_of_North_America_(PL._CVIII)_(6022164149).jpg
+                    - img "The birds of North America (PL. CVIII) (6022164149).jpg"
+                  - link "Johann Andreas Naumann's ... Naturgeschichte der Vögel Deutschlands, nach einigen Erfahrungen entworfen (Taf. 332) (6059483766).jpg" [ref=e124] [cursor=pointer]:
+                    - /url: https://commons.wikimedia.org/wiki/File:Johann_Andreas_Naumann%27s_..._Naturgeschichte_der_V%C3%B6gel_Deutschlands,_nach_einigen_Erfahrungen_entworfen_(Taf._332)_(6059483766).jpg
+                    - img "Johann Andreas Naumann's ... Naturgeschichte der Vögel Deutschlands, nach einigen Erfahrungen entworfen (Taf. 332) (6059483766).jpg"
+                  - link "Ara ararauna (50244921442).jpg" [ref=e125] [cursor=pointer]:
+                    - /url: https://commons.wikimedia.org/wiki/File:Ara_ararauna_(50244921442).jpg
+                    - img "Ara ararauna (50244921442).jpg"
+                  - link "Bulletin de la Société zoologique de France (Pl. V) (6197567545).jpg" [ref=e126] [cursor=pointer]:
+                    - /url: https://commons.wikimedia.org/wiki/File:Bulletin_de_la_Soci%C3%A9t%C3%A9_zoologique_de_France_(Pl._V)_(6197567545).jpg
+                    - img "Bulletin de la Société zoologique de France (Pl. V) (6197567545).jpg"
+                - paragraph [ref=e128]: No more results found
+    - contentinfo [ref=e130]:
+      - list
+      - list:
+        - listitem [ref=e131]:
+          - link "Privacy policy" [ref=e132] [cursor=pointer]:
+            - /url: https://foundation.wikimedia.org/wiki/Special:MyLanguage/Policy:Privacy_policy
+        - listitem [ref=e133]:
+          - link "About Wikimedia Commons" [ref=e134] [cursor=pointer]:
+            - /url: /wiki/Commons:Welcome
+        - listitem [ref=e135]:
+          - link "Disclaimers" [ref=e136] [cursor=pointer]:
+            - /url: /wiki/Commons:General_disclaimer
+        - listitem [ref=e137]:
+          - link "Code of Conduct" [ref=e138] [cursor=pointer]:
+            - /url: https://foundation.wikimedia.org/wiki/Special:MyLanguage/Policy:Universal_Code_of_Conduct
+        - listitem [ref=e139]:
+          - link "Developers" [ref=e140] [cursor=pointer]:
+            - /url: https://developer.wikimedia.org
+        - listitem [ref=e141]:
+          - link "Statistics" [ref=e142] [cursor=pointer]:
+            - /url: https://stats.wikimedia.org/#/commons.wikimedia.org
+        - listitem [ref=e143]:
+          - link "Cookie statement" [ref=e144] [cursor=pointer]:
+            - /url: https://foundation.wikimedia.org/wiki/Special:MyLanguage/Policy:Cookie_statement
+        - listitem [ref=e145]:
+          - link "Mobile view" [ref=e146] [cursor=pointer]:
+            - /url: //commons.wikimedia.org/w/index.php?title=Special:MediaSearch&search=Aethia+psittacula&type=image&mobileaction=toggle_view_mobile
+      - list [ref=e147]:
+        - listitem [ref=e148]:
+          - link "Wikimedia Foundation" [ref=e149] [cursor=pointer]:
+            - /url: https://www.wikimedia.org/
+            - img "Wikimedia Foundation" [ref=e151]
+        - listitem [ref=e152]:
+          - link "Powered by MediaWiki" [ref=e153] [cursor=pointer]:
+            - /url: https://www.mediawiki.org/
+            - img "Powered by MediaWiki" [ref=e155]

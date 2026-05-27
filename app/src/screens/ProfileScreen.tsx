@@ -10,7 +10,9 @@ import {
   LogOut,
   Trash2,
   ChevronRight,
+  Bug,
 } from "lucide-react-native";
+import Toast from "react-native-toast-message";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import {
@@ -31,6 +33,7 @@ import {
   useCards,
 } from "../hooks/useApi";
 import { useRevenueCat } from "../contexts/RevenueCatProvider";
+import { clearCache } from "../services/cache";
 import { usePostHog } from "../contexts/PostHogProvider";
 import type { ProfileStackParamList } from "../navigation/stacks/ProfileStack";
 
@@ -266,6 +269,25 @@ export const ProfileScreen: React.FC = () => {
             testID="profile-row-delete"
           />
         </View>
+
+        {/* Dev tools (debug only) */}
+        {__DEV__ && (
+          <View style={styles.section} testID="profile-dev-section">
+            <ProfileRow
+              icon={Bug}
+              label="Clear cache"
+              onPress={async () => {
+                await clearCache();
+                Toast.show({
+                  type: "success",
+                  text1: "Cache cleared",
+                  text2: "All cached data has been purged.",
+                });
+              }}
+              testID="profile-row-clear-cache"
+            />
+          </View>
+        )}
 
         {/* Footer */}
         <View style={styles.footer} testID="profile-footer">

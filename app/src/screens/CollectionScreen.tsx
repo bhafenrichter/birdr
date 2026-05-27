@@ -269,11 +269,13 @@ const AllNAView: React.FC<{
                     speciesType: item.species_type_name,
                     habitat: item.habitat_name,
                     conservationTier: item.conservation_status as any,
-                    photoUri: null,
+                    photoUri: spotted ? ((item as any).illustration_url ?? null) : null,
                     sightingCount: spotted ? 1 : 0,
                     locked: !spotted,
                     rarity: item.rarity as any,
                     about: item.about_text,
+                    illustrationUrl: (item as any).illustration_url,
+                    illustrationAttribution: (item as any).illustration_attribution,
                   }}
                   testID={`collection-thumb-${item.id}`}
                 />

@@ -82,7 +82,7 @@ export const RarityConfig = {
     badge: "EP",
     borderColors: ["#CE93D8", "#7B1FA2"],
     badgeColor: "#7B1FA2",
-    shimmerIntensity: 0.85,
+    shimmerIntensity: 0.55,
     shimmerHue: 280,
   },
   legendary: {
@@ -92,6 +92,14 @@ export const RarityConfig = {
     badgeColor: "#FF6F00",
     shimmerIntensity: 1.0,
     shimmerHue: 30,
+  },
+  extinct: {
+    label: "Historic",
+    badge: "EX",
+    borderColors: ["#8D8D8D", "#4A4A4A"],
+    badgeColor: "#4A4A4A",
+    shimmerIntensity: 0.15,
+    shimmerHue: 0,
   },
 } as const;
 

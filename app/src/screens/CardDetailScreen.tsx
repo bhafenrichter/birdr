@@ -248,7 +248,7 @@ export const CardDetailScreen: React.FC = () => {
                     speciesType: species.species_type_name,
                     habitat: species.habitat_name,
                     conservationTier: species.conservation_status as any,
-                    photoUri: userCard?.hero_photo_url ?? null,
+                    photoUri: (species as any).illustration_url ?? userCard?.hero_photo_url ?? null,
                     size: species.size,
                     about: species.about_text,
                     firstSight: isSpotted
@@ -257,8 +257,10 @@ export const CardDetailScreen: React.FC = () => {
                     sightingCount: userCard?.sighting_count,
                     locked: dataReady && !isSpotted,
                     rarity: species.rarity,
-                    allPhotos: sightings.length > 1 ? sightings.map((s) => s.photo_url) : undefined,
+                    allPhotos: undefined,
                     photoQuality: lastSighting?.photo_quality,
+                    illustrationUrl: (species as any).illustration_url,
+                    illustrationAttribution: (species as any).illustration_attribution,
                   }}
                   onAudioPress={() => {
                     Toast.show({

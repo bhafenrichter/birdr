@@ -106,6 +106,8 @@ export interface BirdCardData {
   sightingCount?: number;
   locked?: boolean;
   rarity?: Rarity;
+  illustrationUrl?: string | null;
+  illustrationAttribution?: string | null;
   photoQuality?: PhotoQuality | null;
   /** All photo URIs for carousel (expanded card only) */
   allPhotos?: string[];
@@ -261,21 +263,43 @@ export const BirdCard: React.FC<BirdCardProps> = ({
                 }}
               >
                 {isLocked ? (
-                  <View
-                    style={{
-                      flex: 1,
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Text
-                      variant="bold"
-                      size="3xl"
-                      color={Colors.white}
-                      testID={`${testID}-locked-placeholder`}
+                  <View style={{ flex: 1 }}>
+                    {data.illustrationUrl && (
+                      <Image
+                        source={{ uri: data.illustrationUrl }}
+                        style={{ position: "absolute", width: "100%", height: "100%" }}
+                        contentFit="cover"
+                        testID={`${testID}-illustration`}
+                      />
+                    )}
+                    <View
+                      style={{
+                        flex: 1,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backgroundColor: "rgba(0,0,0,0.45)",
+                      }}
                     >
-                      ?
-                    </Text>
+                      <Text
+                        variant="bold"
+                        size="3xl"
+                        color={Colors.white}
+                        testID={`${testID}-locked-placeholder`}
+                      >
+                        ?
+                      </Text>
+                      {data.illustrationAttribution && (
+                        <Text
+                          variant="regular"
+                          size="xs"
+                          color="rgba(255,255,255,0.5)"
+                          style={{ position: "absolute", bottom: 4, left: 6 }}
+                          testID={`${testID}-attribution`}
+                        >
+                          {`\u00A9 ${data.illustrationAttribution}`}
+                        </Text>
+                      )}
+                    </View>
                   </View>
                 ) : data.shamePhoto ? (
                   <Image
@@ -511,24 +535,9 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
             }}
           >
             <View style={{ flex: 1 }}>
-              {data.speciesType && (
-                <Text
-                  variant="regular"
-                  size="xs"
-                  color="rgba(255,255,255,0.85)"
-                  style={{
-                    textShadowColor: "rgba(0,0,0,0.6)",
-                    textShadowOffset: { width: 0, height: 1 },
-                    textShadowRadius: 2,
-                  }}
-                  testID={`${testID}-thumb-type`}
-                >
-                  {data.speciesType}
-                </Text>
-              )}
               <Text
                 variant="semiBold"
-                size="xs"
+                size="sm"
                 color={Colors.white}
                 style={{
                   textShadowColor: "rgba(0,0,0,0.7)",
@@ -584,20 +593,46 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
                 <View
                   style={{
                     flex: 1,
-                    alignItems: "center",
-                    justifyContent: "center",
                     borderRadius: BorderRadius.lg - 2,
                     backgroundColor: getHabitatColor(data.habitat),
+                    overflow: "hidden",
                   }}
                 >
-                  <Text
-                    variant="bold"
-                    size="xl"
-                    color="rgba(255,255,255,0.7)"
-                    testID={`${testID}-locked`}
+                  {data.illustrationUrl && (
+                    <Image
+                      source={{ uri: data.illustrationUrl }}
+                      style={{ position: "absolute", width: "100%", height: "100%" }}
+                      contentFit="cover"
+                      testID={`${testID}-illustration`}
+                    />
+                  )}
+                  <View
+                    style={{
+                      flex: 1,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: "rgba(0,0,0,0.45)",
+                    }}
                   >
-                    ?
-                  </Text>
+                    <Text
+                      variant="bold"
+                      size="xl"
+                      color="rgba(255,255,255,0.7)"
+                      testID={`${testID}-locked`}
+                    >
+                      ?
+                    </Text>
+                    {data.illustrationAttribution && (
+                      <Text
+                        variant="regular"
+                        size="xs"
+                        color="rgba(255,255,255,0.4)"
+                        style={{ position: "absolute", bottom: 2, left: 4, fontSize: 7 }}
+                      >
+                        {`\u00A9 ${data.illustrationAttribution}`}
+                      </Text>
+                    )}
+                  </View>
                 </View>
               </LinearGradient>
             ) : (

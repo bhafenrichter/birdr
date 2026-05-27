@@ -353,7 +353,7 @@ export async function fetchSpecies(
 ): Promise<Species & { species_type_name: string; habitat_name: string }> {
   const { data, error } = await supabase
     .from("species")
-    .select(`*, species_types(name), habitats(name)`)
+    .select(`*, species_types(name), habitats(name), species_illustrations(illustration_url, attribution)`)
     .eq("id", speciesId)
     .single();
 
@@ -371,6 +371,8 @@ export async function fetchSpecies(
     ...row,
     species_type_name: row.species_types?.name ?? "",
     habitat_name: row.habitats?.name ?? "",
+    illustration_url: row.species_illustrations?.[0]?.illustration_url ?? null,
+    illustration_attribution: row.species_illustrations?.[0]?.attribution ?? null,
   };
 }
 
@@ -397,7 +399,7 @@ export async function fetchAllSpecies(): Promise<
   while (true) {
     const { data, error } = await supabase
       .from("species")
-      .select(`*, species_types(name), habitats(name)`)
+      .select(`*, species_types(name), habitats(name), species_illustrations(illustration_url, attribution)`)
       .order("common_name")
       .range(from, from + PAGE_SIZE - 1);
 
@@ -418,6 +420,8 @@ export async function fetchAllSpecies(): Promise<
     ...row,
     species_type_name: row.species_types?.name ?? "",
     habitat_name: row.habitats?.name ?? "",
+    illustration_url: row.species_illustrations?.[0]?.illustration_url ?? null,
+    illustration_attribution: row.species_illustrations?.[0]?.attribution ?? null,
   }));
 
   await setCache(ALL_SPECIES_CACHE_KEY, result, ALL_SPECIES_CACHE_TTL);
@@ -440,7 +444,7 @@ export async function fetchAllSpeciesPaginated(
 
   let query = supabase
     .from("species")
-    .select(`*, species_types(name), habitats(name)`, { count: "exact" })
+    .select(`*, species_types(name), habitats(name), species_illustrations(illustration_url, attribution)`, { count: "exact" })
     .order("common_name")
     .range(from, to);
 
@@ -462,6 +466,8 @@ export async function fetchAllSpeciesPaginated(
     ...row,
     species_type_name: row.species_types?.name ?? "",
     habitat_name: row.habitats?.name ?? "",
+    illustration_url: row.species_illustrations?.[0]?.illustration_url ?? null,
+    illustration_attribution: row.species_illustrations?.[0]?.attribution ?? null,
   }));
 
   return { species, hasMore: (count ?? 0) > to + 1 };

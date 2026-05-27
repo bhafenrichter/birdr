@@ -12,6 +12,10 @@
     "generate:prompts": "node 05-generate-llm-prompts.js",
     "process:llm-results": "node 06-process-llm-results.js",
     "seed:all": "node 07-seed-database.js",
+    "scrape:wikipedia-images": "node 08-scrape-wikipedia-images.js",
+    "scrape:flickr-images": "node 09-scrape-flickr-images.js",
+    "scrape:commons-fallback": "node 10-scrape-commons-fallback.js",
+    "scrape:fix-portrait": "node 11-rescrape-portrait-images.js",
     "hydrate": "npm run download:taxonomy && npm run download:frequency && npm run parse:species",
     "hydrate:iucn": "npm run download:iucn && npm run parse:species",
     "pipeline": "npm run hydrate && npm run generate:prompts"

@@ -19,7 +19,7 @@ import {
   CardSkeletonGrid,
 } from "../components/atoms";
 import { BirdCardThumb } from "../components/molecules/BirdCard";
-import { useExploreSpecies, useProfile, useCards, useMapSightings } from "../hooks/useApi";
+import { useExploreSpecies, useProfile, useCards, useMapSightings, useAllSpecies } from "../hooks/useApi";
 import type { ExploreStackParamList } from "../navigation/stacks/ExploreStack";
 
 type Nav = NativeStackNavigationProp<ExploreStackParamList>;
@@ -115,7 +115,17 @@ const NearMeView: React.FC<{
     ? { lat: location.lat, lon: location.lon, mode: "near_me" as const }
     : null;
   const { data: exploreData, isLoading } = useExploreSpecies(params);
+  const { data: allSpecies } = useAllSpecies();
   const list = exploreData?.species ?? [];
+
+  const illustrationMap = useMemo(() => {
+    const map = new Map<string, { url: string; attribution: string | null }>();
+    for (const sp of allSpecies ?? []) {
+      const url = (sp as any).illustration_url;
+      if (url) map.set(sp.id, { url, attribution: (sp as any).illustration_attribution ?? null });
+    }
+    return map;
+  }, [allSpecies]);
 
   if (locationError && !location) {
     return (
@@ -220,11 +230,13 @@ const NearMeView: React.FC<{
                     speciesType: item.species_type,
                     habitat: item.habitat,
                     conservationTier: item.conservation_status as any,
-                    photoUri: null,
+                    photoUri: item.spotted ? (illustrationMap.get(item.species_id)?.url ?? null) : null,
                     sightingCount: item.sighting_count,
                     locked: !item.spotted,
                     rarity: item.rarity as any,
                     about: item.about_text,
+                    illustrationUrl: illustrationMap.get(item.species_id)?.url ?? null,
+                    illustrationAttribution: illustrationMap.get(item.species_id)?.attribution ?? null,
                   }}
                   testID={`explore-thumb-${item.species_id}`}
                 />
