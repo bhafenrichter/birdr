@@ -34,17 +34,35 @@ export const GestureCardContainer: React.FC<GestureCardContainerProps> = ({
   const rotateX = useSharedValue(0);
   const rotateY = useSharedValue(0);
 
-  const interpolateRotation = React.useCallback(
-    (value: number, size: number, isReverse = false) => {
+  // Track the finger's position on the card (0 to width/height)
+  const fingerX = useSharedValue(width / 2);
+  const fingerY = useSharedValue(height / 2);
+
+  // Start position of the touch within the card
+  const startX = useSharedValue(0);
+  const startY = useSharedValue(0);
+
+  const tiltFromPosition = React.useCallback(
+    (fx: number, fy: number) => {
       "worklet";
-      return interpolate(
-        value,
-        [0, size],
-        isReverse ? [maxAngle, -maxAngle] : [-maxAngle, maxAngle],
+      // Map finger position on card to rotation angle
+      // Left edge → negative rotateY (tilt left), Right edge → positive rotateY
+      // Top edge → positive rotateX (tilt toward user), Bottom → negative
+      const ry = interpolate(
+        fx,
+        [0, width],
+        [-maxAngle, maxAngle],
         Extrapolation.CLAMP
       );
+      const rx = interpolate(
+        fy,
+        [0, height],
+        [maxAngle, -maxAngle],
+        Extrapolation.CLAMP
+      );
+      return { rx, ry };
     },
-    [maxAngle]
+    [maxAngle, width, height]
   );
 
   useAnimatedReaction(
@@ -56,38 +74,36 @@ export const GestureCardContainer: React.FC<GestureCardContainerProps> = ({
     }
   );
 
-  // Use LongPress to start tilt — avoids competing with horizontal swipe gestures
-  const pressGesture = Gesture.LongPress()
-    .minDuration(0)
-    .maxDistance(999)
-    .onStart((event) => {
-      rotateX.value = withTiming(
-        interpolateRotation(event.y, height, true),
-        { duration: 150 }
-      );
-      rotateY.value = withTiming(
-        interpolateRotation(event.x, width),
-        { duration: 150 }
-      );
-    })
-    .onEnd(() => {
-      rotateX.value = withTiming(0, { duration: 300 });
-      rotateY.value = withTiming(0, { duration: 300 });
-    });
-
   const panGesture = Gesture.Pan()
-    .activeOffsetY([-10, 10])
-    .failOffsetX([-20, 20])
+    .onBegin((event) => {
+      // event.x/y is the touch point relative to the view
+      startX.value = event.x;
+      startY.value = event.y;
+      fingerX.value = event.x;
+      fingerY.value = event.y;
+
+      const { rx, ry } = tiltFromPosition(event.x, event.y);
+      rotateX.value = withTiming(rx, { duration: 150 });
+      rotateY.value = withTiming(ry, { duration: 150 });
+    })
     .onUpdate((event) => {
-      rotateX.value = interpolateRotation(event.y, height, true);
-      rotateY.value = interpolateRotation(event.x, width);
+      // event.translationX/Y is the delta from start,
+      // so absolute position = start + translation
+      const fx = Math.max(0, Math.min(width, startX.value + event.translationX));
+      const fy = Math.max(0, Math.min(height, startY.value + event.translationY));
+      fingerX.value = fx;
+      fingerY.value = fy;
+
+      const { rx, ry } = tiltFromPosition(fx, fy);
+      rotateX.value = rx;
+      rotateY.value = ry;
     })
     .onFinalize(() => {
       rotateX.value = withTiming(0, { duration: 300 });
       rotateY.value = withTiming(0, { duration: 300 });
+      fingerX.value = withTiming(width / 2, { duration: 300 });
+      fingerY.value = withTiming(height / 2, { duration: 300 });
     });
-
-  const gesture = Gesture.Simultaneous(pressGesture, panGesture);
 
   const rStyle = useAnimatedStyle(
     () => ({
@@ -101,7 +117,7 @@ export const GestureCardContainer: React.FC<GestureCardContainerProps> = ({
   );
 
   return (
-    <GestureDetector gesture={gesture}>
+    <GestureDetector gesture={panGesture}>
       <Animated.View style={[{ height, width }, rStyle]}>
         {children}
       </Animated.View>

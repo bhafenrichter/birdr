@@ -702,6 +702,7 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
           borderRadius={BorderRadius.xl}
           gradientCenter={{ x: cardSize.w / 2, y: cardSize.h / 2 }}
           intensity={rc.shimmerIntensity}
+          noColor
         />
       )}
     </View>

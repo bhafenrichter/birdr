@@ -275,6 +275,7 @@ export const CardDetailScreen: React.FC = () => {
                   borderRadius={BorderRadius["2xl"]}
                   gradientCenter={gradientCenter}
                   intensity={RarityConfig[species.rarity ?? "common"].shimmerIntensity}
+                  hue={RarityConfig[species.rarity ?? "common"].shimmerHue}
                 />
               </View>
             </GestureCardContainer>

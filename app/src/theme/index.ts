@@ -59,6 +59,7 @@ export const RarityConfig = {
     borderColors: ["#f8e15c", "#edb915"],
     badgeColor: "#DAA520",
     shimmerIntensity: 0.3,
+    shimmerHue: 45,
   },
   uncommon: {
     label: "Uncommon",
@@ -66,6 +67,7 @@ export const RarityConfig = {
     borderColors: ["#A8D8A8", "#4CAF50"],
     badgeColor: "#4CAF50",
     shimmerIntensity: 0.5,
+    shimmerHue: 130,
   },
   rare: {
     label: "Rare",
@@ -73,6 +75,7 @@ export const RarityConfig = {
     borderColors: ["#64B5F6", "#1565C0"],
     badgeColor: "#1565C0",
     shimmerIntensity: 0.7,
+    shimmerHue: 210,
   },
   epic: {
     label: "Epic",
@@ -80,6 +83,7 @@ export const RarityConfig = {
     borderColors: ["#CE93D8", "#7B1FA2"],
     badgeColor: "#7B1FA2",
     shimmerIntensity: 0.85,
+    shimmerHue: 280,
   },
   legendary: {
     label: "Legendary",
@@ -87,6 +91,7 @@ export const RarityConfig = {
     borderColors: ["#FFD54F", "#FF6F00"],
     badgeColor: "#FF6F00",
     shimmerIntensity: 1.0,
+    shimmerHue: 30,
   },
 } as const;
 
