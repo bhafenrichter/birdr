@@ -27,6 +27,7 @@
     "expo-linear-gradient": "~56.0.4",
     "expo-location": "~56.0.13",
     "expo-notifications": "~56.0.13",
+    "expo-screen-orientation": "^56.0.5",
     "expo-secure-store": "~56.0.4",
     "expo-splash-screen": "~56.0.10",
     "expo-status-bar": "~56.0.4",

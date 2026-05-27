@@ -1,13 +1,23 @@
-import React, { useRef, useState, useCallback } from "react";
-import { View, StyleSheet, Pressable, Platform } from "react-native";
+import React, { useRef, useState, useCallback, useEffect } from "react";
+import {
+  View,
+  StyleSheet,
+  Pressable,
+  Platform,
+  Dimensions,
+  useWindowDimensions,
+} from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
-import { useNavigation } from "@react-navigation/native";
+import * as ScreenOrientation from "expo-screen-orientation";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import { useNavigation, useIsFocused } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { X, Zap, ZapOff, ImagePlus } from "lucide-react-native";
+import { X, ImagePlus } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
-import { Colors, Spacing, BorderRadius, Shadows, Fonts, FontSizes } from "../../theme";
-import { Text, CircleBtn, Pill } from "../../components/atoms";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Colors, Spacing, BorderRadius, Shadows } from "../../theme";
+import { Text, CircleBtn } from "../../components/atoms";
 import { useAuth } from "../../contexts/AuthProvider";
 import type { CaptureFlowParamList } from "../../navigation/stacks/CaptureFlowStack";
 
@@ -20,13 +30,28 @@ export const ViewfinderScreen: React.FC = () => {
   const { profile } = useAuth();
   const cameraRef = useRef<CameraView>(null);
   const [permission, requestPermission] = useCameraPermissions();
-  const [flash, setFlash] = useState(false);
   const [zoom, setZoom] = useState<(typeof ZOOM_LEVELS)[number]>(1);
   const [isTakingPhoto, setIsTakingPhoto] = useState(false);
+  const isFocused = useIsFocused();
+
+  const { width, height } = useWindowDimensions();
+  const isLandscape = width > height;
 
   const dailyUsed = profile?.daily_captures_used ?? 0;
   const isFree = (profile?.subscription_tier ?? "free") === "free";
   const capturesRemaining = isFree ? Math.max(0, 3 - dailyUsed) : null;
+
+  // Unlock orientation when this screen is focused, lock back on leave
+  useEffect(() => {
+    if (isFocused) {
+      ScreenOrientation.unlockAsync();
+    }
+    return () => {
+      ScreenOrientation.lockAsync(
+        ScreenOrientation.OrientationLock.PORTRAIT_UP,
+      );
+    };
+  }, [isFocused]);
 
   const handleTakePhoto = useCallback(async () => {
     if (isTakingPhoto || !cameraRef.current) return;
@@ -39,6 +64,10 @@ export const ViewfinderScreen: React.FC = () => {
         base64: false,
       });
       if (photo) {
+        // Lock back to portrait before navigating
+        await ScreenOrientation.lockAsync(
+          ScreenOrientation.OrientationLock.PORTRAIT_UP,
+        );
         navigation.navigate("PhotoPreview", { photoUri: photo.uri });
       }
     } finally {
@@ -52,11 +81,17 @@ export const ViewfinderScreen: React.FC = () => {
       quality: 0.8,
     });
     if (!result.canceled && result.assets[0]) {
+      await ScreenOrientation.lockAsync(
+        ScreenOrientation.OrientationLock.PORTRAIT_UP,
+      );
       navigation.navigate("PhotoPreview", { photoUri: result.assets[0].uri });
     }
   }, [navigation]);
 
-  const handleClose = useCallback(() => {
+  const handleClose = useCallback(async () => {
+    await ScreenOrientation.lockAsync(
+      ScreenOrientation.OrientationLock.PORTRAIT_UP,
+    );
     navigation.getParent()?.goBack();
   }, [navigation]);
 
@@ -88,7 +123,12 @@ export const ViewfinderScreen: React.FC = () => {
           onPress={requestPermission}
           testID="viewfinder-permission-button"
         >
-          <Text variant="semiBold" size="base" color={Colors.white} testID="viewfinder-permission-button-label">
+          <Text
+            variant="semiBold"
+            size="base"
+            color={Colors.white}
+            testID="viewfinder-permission-button-label"
+          >
             Grant access
           </Text>
         </Pressable>
@@ -96,19 +136,133 @@ export const ViewfinderScreen: React.FC = () => {
     );
   }
 
+  // ── Landscape layout ────────────────────────────────────────────────────
+  if (isLandscape) {
+    return (
+      <View style={styles.container} testID="viewfinder-screen-landscape">
+        <CameraView
+          ref={cameraRef}
+          style={StyleSheet.absoluteFill}
+          facing="back"
+          flash="off"
+          zoom={(zoom - 1) / 10}
+          testID="viewfinder-camera"
+        />
+
+        <SafeAreaView style={styles.landscapeOverlay} pointerEvents="box-none">
+          {/* Left column: close + quota */}
+          <View style={styles.landscapeLeftColumn}>
+            <Animated.View
+              style={styles.landscapeTopRow}
+              entering={FadeIn.duration(300)}
+              exiting={FadeOut.duration(200)}
+              key="landscape-top"
+            >
+              <CircleBtn
+                icon={X}
+                size={44}
+                backgroundColor="rgba(0,0,0,0.4)"
+                color={Colors.white}
+                onPress={handleClose}
+                testID="viewfinder-close"
+              />
+              {capturesRemaining !== null && (
+                <View style={styles.quotaPill} testID="viewfinder-quota">
+                  <Text
+                    variant="semiBold"
+                    size="sm"
+                    color={
+                      capturesRemaining === 0 ? Colors.coral : Colors.white
+                    }
+                  >
+                    {`${capturesRemaining} of 3 left`}
+                  </Text>
+                </View>
+              )}
+            </Animated.View>
+          </View>
+
+          {/* Right side: zoom + shutter */}
+          <Animated.View
+            style={styles.landscapeRightBar}
+            entering={FadeIn.delay(100).duration(300)}
+            exiting={FadeOut.duration(200)}
+            key="landscape-controls"
+          >
+            <View style={styles.landscapeZoomColumn}>
+              {ZOOM_LEVELS.map((level) => (
+                <Pressable
+                  key={level}
+                  style={[
+                    styles.zoomPill,
+                    zoom === level && styles.zoomPillActive,
+                  ]}
+                  onPress={() => {
+                    setZoom(level);
+                    Haptics.selectionAsync();
+                  }}
+                  testID={`viewfinder-zoom-${level}`}
+                >
+                  <Text
+                    variant={zoom === level ? "semiBold" : "regular"}
+                    size="sm"
+                    color={zoom === level ? Colors.sage : Colors.white}
+                  >
+                    {`${level}×`}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+
+            <Pressable
+              style={({ pressed }) => [
+                styles.shutter,
+                pressed && { transform: [{ scale: 0.92 }] },
+              ]}
+              onPress={handleTakePhoto}
+              disabled={isTakingPhoto}
+              testID="viewfinder-shutter"
+              accessible
+              accessibilityRole="button"
+              accessibilityLabel="Take photo"
+            >
+              <View style={styles.shutterInner} />
+            </Pressable>
+
+            {__DEV__ && (
+              <Pressable
+                style={styles.devUploadBtn}
+                onPress={handlePickImage}
+                testID="viewfinder-dev-upload"
+              >
+                <ImagePlus size={22} color={Colors.white} strokeWidth={1.5} />
+              </Pressable>
+            )}
+          </Animated.View>
+        </SafeAreaView>
+      </View>
+    );
+  }
+
+  // ── Portrait layout ─────────────────────────────────────────────────────
   return (
     <View style={styles.container} testID="viewfinder-screen">
       <CameraView
         ref={cameraRef}
         style={StyleSheet.absoluteFill}
         facing="back"
-        flash={flash ? "on" : "off"}
+        flash="off"
         zoom={(zoom - 1) / 10}
         testID="viewfinder-camera"
       />
 
       {/* Top controls */}
-      <View style={styles.topBar}>
+      <Animated.View
+        style={styles.topBar}
+        entering={FadeIn.duration(300)}
+        exiting={FadeOut.duration(200)}
+        key="portrait-top"
+      >
         <CircleBtn
           icon={X}
           size={48}
@@ -131,27 +285,22 @@ export const ViewfinderScreen: React.FC = () => {
           </View>
         )}
 
-        <CircleBtn
-          icon={flash ? Zap : ZapOff}
-          size={48}
-          backgroundColor="rgba(0,0,0,0.4)"
-          color={Colors.white}
-          onPress={() => setFlash(!flash)}
-          testID="viewfinder-flash"
-        />
-      </View>
+        <View style={{ width: 48 }} />
+      </Animated.View>
 
       {/* Bottom controls */}
-      <View style={styles.bottomBar}>
+      <Animated.View
+        style={styles.bottomBar}
+        entering={FadeIn.duration(300)}
+        exiting={FadeOut.duration(200)}
+        key="portrait-bottom"
+      >
         {/* Zoom pills */}
         <View style={styles.zoomRow}>
           {ZOOM_LEVELS.map((level) => (
             <Pressable
               key={level}
-              style={[
-                styles.zoomPill,
-                zoom === level && styles.zoomPillActive,
-              ]}
+              style={[styles.zoomPill, zoom === level && styles.zoomPillActive]}
               onPress={() => {
                 setZoom(level);
                 Haptics.selectionAsync();
@@ -170,9 +319,8 @@ export const ViewfinderScreen: React.FC = () => {
           ))}
         </View>
 
-        {/* Shutter row: dev upload + shutter */}
+        {/* Shutter row */}
         <View style={styles.shutterRow}>
-          {/* Dev-only: pick from gallery */}
           {__DEV__ && (
             <Pressable
               style={styles.devUploadBtn}
@@ -183,7 +331,6 @@ export const ViewfinderScreen: React.FC = () => {
             </Pressable>
           )}
 
-          {/* Shutter button */}
           <Pressable
             style={({ pressed }) => [
               styles.shutter,
@@ -199,10 +346,9 @@ export const ViewfinderScreen: React.FC = () => {
             <View style={styles.shutterInner} />
           </Pressable>
 
-          {/* Spacer to balance the row */}
           {__DEV__ && <View style={{ width: 48 }} />}
         </View>
-      </View>
+      </Animated.View>
     </View>
   );
 };
@@ -225,6 +371,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing["2xl"],
     borderRadius: BorderRadius.full,
   },
+
+  // ── Portrait ──────────────────────────────────────────────────────────
   topBar: {
     position: "absolute",
     top: Platform.OS === "ios" ? 60 : 40,
@@ -294,6 +442,31 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     borderWidth: 3,
     borderColor: Colors.ink,
+  },
+
+  // ── Landscape ─────────────────────────────────────────────────────────
+  landscapeOverlay: {
+    ...StyleSheet.absoluteFill,
+    flex: 1,
+    flexDirection: "row",
+  },
+  landscapeLeftColumn: {
+    flex: 1,
+    padding: Spacing.xl,
+  },
+  landscapeTopRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: Spacing.md,
+  },
+  landscapeRightBar: {
+    width: 100,
+    justifyContent: "center",
+    alignItems: "center",
+    gap: Spacing.xl,
+  },
+  landscapeZoomColumn: {
+    gap: Spacing.sm,
   },
 });
 

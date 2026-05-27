@@ -12,6 +12,7 @@ import Animated, {
   withSpring,
   runOnJS,
   Easing,
+  FadeIn,
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
 import { useNavigation, useRoute } from "@react-navigation/native";
@@ -26,7 +27,7 @@ import {
   Shadows,
 } from "../../theme";
 import { Text } from "../../components/atoms";
-import { BirdCardThumb } from "../../components/molecules/BirdCard";
+import { BirdCard, BirdCardThumb } from "../../components/molecules/BirdCard";
 import { confirmSighting } from "../../services/api";
 import { useAllSpecies, useSpecies } from "../../hooks/useApi";
 import { useAuth } from "../../contexts/AuthProvider";
@@ -154,15 +155,8 @@ export const CardRevealScreen: React.FC = () => {
           posthog.capture("achievement_unlocked", { achievement_id: ach.achievement_id, name: ach.name, category: ach.category });
         }
 
-        // If it was a repeat sighting (not first sight), show toast and go back
+        // Repeat sighting — handled in render below
         if (!result.is_first_sight) {
-          Toast.show({
-            type: "sighting",
-            text1: "Spotted again!",
-            text2: `${commonName} — sighting #${result.card.sighting_count}`,
-            position: "top",
-          });
-          navigation.getParent()?.goBack();
           return;
         }
       } catch (e: any) {
@@ -184,8 +178,10 @@ export const CardRevealScreen: React.FC = () => {
     })();
   }, []);
 
-  // Run the 5-beat animation sequence
+  // Run the 5-beat animation sequence — only after confirm returns first sight
   useEffect(() => {
+    if (!confirmResult || !confirmResult.is_first_sight) return;
+
     const d = scale.durationMult;
 
     // Beat 1: Identifying (background dims)
@@ -225,7 +221,7 @@ export const CardRevealScreen: React.FC = () => {
       bonusOpacity.value = withDelay(300, withTiming(1, { duration: 400 }));
       bgOpacity.value = withTiming(0, { duration: 600 });
     }, beat5Delay);
-  }, []);
+  }, [confirmResult]);
 
   const handleSkip = useCallback(() => {
     if (!canSkip) return;
@@ -265,6 +261,100 @@ export const CardRevealScreen: React.FC = () => {
     opacity: bonusOpacity.value,
   }));
 
+  // Repeat sighting — show a simpler screen, no confetti
+  if (confirmResult && !confirmResult.is_first_sight) {
+    return (
+      <View style={styles.container} testID="card-repeat-screen">
+        <Animated.View
+          style={[styles.overlay]}
+          entering={FadeIn.duration(400)}
+        />
+
+        {/* Banner */}
+        <Animated.View
+          style={styles.repeatBanner}
+          entering={FadeIn.delay(200).duration(500)}
+        >
+          <Text
+            variant="bold"
+            size="xs"
+            color={Colors.saffron}
+            align="center"
+            style={{ letterSpacing: 2, textTransform: "uppercase" }}
+          >
+            Welcome back, old friend
+          </Text>
+          <Text
+            variant="bold"
+            size="2xl"
+            color={Colors.white}
+            align="center"
+            style={{ marginTop: Spacing.xs }}
+          >
+            {commonName}
+          </Text>
+        </Animated.View>
+
+        {/* Card */}
+        <Animated.View
+          style={styles.repeatCard}
+          entering={FadeIn.delay(400).duration(500).springify().damping(14)}
+        >
+          <View style={{ width: Dimensions.get("window").width * 0.88, height: Dimensions.get("window").height * 0.55 }}>
+            <BirdCard
+              data={{
+                speciesName: commonName,
+                familyName: species?.family ?? "",
+                speciesType: species?.species_type_name ?? "",
+                habitat: species?.habitat_name ?? "",
+                conservationTier: tier,
+                photoUri: photoUri,
+                sightingCount: confirmResult.card.sighting_count,
+                rarity: species?.rarity as any,
+                about: species?.about_text,
+                firstSight: [
+                  new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
+                  setting,
+                ].filter(Boolean).join(", "),
+              }}
+              compact
+              testID="card-repeat-full"
+            />
+          </View>
+        </Animated.View>
+
+        {/* Continue */}
+        <Animated.View
+          style={styles.settledContainer}
+          entering={FadeIn.delay(800).duration(400)}
+        >
+          {confirmResult.streak?.streak_extended && (
+            <View style={styles.achievementCard}>
+              <Text variant="bold" size="sm" color={Colors.coral}>🔥</Text>
+              <View style={{ flex: 1, marginLeft: Spacing.sm }}>
+                <Text variant="semiBold" size="sm" color={Colors.white}>
+                  {`${confirmResult.streak.current_streak}-day streak`}
+                </Text>
+                <Text variant="regular" size="xs" color="rgba(255,255,255,0.6)">
+                  Keep it going!
+                </Text>
+              </View>
+            </View>
+          )}
+          <Pressable
+            style={styles.continueBtn}
+            onPress={handleContinue}
+            testID="card-repeat-continue"
+          >
+            <Text variant="semiBold" size="base" color={Colors.white}>
+              Continue
+            </Text>
+          </Pressable>
+        </Animated.View>
+      </View>
+    );
+  }
+
   return (
     <Pressable
       style={styles.container}
@@ -296,8 +386,8 @@ export const CardRevealScreen: React.FC = () => {
           style={[styles.cardContainer, cardStyle]}
           testID="card-reveal-card"
         >
-          <View style={{ width: Dimensions.get("window").width * 0.65 }}>
-            <BirdCardThumb
+          <View style={{ width: Dimensions.get("window").width * 0.92, height: Dimensions.get("window").height * 0.65 }}>
+            <BirdCard
               data={{
                 speciesName: commonName,
                 familyName: species?.family ?? "",
@@ -308,8 +398,13 @@ export const CardRevealScreen: React.FC = () => {
                 sightingCount: 1,
                 rarity: species?.rarity as any,
                 about: species?.about_text,
+                firstSight: [
+                  new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
+                  setting,
+                ].filter(Boolean).join(", "),
               }}
-              testID="card-reveal-thumb"
+              compact
+              testID="card-reveal-full"
             />
           </View>
         </Animated.View>
@@ -447,6 +542,17 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.lg,
     alignItems: "center",
     marginTop: Spacing.md,
+  },
+  repeatBanner: {
+    position: "absolute",
+    top: Platform.OS === "ios" ? "12%" : "8%",
+    alignSelf: "center",
+    alignItems: "center",
+  },
+  repeatCard: {
+    position: "absolute",
+    top: "20%",
+    alignSelf: "center",
   },
 });
 

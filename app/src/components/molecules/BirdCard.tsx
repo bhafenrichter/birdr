@@ -121,6 +121,8 @@ export interface BirdCardProps {
   data: BirdCardData;
   onAudioPress?: () => void;
   onHabitatPress?: () => void;
+  /** Compact variant for reveal/repeat screens — smaller text */
+  compact?: boolean;
   testID: string;
 }
 
@@ -130,6 +132,7 @@ export const BirdCard: React.FC<BirdCardProps> = ({
   data,
   onAudioPress,
   onHabitatPress,
+  compact = false,
   testID,
 }) => {
   const tierColor = ConservationTierColors[data.conservationTier];
@@ -191,22 +194,24 @@ export const BirdCard: React.FC<BirdCardProps> = ({
             }}
           >
             <View style={{ flex: 1, marginRight: Spacing.sm }}>
-              <Text
-                variant="medium"
-                size="sm"
-                color="rgba(255,255,255,0.85)"
-                style={{
-                  textShadowColor: "rgba(0,0,0,0.6)",
-                  textShadowOffset: { width: 0, height: 1 },
-                  textShadowRadius: 3,
-                }}
-                testID={`${testID}-family`}
-              >
-                {data.speciesType || data.familyName}
-              </Text>
+              {!compact && (
+                <Text
+                  variant="medium"
+                  size="sm"
+                  color="rgba(255,255,255,0.85)"
+                  style={{
+                    textShadowColor: "rgba(0,0,0,0.6)",
+                    textShadowOffset: { width: 0, height: 1 },
+                    textShadowRadius: 3,
+                  }}
+                  testID={`${testID}-family`}
+                >
+                  {data.speciesType || data.familyName}
+                </Text>
+              )}
               <Text
                 variant="bold"
-                size="lg"
+                size={compact ? "md" : "lg"}
                 color={Colors.white}
                 style={{
                   marginTop: -2,
@@ -224,7 +229,7 @@ export const BirdCard: React.FC<BirdCardProps> = ({
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={{
-                paddingHorizontal: Spacing.md,
+                paddingHorizontal: compact ? Spacing.sm : Spacing.md,
                 paddingVertical: Spacing.xs,
                 borderRadius: BorderRadius.md,
                 marginTop: 2,
@@ -232,7 +237,7 @@ export const BirdCard: React.FC<BirdCardProps> = ({
             >
               <Text
                 variant="bold"
-                size="sm"
+                size={compact ? "xs" : "sm"}
                 color={Colors.white}
                 testID={`${testID}-rarity`}
               >
@@ -425,27 +430,29 @@ export const BirdCard: React.FC<BirdCardProps> = ({
             )}
           </View>
 
-          {/* Footer: badges evenly spaced */}
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-evenly",
-              paddingHorizontal: Spacing.lg,
-              paddingVertical: Spacing.lg,
-            }}
-          >
-            <ConservationBadge
-              tier={data.conservationTier}
-              size={44}
-              testID={`${testID}-conservation-badge`}
-            />
-            <AudioBadge
-              size={44}
-              onPress={onAudioPress}
-              testID={`${testID}-audio-badge`}
-            />
-          </View>
+          {/* Footer: badges evenly spaced (hidden in compact) */}
+          {!compact && (
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-evenly",
+                paddingHorizontal: Spacing.lg,
+                paddingVertical: Spacing.lg,
+              }}
+            >
+              <ConservationBadge
+                tier={data.conservationTier}
+                size={44}
+                testID={`${testID}-conservation-badge`}
+              />
+              <AudioBadge
+                size={44}
+                onPress={onAudioPress}
+                testID={`${testID}-audio-badge`}
+              />
+            </View>
+          )}
         </View>
       </LinearGradient>
     </View>
@@ -678,26 +685,9 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
               flex: 1,
               paddingHorizontal: Spacing.sm,
               paddingVertical: Spacing.sm,
+              justifyContent: "space-between",
             }}
           >
-            {!isLocked && data.sightingCount != null && data.sightingCount > 0 && (
-              <Text
-                variant="semiBold"
-                size="xs"
-                color={Colors.white}
-                style={{
-                  marginBottom: 5,
-                  textShadowColor: "rgba(0,0,0,0.6)",
-                  textShadowOffset: { width: 0, height: 1 },
-                  textShadowRadius: 2,
-                }}
-                testID={`${testID}-thumb-count`}
-              >
-                {data.sightingCount === 1
-                  ? "★ 1 sighting"
-                  : `★ ${data.sightingCount} sightings`}
-              </Text>
-            )}
             {/* Skeleton placeholder lines */}
             <View testID={`${testID}-thumb-skeleton`}>
               <View
@@ -727,6 +717,23 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
                 }}
               />
             </View>
+            {!isLocked && data.sightingCount != null && data.sightingCount > 0 && (
+              <Text
+                variant="semiBold"
+                size="xs"
+                color={Colors.white}
+                style={{
+                  textShadowColor: "rgba(0,0,0,0.6)",
+                  textShadowOffset: { width: 0, height: 1 },
+                  textShadowRadius: 2,
+                }}
+                testID={`${testID}-thumb-count`}
+              >
+                {data.sightingCount === 1
+                  ? "★ 1 sighting"
+                  : `★ ${data.sightingCount} sightings`}
+              </Text>
+            )}
           </View>
         </View>
       </LinearGradient>
