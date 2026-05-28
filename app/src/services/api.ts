@@ -167,6 +167,9 @@ export async function confirmSighting(
     achievementsUnlocked: result.achievements_unlocked?.length ?? 0,
   });
 
+  // Bust explore cache so spotted status updates
+  await clearCache("explore:");
+
   // Notify listeners (e.g. useCards) to refetch
   emit(CAPTURE_COMPLETED);
 
@@ -515,6 +518,33 @@ export async function fetchSpeciesStates(speciesId: string): Promise<string[]> {
   }
 
   return (data ?? []).map((r) => r.state_code);
+}
+
+/** Fetch distinct capture dates (ISO date strings) for the current user. */
+export async function fetchCaptureDates(): Promise<string[]> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from("sightings")
+    .select("captured_at")
+    .eq("user_id", user.id);
+
+  if (error) {
+    logger.error("Failed to fetch capture dates", {
+      code: error.code,
+      message: error.message,
+    });
+    return [];
+  }
+
+  // Extract unique date strings (YYYY-MM-DD)
+  const dateSet = new Set(
+    (data ?? []).map((r) => r.captured_at.split("T")[0]),
+  );
+  return Array.from(dateSet);
 }
 
 /** Fetch all sightings with location data for the map view. */

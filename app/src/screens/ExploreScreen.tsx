@@ -116,7 +116,21 @@ const NearMeView: React.FC<{
     : null;
   const { data: exploreData, isLoading } = useExploreSpecies(params);
   const { data: allSpecies } = useAllSpecies();
-  const list = exploreData?.species ?? [];
+  const { data: cards } = useCards();
+  const spottedIds = useMemo(
+    () => new Set((cards ?? []).map((c) => c.species_id)),
+    [cards],
+  );
+  const list = useMemo(() => {
+    const species = exploreData?.species ?? [];
+    return [...species].sort((a, b) => {
+      const aSpotted = a.spotted || spottedIds.has(a.species_id);
+      const bSpotted = b.spotted || spottedIds.has(b.species_id);
+      if (aSpotted && !bSpotted) return -1;
+      if (!aSpotted && bSpotted) return 1;
+      return 0;
+    });
+  }, [exploreData?.species, spottedIds]);
 
   const illustrationMap = useMemo(() => {
     const map = new Map<string, { url: string; attribution: string | null }>();
@@ -219,6 +233,7 @@ const NearMeView: React.FC<{
                 onPress={() =>
                   navigation.navigate("CardDetail" as any, {
                     speciesId: item.species_id,
+                    showAsLocked: true,
                   })
                 }
                 testID={`explore-card-${item.species_id}`}
@@ -230,9 +245,11 @@ const NearMeView: React.FC<{
                     speciesType: item.species_type,
                     habitat: item.habitat,
                     conservationTier: item.conservation_status as any,
-                    photoUri: item.spotted ? (illustrationMap.get(item.species_id)?.url ?? null) : null,
+                    photoUri: (item.spotted || spottedIds.has(item.species_id))
+                      ? (illustrationMap.get(item.species_id)?.url ?? null)
+                      : null,
                     sightingCount: item.sighting_count,
-                    locked: !item.spotted,
+                    locked: !(item.spotted || spottedIds.has(item.species_id)),
                     rarity: item.rarity as any,
                     about: item.about_text,
                     illustrationUrl: illustrationMap.get(item.species_id)?.url ?? null,

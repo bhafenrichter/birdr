@@ -62,7 +62,7 @@ const CARD_HEIGHT = SCREEN_HEIGHT * 0.65;
 export const CardDetailScreen: React.FC = () => {
   const navigation = useNavigation<Nav>();
   const route = useRoute<RouteProps>();
-  const { speciesId } = route.params;
+  const { speciesId, showAsLocked } = route.params as { speciesId: string; showAsLocked?: boolean };
   const insets = useSafeAreaInsets();
 
   const { data: allSpecies } = useAllSpecies();
@@ -248,7 +248,7 @@ export const CardDetailScreen: React.FC = () => {
                     speciesType: species.species_type_name,
                     habitat: species.habitat_name,
                     conservationTier: species.conservation_status as any,
-                    photoUri: isSpotted
+                    photoUri: isSpotted && !showAsLocked
                       ? (userCard?.hero_photo_url ?? (species as any).illustration_url ?? null)
                       : ((species as any).illustration_url ?? null),
                     size: species.size,
@@ -259,8 +259,8 @@ export const CardDetailScreen: React.FC = () => {
                     sightingCount: userCard?.sighting_count,
                     locked: dataReady && !isSpotted,
                     rarity: species.rarity,
-                    allPhotos: isSpotted && sightings.length > 1 ? sightings.map((s) => s.photo_url) : undefined,
-                    photoQuality: lastSighting?.photo_quality,
+                    allPhotos: isSpotted && !showAsLocked && sightings.length > 1 ? sightings.map((s) => s.photo_url) : undefined,
+                    photoQuality: !showAsLocked ? lastSighting?.photo_quality : undefined,
                     illustrationUrl: (species as any).illustration_url,
                     illustrationAttribution: (species as any).illustration_attribution,
                   }}

@@ -37,7 +37,7 @@ export class Gpt4oAdapter implements BirdIdProvider {
         ? `The photo was taken at approximately ${request.lat.toFixed(2)}°N, ${request.lon.toFixed(2)}°W in the United States.`
         : "The photo was taken somewhere in North America.";
 
-    const systemPrompt = `You are an expert ornithologist specializing in North American birds. Identify the bird species in the photo. ${locationContext}
+    const systemPrompt = `You are an expert ornithologist. Identify the bird species in the photo. ${locationContext}
 
 You MUST respond with valid JSON only. No markdown, no explanation. Use this exact format:
 {
@@ -56,8 +56,7 @@ You MUST respond with valid JSON only. No markdown, no explanation. Use this exa
 Rules:
 - Return 1-5 candidates, ordered by confidence (highest first)
 - Confidence is 0.0-1.0 reflecting how certain you are
-- Only include North American bird species
-- Use standard AOU/eBird common names
+- Include any bird species you can identify, not limited to any region
 - If you cannot identify any bird in the image, return an empty candidates array
 - Consider the location context to weight species likelihood
 - photo_quality: Rate the photo as "pristine" (sharp, well-lit, bird fills frame, full body visible), "good" (clearly identifiable, decent lighting, reasonable distance), "fair" (identifiable with difficulty — distant, partially hidden, poor lighting, motion blur), or "poor" (barely identifiable — extreme blur, silhouette, tiny in frame)

@@ -16,12 +16,14 @@
     "scrape:flickr-images": "node 09-scrape-flickr-images.js",
     "scrape:commons-fallback": "node 10-scrape-commons-fallback.js",
     "scrape:fix-portrait": "node 11-rescrape-portrait-images.js",
+    "rescrape:landscape": "node 12-rescrape-portrait-landscape.js",
     "hydrate": "npm run download:taxonomy && npm run download:frequency && npm run parse:species",
     "hydrate:iucn": "npm run download:iucn && npm run parse:species",
     "pipeline": "npm run hydrate && npm run generate:prompts"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.106.2",
     "csv-parse": "^5.5.0",
-    "dotenv": "^16.4.0"
+    "dotenv": "^16.6.1"
   }
 }

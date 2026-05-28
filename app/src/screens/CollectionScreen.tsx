@@ -62,6 +62,10 @@ export const CollectionScreen: React.FC = () => {
     navigation.navigate("CardDetail", { speciesId });
   };
 
+  const handleAllNACardPress = (speciesId: string) => {
+    navigation.navigate("CardDetail", { speciesId, showAsLocked: true });
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]} testID="collection-screen">
       {/* Header */}
@@ -112,7 +116,7 @@ export const CollectionScreen: React.FC = () => {
         <AllNAView
           searchQuery={searchQuery}
           spottedIds={spottedIds}
-          onCardPress={handleCardPress}
+          onCardPress={handleAllNACardPress}
         />
       )}
     </SafeAreaView>

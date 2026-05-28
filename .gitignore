@@ -81,3 +81,4 @@ scripts/node_modules/
 scripts/.env
 scripts/.env.*
 !scripts/.env.example
+scripts/test-results/*.json

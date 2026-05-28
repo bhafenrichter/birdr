@@ -7,7 +7,7 @@ import CardDetailScreen from "../../screens/CardDetailScreen";
 export type ExploreStackParamList = {
   ExploreHome: { lat?: number; lon?: number; name?: string } | undefined;
   LocationPicker: undefined;
-  CardDetail: { speciesId: string };
+  CardDetail: { speciesId: string; showAsLocked?: boolean };
 };
 
 const Stack = createNativeStackNavigator<ExploreStackParamList>();

@@ -4,16 +4,17 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Flame } from "lucide-react-native";
 import { Colors, Spacing, BorderRadius, Shadows, Fonts, FontSizes } from "../theme";
 import { Text } from "../components/atoms";
-import { useStreak } from "../hooks/useApi";
+import { useStreak, useCaptureDates } from "../hooks/useApi";
 
 const WEEKDAYS = ["S", "M", "T", "W", "T", "F", "S"];
 
 export const StreakDetailScreen: React.FC = () => {
-  const { data: streakData, isLoading } = useStreak();
+  const { data: streakData, isLoading: streakLoading } = useStreak();
+  const { data: captureDates, isLoading: datesLoading } = useCaptureDates();
+  const isLoading = streakLoading || datesLoading;
   const currentStreak = streakData?.current_streak ?? 0;
   const longestStreak = streakData?.longest_streak ?? 0;
-  const lastCaptureDate = streakData?.last_capture_date ?? null;
-  const hasCapturedToday = lastCaptureDate === new Date().toISOString().split("T")[0];
+  const totalCaptureDays = captureDates?.length ?? 0;
 
   // Build calendar month grid
   const { calendarDays, monthLabel, weekCount } = useMemo(() => {
@@ -28,10 +29,7 @@ export const StreakDetailScreen: React.FC = () => {
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const startDow = firstOfMonth.getDay(); // 0=Sun
 
-    const captureSet = new Set<string>();
-    if (lastCaptureDate) {
-      captureSet.add(lastCaptureDate);
-    }
+    const captureSet = new Set<string>(captureDates ?? []);
 
     const todayIso = today.toISOString().split("T")[0];
     const days: { date: string; day: number | null; isCapture: boolean; isToday: boolean }[] = [];
@@ -58,7 +56,7 @@ export const StreakDetailScreen: React.FC = () => {
     }
 
     return { calendarDays: days, monthLabel: label, weekCount: days.length / 7 };
-  }, [lastCaptureDate]);
+  }, [captureDates]);
 
   if (isLoading) {
     return (
@@ -127,7 +125,7 @@ export const StreakDetailScreen: React.FC = () => {
               color={Colors.ink}
               testID="streak-detail-total-value"
             >
-              {String(currentStreak)}
+              {String(totalCaptureDays)}
             </Text>
             <Text
               variant="regular"

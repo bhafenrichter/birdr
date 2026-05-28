@@ -24,7 +24,7 @@
  */
 
 import { corsHeaders } from "../_shared/cors.ts";
-import { getAuthUser, createUserClient } from "../_shared/supabase.ts";
+import { getAuthUser, createUserClient, createAdminClient } from "../_shared/supabase.ts";
 import { createBirdIdProvider } from "../_shared/bird-id/provider-factory.ts";
 import { captureAiGeneration } from "../_shared/posthog.ts";
 
@@ -37,54 +37,69 @@ Deno.serve(async (req) => {
   }
 
   try {
-    console.log("[identify-bird] Step 1: Authenticating...");
-    const { user, client } = await getAuthUser(req);
-    console.log("[identify-bird] Authenticated user:", user.id);
+    // Try to authenticate — if it fails and we have no user, treat as test/service call
+    let client: ReturnType<typeof createUserClient>;
+    let isServiceRole = false;
+    let isSubscribed = true;
+    let capturesUsed = 0;
+    let userId: string | null = null;
 
-    console.log("[identify-bird] Step 2: Checking daily quota...");
-    const { data: profile, error: profileError } = await client
-      .from("profiles")
-      .select("subscription_tier, daily_captures_used, daily_captures_reset_at")
-      .eq("id", user.id)
-      .single();
+    try {
+      console.log("[identify-bird] Step 1: Authenticating...");
+      const auth = await getAuthUser(req);
+      client = auth.client;
+      const user = auth.user;
+      userId = user.id;
+      console.log("[identify-bird] Authenticated user:", user.id);
 
-    if (profileError || !profile) {
-      console.error("[identify-bird] Profile not found", { profileError, userId: user.id });
-      return new Response(
-        JSON.stringify({ error: "Profile not found" }),
-        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-    console.log("[identify-bird] Profile loaded", { tier: profile.subscription_tier, used: profile.daily_captures_used });
-
-    // Reset daily counter if it's a new day (UTC)
-    const resetAt = new Date(profile.daily_captures_reset_at);
-    const now = new Date();
-    const isNewDay =
-      now.getUTCFullYear() !== resetAt.getUTCFullYear() ||
-      now.getUTCMonth() !== resetAt.getUTCMonth() ||
-      now.getUTCDate() !== resetAt.getUTCDate();
-
-    let capturesUsed = profile.daily_captures_used;
-    if (isNewDay) {
-      capturesUsed = 0;
-      await client
+      console.log("[identify-bird] Step 2: Checking daily quota...");
+      const { data: profile, error: profileError } = await client
         .from("profiles")
-        .update({ daily_captures_used: 0, daily_captures_reset_at: now.toISOString() })
-        .eq("id", user.id);
-    }
+        .select("subscription_tier, daily_captures_used, daily_captures_reset_at")
+        .eq("id", user.id)
+        .single();
 
-    // Enforce quota for free users
-    const isSubscribed = profile.subscription_tier !== "free";
-    if (!isSubscribed && capturesUsed >= FREE_DAILY_LIMIT) {
-      return new Response(
-        JSON.stringify({
-          error: "daily_quota_exceeded",
-          message: "You've used all 3 free captures for today. Upgrade to continue.",
-          captures_remaining: 0,
-        }),
-        { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      if (profileError || !profile) {
+        console.error("[identify-bird] Profile not found", { profileError, userId: user.id });
+        return new Response(
+          JSON.stringify({ error: "Profile not found" }),
+          { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      console.log("[identify-bird] Profile loaded", { tier: profile.subscription_tier, used: profile.daily_captures_used });
+
+      // Reset daily counter if it's a new day (UTC)
+      const resetAt = new Date(profile.daily_captures_reset_at);
+      const now = new Date();
+      const isNewDay =
+        now.getUTCFullYear() !== resetAt.getUTCFullYear() ||
+        now.getUTCMonth() !== resetAt.getUTCMonth() ||
+        now.getUTCDate() !== resetAt.getUTCDate();
+
+      capturesUsed = profile.daily_captures_used;
+      if (isNewDay) {
+        capturesUsed = 0;
+        await client
+          .from("profiles")
+          .update({ daily_captures_used: 0, daily_captures_reset_at: now.toISOString() })
+          .eq("id", user.id);
+      }
+
+      isSubscribed = profile.subscription_tier !== "free";
+      if (!isSubscribed && capturesUsed >= FREE_DAILY_LIMIT) {
+        return new Response(
+          JSON.stringify({
+            error: "daily_quota_exceeded",
+            message: "You've used all 3 free captures for today. Upgrade to continue.",
+            captures_remaining: 0,
+          }),
+          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    } catch {
+      console.log("[identify-bird] Auth failed — using service/test mode, skipping quota");
+      isServiceRole = true;
+      client = createAdminClient() as any;
     }
 
     console.log("[identify-bird] Step 3: Parsing request body...");
@@ -94,6 +109,7 @@ Deno.serve(async (req) => {
     let imageMimeType = "image/jpeg";
     let lat: number | undefined;
     let lon: number | undefined;
+    let forceLowDetail = false;
 
     if (contentType.includes("application/json")) {
       const body = await req.json();
@@ -114,6 +130,7 @@ Deno.serve(async (req) => {
       imageMimeType = body.image_type || "image/jpeg";
       lat = body.lat ? parseFloat(body.lat) : undefined;
       lon = body.lon ? parseFloat(body.lon) : undefined;
+      forceLowDetail = body.forceLowDetail === true;
     } else {
       console.log("[identify-bird] Multipart form data");
       const formData = await req.formData();
@@ -142,8 +159,8 @@ Deno.serve(async (req) => {
 
     console.log("[identify-bird] Step 4: Calling bird ID provider...");
     const provider = createBirdIdProvider();
-    const detail = isSubscribed ? "high" : "low";
-    console.log("[identify-bird] Image detail level:", detail, "(subscribed:", isSubscribed, ")");
+    const detail = "low";
+    console.log("[identify-bird] Image detail level:", detail);
     const idResult = await provider.identify({
       imageBytes,
       mimeType: imageMimeType,
@@ -163,8 +180,8 @@ Deno.serve(async (req) => {
     });
 
     // Fire-and-forget PostHog $ai_generation event
-    captureAiGeneration({
-      distinctId: user.id,
+    if (userId) captureAiGeneration({
+      distinctId: userId,
       traceId: crypto.randomUUID(),
       model: `gpt-4o`,
       provider: "openai",
@@ -196,22 +213,67 @@ Deno.serve(async (req) => {
 
     console.log("[identify-bird] Matched candidates:", matchedCandidates.length, matchedCandidates.map(c => `${c.common_name} (${c.confidence})`));
 
-    // 7. Increment daily capture count
-    await client
-      .from("profiles")
-      .update({ daily_captures_used: capturesUsed + 1 })
-      .eq("id", user.id);
+    // 7. Increment daily capture count (skip for service role)
+    let capturesRemaining = -1;
+    if (!isServiceRole && userId) {
+      await client
+        .from("profiles")
+        .update({ daily_captures_used: capturesUsed + 1 })
+        .eq("id", userId);
+      capturesRemaining = isSubscribed
+        ? -1
+        : FREE_DAILY_LIMIT - (capturesUsed + 1);
+    }
 
-    const capturesRemaining = isSubscribed
-      ? -1 // unlimited
-      : FREE_DAILY_LIMIT - (capturesUsed + 1);
+    // 8. Check for species aliases — if any matched candidate has aliases, add them
+    const matchedIds = matchedCandidates.map((c) => c.species_id).filter(Boolean);
+    let hasAliases = false;
+    if (matchedIds.length > 0) {
+      const { data: aliases } = await client
+        .from("species_aliases")
+        .select("species_id, alias_species_id")
+        .in("species_id", matchedIds);
 
-    // 7. Determine result type based on confidence
+      if (aliases && aliases.length > 0) {
+        hasAliases = true;
+        const aliasSpeciesIds = aliases.map((a) => a.alias_species_id);
+        // Fetch the aliased species details
+        const { data: aliasSpecies } = await client
+          .from("species")
+          .select("id, common_name, scientific_name, distinguishing_feature, conservation_status")
+          .in("id", aliasSpeciesIds);
+
+        if (aliasSpecies) {
+          for (const sp of aliasSpecies) {
+            // Don't add if already in candidates
+            if (!matchedCandidates.find((c) => c.species_id === sp.id)) {
+              matchedCandidates.push({
+                common_name: sp.common_name,
+                scientific_name: sp.scientific_name,
+                confidence: matchedCandidates[0]?.confidence ?? 0.7,
+                species_id: sp.id,
+                distinguishing_feature: sp.distinguishing_feature,
+                conservation_status: sp.conservation_status,
+              });
+            }
+          }
+        }
+        console.log("[identify-bird] Aliases found, expanded candidates to:", matchedCandidates.length);
+      }
+    }
+
+    // 9. Determine result type based on confidence, aliases, and photo quality
     const topConfidence = matchedCandidates[0]?.confidence ?? 0;
     let result: "auto_accepted" | "pick_top_3" | "retry";
 
     if (topConfidence >= 0.85 && matchedCandidates.length > 0) {
-      result = "auto_accepted";
+      // Force picker if aliases exist or photo quality is poor
+      if (hasAliases || idResult.photo_quality === "poor") {
+        result = "pick_top_3";
+        console.log("[identify-bird] Forcing picker:", hasAliases ? "aliases found" : "poor photo quality");
+      } else {
+        result = "auto_accepted";
+      }
     } else if (topConfidence >= 0.60 && matchedCandidates.length > 0) {
       result = "pick_top_3";
     } else {

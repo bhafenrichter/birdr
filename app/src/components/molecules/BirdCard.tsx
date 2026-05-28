@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { Pressable as GHPressable } from "react-native-gesture-handler";
 import { Camera } from "lucide-react-native";
+import { BlurView } from "expo-blur";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -146,7 +147,11 @@ export const BirdCard: React.FC<BirdCardProps> = ({
       testID={testID}
     >
       <LinearGradient
-        colors={[...borderColors] as [string, string, ...string[]]}
+        colors={
+          isLocked
+            ? ["#9E9E9E", "#757575"] as [string, string]
+            : [...borderColors] as [string, string, ...string[]]
+        }
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={{
@@ -174,9 +179,23 @@ export const BirdCard: React.FC<BirdCardProps> = ({
                 height: "120%",
                 top: "-10%",
                 left: "-10%",
+                ...(isLocked ? { opacity: 0.5 } : {}),
               }}
               contentFit="cover"
               testID={`${testID}-habitat-bg`}
+            />
+          )}
+
+          {/* Greyscale overlay for locked cards */}
+          {isLocked && (
+            <View
+              style={{
+                position: "absolute",
+                width: "100%",
+                height: "100%",
+                backgroundColor: "rgba(180, 180, 180, 0.5)",
+              }}
+              pointerEvents="none"
             />
           )}
 
@@ -225,7 +244,11 @@ export const BirdCard: React.FC<BirdCardProps> = ({
               </Text>
             </View>
             <LinearGradient
-              colors={[...borderColors] as [string, string, ...string[]]}
+              colors={
+                isLocked
+                  ? ["#9E9E9E", "#757575"] as [string, string]
+                  : [...borderColors] as [string, string, ...string[]]
+              }
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={{
@@ -249,7 +272,11 @@ export const BirdCard: React.FC<BirdCardProps> = ({
           {/* Hero photo with rarity gradient border */}
           <View style={{ marginHorizontal: Spacing.lg }}>
             <LinearGradient
-              colors={[...borderColors] as [string, string, ...string[]]}
+              colors={
+                isLocked
+                  ? ["#9E9E9E", "#757575"] as [string, string]
+                  : [...borderColors] as [string, string, ...string[]]
+              }
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={{
@@ -263,7 +290,7 @@ export const BirdCard: React.FC<BirdCardProps> = ({
                   overflow: "hidden",
                   aspectRatio: 4 / 3,
                   backgroundColor: isLocked
-                    ? getHabitatColor(data.habitat)
+                    ? "#8a8a8a"
                     : Colors.paper,
                 }}
               >
@@ -272,17 +299,24 @@ export const BirdCard: React.FC<BirdCardProps> = ({
                     {data.illustrationUrl && (
                       <Image
                         source={{ uri: data.illustrationUrl }}
-                        style={{ position: "absolute", width: "100%", height: "100%" }}
+                        style={{
+                          position: "absolute",
+                          width: "100%",
+                          height: "100%",
+                          opacity: 0.5,
+                        }}
                         contentFit="cover"
+                        blurRadius={8}
                         testID={`${testID}-illustration`}
                       />
                     )}
-                    <View
+                    <BlurView
+                      intensity={30}
+                      tint="dark"
                       style={{
                         flex: 1,
                         alignItems: "center",
                         justifyContent: "center",
-                        backgroundColor: "rgba(0,0,0,0.45)",
                       }}
                     >
                       <Text
@@ -304,7 +338,7 @@ export const BirdCard: React.FC<BirdCardProps> = ({
                           {`\u00A9 ${data.illustrationAttribution}`}
                         </Text>
                       )}
-                    </View>
+                    </BlurView>
                   </View>
                 ) : data.shamePhoto ? (
                   <Image
@@ -345,7 +379,7 @@ export const BirdCard: React.FC<BirdCardProps> = ({
           <View
             style={{ paddingHorizontal: Spacing.lg, paddingTop: Spacing.md }}
           >
-            {data.about && (
+            {data.about && !isLocked && (
               <View
                 style={{ marginBottom: Spacing.sm }}
                 testID={`${testID}-about`}
@@ -372,6 +406,15 @@ export const BirdCard: React.FC<BirdCardProps> = ({
                   </Text>
                   {data.about}
                 </Text>
+              </View>
+            )}
+            {isLocked && (
+              <View style={{ marginBottom: Spacing.sm }} testID={`${testID}-about-skeleton`}>
+                <View style={{ height: 14, width: "95%", backgroundColor: "rgba(255,255,255,0.2)", borderRadius: 4, marginBottom: 6 }} />
+                <View style={{ height: 14, width: "80%", backgroundColor: "rgba(255,255,255,0.15)", borderRadius: 4, marginBottom: 6 }} />
+                <View style={{ height: 14, width: "88%", backgroundColor: "rgba(255,255,255,0.12)", borderRadius: 4, marginBottom: 6 }} />
+                <View style={{ height: 14, width: "60%", backgroundColor: "rgba(255,255,255,0.1)", borderRadius: 4, marginBottom: Spacing.md }} />
+                <View style={{ height: 14, width: "50%", backgroundColor: "rgba(255,255,255,0.08)", borderRadius: 4 }} />
               </View>
             )}
             {(data.firstSight || !isLocked) && (
@@ -441,16 +484,20 @@ export const BirdCard: React.FC<BirdCardProps> = ({
                 paddingVertical: Spacing.lg,
               }}
             >
-              <ConservationBadge
-                tier={data.conservationTier}
-                size={44}
-                testID={`${testID}-conservation-badge`}
-              />
-              <AudioBadge
-                size={44}
-                onPress={onAudioPress}
-                testID={`${testID}-audio-badge`}
-              />
+              <View style={isLocked ? { opacity: 0.4 } : undefined}>
+                <ConservationBadge
+                  tier={data.conservationTier}
+                  size={44}
+                  testID={`${testID}-conservation-badge`}
+                />
+              </View>
+              <View style={isLocked ? { opacity: 0.4 } : undefined}>
+                <AudioBadge
+                  size={44}
+                  onPress={onAudioPress}
+                  testID={`${testID}-audio-badge`}
+                />
+              </View>
             </View>
           )}
         </View>
@@ -497,7 +544,11 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
     >
       {/* Gradient border */}
       <LinearGradient
-        colors={[...borderColors] as [string, string, ...string[]]}
+        colors={
+          isLocked
+            ? ["#9E9E9E", "#757575"] as [string, string]
+            : [...borderColors] as [string, string, ...string[]]
+        }
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={{
@@ -525,9 +576,23 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
                 height: "120%",
                 top: "-10%",
                 left: "-10%",
+                ...(isLocked ? { opacity: 0.5 } : {}),
               }}
               contentFit="cover"
               testID={`${testID}-habitat-bg`}
+            />
+          )}
+
+          {/* Greyscale overlay for locked cards */}
+          {isLocked && (
+            <View
+              style={{
+                position: "absolute",
+                width: "100%",
+                height: "100%",
+                backgroundColor: "rgba(180, 180, 180, 0.5)",
+              }}
+              pointerEvents="none"
             />
           )}
 
@@ -557,7 +622,11 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
               </Text>
             </View>
             <LinearGradient
-              colors={[...borderColors] as [string, string, ...string[]]}
+              colors={
+                isLocked
+                  ? ["#9E9E9E", "#757575"] as [string, string]
+                  : [...borderColors] as [string, string, ...string[]]
+              }
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={{
@@ -588,7 +657,7 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
           >
             {isLocked ? (
               <LinearGradient
-                colors={[...borderColors] as [string, string, ...string[]]}
+                colors={["#9E9E9E", "#757575"] as [string, string]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={{
@@ -601,24 +670,31 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
                   style={{
                     flex: 1,
                     borderRadius: BorderRadius.lg - 2,
-                    backgroundColor: getHabitatColor(data.habitat),
+                    backgroundColor: "#8a8a8a",
                     overflow: "hidden",
                   }}
                 >
                   {data.illustrationUrl && (
                     <Image
                       source={{ uri: data.illustrationUrl }}
-                      style={{ position: "absolute", width: "100%", height: "100%" }}
+                      style={{
+                        position: "absolute",
+                        width: "100%",
+                        height: "100%",
+                        opacity: 0.5,
+                      }}
                       contentFit="cover"
+                      blurRadius={8}
                       testID={`${testID}-illustration`}
                     />
                   )}
-                  <View
+                  <BlurView
+                    intensity={30}
+                    tint="dark"
                     style={{
                       flex: 1,
                       alignItems: "center",
                       justifyContent: "center",
-                      backgroundColor: "rgba(0,0,0,0.45)",
                     }}
                   >
                     <Text
@@ -639,7 +715,7 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
                         {`\u00A9 ${data.illustrationAttribution}`}
                       </Text>
                     )}
-                  </View>
+                  </BlurView>
                 </View>
               </LinearGradient>
             ) : (

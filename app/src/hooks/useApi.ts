@@ -106,13 +106,20 @@ export function useAchievements(): UseQueryResult<UserAchievement[]> {
 export function useExploreSpecies(
   params: ExploreSpeciesParams | null
 ): UseQueryResult<ExploreSpeciesResponse | null> {
-  return useQuery(
+  const result = useQuery(
     () =>
       params
         ? api.fetchExploreSpecies(params)
         : Promise.resolve(null),
     [params?.lat, params?.lon, params?.mode]
   );
+
+  // Auto-refetch when a new bird is captured (cache is already busted in confirmSighting)
+  useEffect(() => {
+    return on(CAPTURE_COMPLETED, result.refetch);
+  }, [result.refetch]);
+
+  return result;
 }
 
 export function useSpecies(speciesId: string): UseQueryResult<
@@ -123,6 +130,10 @@ export function useSpecies(speciesId: string): UseQueryResult<
 
 export function useSpeciesStates(speciesId: string): UseQueryResult<string[]> {
   return useQuery(() => api.fetchSpeciesStates(speciesId), [speciesId]);
+}
+
+export function useCaptureDates(): UseQueryResult<string[]> {
+  return useQuery(() => api.fetchCaptureDates());
 }
 
 export function useMapSightings(): UseQueryResult<

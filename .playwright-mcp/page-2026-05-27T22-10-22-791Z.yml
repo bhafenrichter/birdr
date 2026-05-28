@@ -1,0 +1,1169 @@
+- generic [active] [ref=e1]:
+  - link "Jump to content" [ref=e2] [cursor=pointer]:
+    - /url: "#bodyContent"
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - navigation "Site" [ref=e6]:
+        - generic "Main menu" [ref=e7]:
+          - button "Main menu" [ref=e8] [cursor=pointer]
+          - generic [ref=e11]: Main menu
+      - link "Wikimedia Commons" [ref=e12] [cursor=pointer]:
+        - /url: /wiki/Main_Page
+        - img [ref=e13]
+        - img "Wikimedia Commons" [ref=e15]
+    - generic [ref=e16]:
+      - search [ref=e17]:
+        - generic [ref=e20]:
+          - searchbox "Search Wikimedia Commons" [ref=e23]
+          - button "Search" [ref=e25]
+      - navigation "Personal tools" [ref=e26]:
+        - generic [ref=e27]:
+          - list [ref=e30]:
+            - listitem [ref=e31]:
+              - link "English" [ref=e32] [cursor=pointer]:
+                - /url: "#"
+                - generic [ref=e34]: English
+          - list [ref=e37]:
+            - listitem [ref=e38]:
+              - link "Donate" [ref=e39] [cursor=pointer]:
+                - /url: https://donate.wikimedia.org/?wmf_source=donate&wmf_medium=sidebar&wmf_campaign=commons.wikimedia.org&uselang=en
+            - listitem [ref=e40]:
+              - link "Create account" [ref=e41] [cursor=pointer]:
+                - /url: /w/index.php?title=Special:CreateAccount&returnto=Main+Page
+            - listitem [ref=e42]:
+              - link "Log in" [ref=e43] [cursor=pointer]:
+                - /url: /w/index.php?title=Special:UserLogin&returnto=Main+Page
+  - generic [ref=e45]:
+    - main [ref=e49]:
+      - generic [ref=e51]:
+        - navigation "Namespaces" [ref=e53]:
+          - generic [ref=e54]:
+            - generic:
+              - list:
+                - listitem [ref=e55]:
+                  - link "Main Page" [ref=e56] [cursor=pointer]:
+                    - /url: /wiki/Main_Page
+                    - generic [ref=e57]: Main Page
+                - listitem [ref=e58]:
+                  - link "Discussion" [ref=e59] [cursor=pointer]:
+                    - /url: /wiki/Talk:Main_Page
+                    - generic [ref=e60]: Discussion
+        - generic [ref=e61]:
+          - navigation "Views" [ref=e62]:
+            - generic [ref=e63]:
+              - generic:
+                - list:
+                  - listitem [ref=e64]:
+                    - link "Read" [ref=e65] [cursor=pointer]:
+                      - /url: /wiki/Main_Page
+                      - generic [ref=e66]: Read
+                  - listitem [ref=e67]:
+                    - link "View source" [ref=e68] [cursor=pointer]:
+                      - /url: /w/index.php?title=Main_Page&action=edit
+                      - generic [ref=e69]: View source
+                  - listitem [ref=e70]:
+                    - link "View history" [ref=e71] [cursor=pointer]:
+                      - /url: /w/index.php?title=Main_Page&action=history
+                      - generic [ref=e72]: View history
+          - navigation "Page tools" [ref=e73]:
+            - generic [ref=e74]:
+              - button "Tools" [ref=e75] [cursor=pointer]
+              - generic [ref=e77] [cursor=pointer]: Tools
+      - navigation "Appearance" [ref=e80]:
+        - generic [ref=e83]:
+          - generic [ref=e84]: Appearance
+          - button "hide" [ref=e85] [cursor=pointer]
+      - generic "Main Page" [ref=e86]:
+        - generic [ref=e89]:
+          - table [ref=e90]:
+            - rowgroup [ref=e91]:
+              - row "Wikimedia Commons a collection of 142,238,027 freely usable media files to which anyone can contribute Images Videos Sounds 3D Models Upload" [ref=e92]:
+                - cell "Wikimedia Commons a collection of 142,238,027 freely usable media files to which anyone can contribute" [ref=e93]:
+                  - generic [ref=e94]:
+                    - generic [ref=e95]: Wikimedia Commons
+                    - generic [ref=e96]:
+                      - text: a collection of
+                      - link "142,238,027" [ref=e97] [cursor=pointer]:
+                        - /url: /wiki/Special:Statistics
+                      - link "freely usable" [ref=e98] [cursor=pointer]:
+                        - /url: /wiki/Commons:Reusing_content_outside_Wikimedia
+                      - text: media files to which
+                      - link "anyone can contribute" [ref=e99] [cursor=pointer]:
+                        - /url: /wiki/Commons:Welcome
+                - cell "Images Videos Sounds 3D Models Upload" [ref=e100]:
+                  - list [ref=e101]:
+                    - listitem [ref=e102]:
+                      - link "Images" [ref=e103] [cursor=pointer]:
+                        - /url: /wiki/Category:CommonsRoot
+                    - listitem [ref=e104]:
+                      - link "Videos" [ref=e105] [cursor=pointer]:
+                        - /url: /wiki/Category:Videos
+                    - listitem [ref=e106]:
+                      - link "Sounds" [ref=e107] [cursor=pointer]:
+                        - /url: /wiki/Category:Audio_files
+                    - listitem [ref=e108]:
+                      - link "3D Models" [ref=e109] [cursor=pointer]:
+                        - /url: /wiki/Category:3D_models
+                    - listitem [ref=e110]:
+                      - link "Upload" [ref=e111] [cursor=pointer]:
+                        - /url: /wiki/Special:UploadWizard
+                        - generic [ref=e112]: Upload
+          - table [ref=e113]:
+            - rowgroup [ref=e114]:
+              - row [ref=e115]:
+                - cell [ref=e116]:
+                  - generic [ref=e117]:
+                    - generic [ref=e118]: Picture of the day
+                    - generic [ref=e119]:
+                      - generic [ref=e120]:
+                        - link [ref=e123] [cursor=pointer]:
+                          - /url: /wiki/File:%D0%9F%D0%B0%D0%B2%D0%B8%D0%BB%D1%8C%D0%BE%D0%BD_%D0%A2%D1%83%D1%80%D0%B5%D1%86%D0%BA%D0%B0%D1%8F_%D0%91%D0%B0%D0%BD%D1%8F_9_6._%D0%95%D0%BA%D0%B0%D1%82%D0%B5%D1%80%D0%B8%D0%BD%D0%B8%D0%BD%D1%81%D0%BA%D0%B8%D0%B9_%D0%BF%D0%B0%D1%80%D0%BA,_%D0%9F%D1%83%D1%88%D0%BA%D0%B8%D0%BD.jpg
+                          - img [ref=e124]
+                        - generic [ref=e126]:
+                          - text: Great Pond and Turkish Bath pavilion,
+                          - link "Catherine Park" [ref=e127] [cursor=pointer]:
+                            - /url: https://en.wikipedia.org/wiki/Catherine_Park
+                          - text: ","
+                          - link "Pushkin town, Saint Petersburg" [ref=e128] [cursor=pointer]:
+                            - /url: https://en.wikipedia.org/wiki/Pushkin,_Saint_Petersburg
+                          - text: ", Russia"
+                      - list [ref=e130]:
+                        - listitem [ref=e131]:
+                          - link "RSS feed" [ref=e132] [cursor=pointer]:
+                            - /url: https://commons.wikimedia.org/w/api.php?action=featuredfeed&feed=potd&feedformat=rss&language=en
+                          - text: ·
+                        - listitem [ref=e133]:
+                          - link "Subscribe" [ref=e134] [cursor=pointer]:
+                            - /url: https://lists.wikimedia.org/mailman/listinfo/daily-image-l
+                          - text: ·
+                        - listitem [ref=e135]:
+                          - link "Previous Pictures of the day" [ref=e136] [cursor=pointer]:
+                            - /url: /wiki/Special:MyLanguage/Commons:Picture_of_the_day
+                  - generic [ref=e137]:
+                    - generic [ref=e138]: Media of the day
+                    - generic [ref=e139]:
+                      - generic [ref=e140]:
+                        - figure [ref=e144]:
+                          - link "File:Hallo Bandoeng 1929.opus" [ref=e145] [cursor=pointer]:
+                            - /url: /wiki/File:Hallo_Bandoeng_1929.opus
+                            - img [ref=e146]
+                        - generic [ref=e147]:
+                          - link "w:Hallo Bandoeng" [ref=e148] [cursor=pointer]:
+                            - /url: https://en.wikipedia.org/wiki/Hallo_Bandoeng
+                          - text: performed by
+                          - link "w:nl:Willy Derby" [ref=e149] [cursor=pointer]:
+                            - /url: https://en.wikipedia.org/wiki/nl:Willy_Derby
+                        - link "Problems playing the file?" [ref=e152] [cursor=pointer]:
+                          - /url: /wiki/Commons:Media_help
+                      - list [ref=e154]:
+                        - listitem [ref=e155]:
+                          - link "RSS feed" [ref=e156] [cursor=pointer]:
+                            - /url: https://commons.wikimedia.org/w/api.php?action=featuredfeed&feed=motd&feedformat=rss&language=en
+                          - text: ·
+                        - listitem [ref=e157]:
+                          - link "Previous Media of the day" [ref=e158] [cursor=pointer]:
+                            - /url: /wiki/Special:MyLanguage/Commons:Media_of_the_day
+                  - generic [ref=e159]:
+                    - generic [ref=e160]: Participating
+                    - generic [ref=e161]:
+                      - generic [ref=e162]:
+                        - link "Log in" [ref=e164] [cursor=pointer]:
+                          - /url: /wiki/Special:UserLogin
+                          - button "Log in" [ref=e165]
+                        - link "Create account" [ref=e167] [cursor=pointer]:
+                          - /url: /wiki/Special:UserLogin/signup
+                          - button "Create account" [ref=e168]
+                      - generic [ref=e169]:
+                        - term [ref=e170]: Browsing?
+                        - definition [ref=e171]:
+                          - text: Please use the search box at the top of this page or
+                          - link "the links to the right" [ref=e174] [cursor=pointer]:
+                            - /url: "#Content"
+                          - text: . Feel free to subscribe to our
+                          - link "syndicated feeds" [ref=e175] [cursor=pointer]:
+                            - /url: /wiki/Commons:Feeds
+                          - text: .
+                        - term [ref=e176]: Using?
+                        - definition [ref=e177]:
+                          - text: To fulfill the free license requirements, please read our
+                          - link "Reuse" [ref=e178] [cursor=pointer]:
+                            - /url: /wiki/Commons:Reusing_content_outside_Wikimedia
+                          - text: guide. You can also
+                          - link "request a file" [ref=e179] [cursor=pointer]:
+                            - /url: /wiki/Commons:File_requests
+                          - text: or
+                          - link "request permission for a file already on the internet" [ref=e180] [cursor=pointer]:
+                            - /url: /wiki/Commons:Permission_requests
+                          - text: .
+                        - term [ref=e181]: Identifying?
+                        - definition [ref=e182]:
+                          - text: Have a browse through
+                          - link "Category:Unidentified subjects" [ref=e183] [cursor=pointer]:
+                            - /url: /wiki/Category:Unidentified_subjects
+                          - text: . If you find something you can identify, adjust the
+                          - link "file's categories" [ref=e184] [cursor=pointer]:
+                            - /url: /wiki/Commons:Categories
+                          - text: and
+                          - link "depicts" [ref=e185] [cursor=pointer]:
+                            - /url: https://www.wikidata.org/wiki/Property:P180
+                          - text: statements in
+                          - link "structured data" [ref=e186] [cursor=pointer]:
+                            - /url: /wiki/Commons:Structured_data
+                          - text: .
+                        - term [ref=e187]: Creating?
+                        - definition [ref=e188]:
+                          - text: Check out all you need to know at our
+                          - link "Contributing your own work" [ref=e189] [cursor=pointer]:
+                            - /url: /wiki/Commons:Contributing_your_own_work
+                          - text: guide.
+                      - generic [ref=e190]:
+                        - term [ref=e191]: Discussion?
+                        - definition [ref=e192]:
+                          - text: See the
+                          - link "list of discussion pages" [ref=e193] [cursor=pointer]:
+                            - /url: /wiki/Commons:Discussion_pages
+                          - text: .
+                        - term [ref=e194]: and more!
+                        - definition [ref=e195]:
+                          - text: To explore more ways you can contribute to this project, check out the
+                          - link "Community Portal" [ref=e196] [cursor=pointer]:
+                            - /url: /wiki/Commons:Community_portal
+                          - text: .
+                - cell [ref=e197]:
+                  - generic [ref=e198]:
+                    - generic [ref=e199]: Wiki Loves Earth
+                    - generic [ref=e200]:
+                      - figure [ref=e201]:
+                        - link [ref=e202] [cursor=pointer]:
+                          - /url: /wiki/File:WLE_Austria_Logo_(transparent).svg
+                          - img [ref=e203]
+                      - generic [ref=e204]:
+                        - text: Upload your photographs of natural heritage for Wiki Loves Earth 2026.
+                        - link "Learn more about the contest!" [ref=e205] [cursor=pointer]:
+                          - /url: /wiki/Commons:Wiki_Loves_Earth_2026
+                  - generic [ref=e206]:
+                    - generic [ref=e207]: Monthly photo challenge
+                    - generic [ref=e208]:
+                      - figure [ref=e209]:
+                        - link "Commons:Photo challenge" [ref=e210] [cursor=pointer]:
+                          - /url: /wiki/Commons:Photo_challenge
+                          - img [ref=e211]
+                      - generic [ref=e212]:
+                        - text: Take some photos and upload them to meet our monthly thematic challenge, get inspiration and try new subjects!
+                        - link "Learn more about the challenges!" [ref=e213] [cursor=pointer]:
+                          - /url: /wiki/Commons:Photo_challenge
+                      - link "Check out this month's challenges" [ref=e216] [cursor=pointer]:
+                        - /url: /wiki/Commons:Photo_challenge#Challenges_open_for_submission
+                        - button "Check out this month's challenges" [ref=e217]
+                  - generic [ref=e218]:
+                    - generic [ref=e219]: Highlights
+                    - paragraph [ref=e221]:
+                      - text: If you are browsing Commons for the first time, you may want to start with
+                      - link "Featured pictures" [ref=e223] [cursor=pointer]:
+                        - /url: /wiki/Commons:Featured_pictures
+                      - text: ","
+                      - link "Quality images" [ref=e225] [cursor=pointer]:
+                        - /url: /wiki/Commons:Quality_images
+                      - text: ","
+                      - link "Valued images" [ref=e227] [cursor=pointer]:
+                        - /url: /wiki/Commons:Valued_images
+                      - text: or
+                      - link "Featured media" [ref=e229] [cursor=pointer]:
+                        - /url: /wiki/Commons:Featured_media
+                      - text: .
+                      - text: You can also see some work created by our highly skilled contributors in
+                      - link "Meet our photographers" [ref=e231] [cursor=pointer]:
+                        - /url: /wiki/Commons:Meet_our_photographers
+                      - text: and
+                      - link "Meet our illustrators" [ref=e233] [cursor=pointer]:
+                        - /url: /wiki/Commons:Meet_our_illustrators
+                      - text: . You may also be interested in
+                      - link "Picture of the Year" [ref=e235] [cursor=pointer]:
+                        - /url: /wiki/Commons:Picture_of_the_Year
+                      - text: .
+                  - generic [ref=e236]:
+                    - generic [ref=e238]: Content
+                    - generic [ref=e239]:
+                      - generic [ref=e240]:
+                        - term [ref=e242]: By topic
+                        - paragraph [ref=e243]:
+                          - link "Nature" [ref=e245] [cursor=pointer]:
+                            - /url: /wiki/Category:Nature
+                        - list [ref=e246]:
+                          - listitem [ref=e247]:
+                            - link "Animalia" [ref=e248] [cursor=pointer]:
+                              - /url: /wiki/Category:Animalia
+                            - text: ·
+                          - listitem [ref=e249]:
+                            - link "Fossils" [ref=e250] [cursor=pointer]:
+                              - /url: /wiki/Category:Fossils
+                            - text: ·
+                          - listitem [ref=e251]:
+                            - link "Landscapes" [ref=e252] [cursor=pointer]:
+                              - /url: /wiki/Category:Landscapes
+                            - text: ·
+                          - listitem [ref=e253]:
+                            - link "Marine organisms" [ref=e255] [cursor=pointer]:
+                              - /url: /wiki/Category:Marine_organisms
+                            - text: ·
+                          - listitem [ref=e256]:
+                            - link "Plantae" [ref=e257] [cursor=pointer]:
+                              - /url: /wiki/Category:Plantae
+                            - text: ·
+                          - listitem [ref=e258]:
+                            - link "Weather" [ref=e259] [cursor=pointer]:
+                              - /url: /wiki/Category:Weather
+                        - paragraph [ref=e260]:
+                          - link "Society" [ref=e262] [cursor=pointer]:
+                            - /url: /wiki/Category:Society
+                          - link "Culture" [ref=e264] [cursor=pointer]:
+                            - /url: /wiki/Category:Culture
+                        - list [ref=e265]:
+                          - listitem [ref=e266]:
+                            - link "Art" [ref=e267] [cursor=pointer]:
+                              - /url: /wiki/Category:Art
+                            - text: ·
+                          - listitem [ref=e268]:
+                            - link "Belief" [ref=e269] [cursor=pointer]:
+                              - /url: /wiki/Category:Belief
+                            - text: ·
+                          - listitem [ref=e270]:
+                            - link "Entertainment" [ref=e271] [cursor=pointer]:
+                              - /url: /wiki/Category:Entertainment
+                            - text: ·
+                          - listitem [ref=e272]:
+                            - link "Events" [ref=e273] [cursor=pointer]:
+                              - /url: /wiki/Category:Events
+                            - text: ·
+                          - listitem [ref=e274]:
+                            - link "Flags" [ref=e275] [cursor=pointer]:
+                              - /url: /wiki/Category:Flags
+                            - text: ·
+                          - listitem [ref=e276]:
+                            - link "Food" [ref=e277] [cursor=pointer]:
+                              - /url: /wiki/Category:Food
+                            - text: ·
+                          - listitem [ref=e278]:
+                            - link "History" [ref=e279] [cursor=pointer]:
+                              - /url: /wiki/Category:History
+                            - text: ·
+                          - listitem [ref=e280]:
+                            - link "Language" [ref=e281] [cursor=pointer]:
+                              - /url: /wiki/Category:Language
+                            - text: ·
+                          - listitem [ref=e282]:
+                            - link "Literature" [ref=e283] [cursor=pointer]:
+                              - /url: /wiki/Category:Literature
+                            - text: ·
+                          - listitem [ref=e284]:
+                            - link "Music" [ref=e285] [cursor=pointer]:
+                              - /url: /wiki/Category:Music
+                            - text: ·
+                          - listitem [ref=e286]:
+                            - link "Objects" [ref=e287] [cursor=pointer]:
+                              - /url: /wiki/Category:Objects
+                            - text: ·
+                          - listitem [ref=e288]:
+                            - link "People" [ref=e289] [cursor=pointer]:
+                              - /url: /wiki/Category:People
+                            - text: ·
+                          - listitem [ref=e290]:
+                            - link "Places" [ref=e291] [cursor=pointer]:
+                              - /url: /wiki/Category:Places
+                            - text: ·
+                          - listitem [ref=e292]:
+                            - link "Politics" [ref=e293] [cursor=pointer]:
+                              - /url: /wiki/Category:Politics
+                            - text: ·
+                          - listitem [ref=e294]:
+                            - link "Sports" [ref=e295] [cursor=pointer]:
+                              - /url: /wiki/Category:Sports
+                        - paragraph [ref=e296]:
+                          - link "Science" [ref=e298] [cursor=pointer]:
+                            - /url: /wiki/Category:Science
+                        - list [ref=e299]:
+                          - listitem [ref=e300]:
+                            - link "Astronomy" [ref=e301] [cursor=pointer]:
+                              - /url: /wiki/Category:Astronomy
+                            - text: ·
+                          - listitem [ref=e302]:
+                            - link "Biology" [ref=e303] [cursor=pointer]:
+                              - /url: /wiki/Category:Biology
+                            - text: ·
+                          - listitem [ref=e304]:
+                            - link "Chemistry" [ref=e305] [cursor=pointer]:
+                              - /url: /wiki/Category:Chemistry
+                            - text: ·
+                          - listitem [ref=e306]:
+                            - link "Earth sciences" [ref=e307] [cursor=pointer]:
+                              - /url: /wiki/Category:Earth_sciences
+                            - text: ·
+                          - listitem [ref=e308]:
+                            - link "Mathematics" [ref=e309] [cursor=pointer]:
+                              - /url: /wiki/Category:Mathematics
+                            - text: ·
+                          - listitem [ref=e310]:
+                            - link "Medicine" [ref=e311] [cursor=pointer]:
+                              - /url: /wiki/Category:Medicine
+                            - text: ·
+                          - listitem [ref=e312]:
+                            - link "Physics" [ref=e313] [cursor=pointer]:
+                              - /url: /wiki/Category:Physics
+                            - text: ·
+                          - listitem [ref=e314]:
+                            - link "Technology" [ref=e315] [cursor=pointer]:
+                              - /url: /wiki/Category:Technology
+                        - paragraph [ref=e316]:
+                          - link "Engineering" [ref=e318] [cursor=pointer]:
+                            - /url: /wiki/Category:Engineering
+                        - list [ref=e319]:
+                          - listitem [ref=e320]:
+                            - link "Architecture" [ref=e321] [cursor=pointer]:
+                              - /url: /wiki/Category:Architecture
+                            - text: ·
+                          - listitem [ref=e322]:
+                            - link "Chemical" [ref=e323] [cursor=pointer]:
+                              - /url: /wiki/Category:Chemical_engineering
+                            - text: ·
+                          - listitem [ref=e324]:
+                            - link "Civil" [ref=e325] [cursor=pointer]:
+                              - /url: /wiki/Category:Civil_engineering
+                            - text: ·
+                          - listitem [ref=e326]:
+                            - link "Electrical" [ref=e327] [cursor=pointer]:
+                              - /url: /wiki/Category:Electrical_engineering
+                            - text: ·
+                          - listitem [ref=e328]:
+                            - link "Environmental" [ref=e329] [cursor=pointer]:
+                              - /url: /wiki/Category:Environmental_engineering
+                            - text: ·
+                          - listitem [ref=e330]:
+                            - link "Geophysical" [ref=e331] [cursor=pointer]:
+                              - /url: /wiki/Category:Geophysical_engineering
+                            - text: ·
+                          - listitem [ref=e332]:
+                            - link "Mechanical" [ref=e333] [cursor=pointer]:
+                              - /url: /wiki/Category:Mechanical_engineering
+                            - text: ·
+                          - listitem [ref=e334]:
+                            - link "Process" [ref=e335] [cursor=pointer]:
+                              - /url: /wiki/Category:Process_engineering
+                      - generic [ref=e336]:
+                        - generic [ref=e337]: By location
+                        - text: · · · · · · · · · ·
+                      - generic [ref=e338]:
+                        - generic [ref=e339]: By type
+                        - text: · · · · · · · · ·
+                      - generic [ref=e340]:
+                        - generic [ref=e341]: By author
+                        - text: · · · ·
+                      - generic [ref=e342]:
+                        - generic [ref=e343]: By license
+                        - text: · ·
+                      - generic [ref=e344]:
+                        - generic [ref=e345]: By source
+                        - text: · ·
+                      - term [ref=e347]:
+                        - link "Images from May 27" [ref=e348] [cursor=pointer]:
+                          - /url: /wiki/May_27
+          - paragraph [ref=e349]
+          - generic [ref=e350]:
+            - figure [ref=e352]
+            - generic [ref=e354]:
+              - text: Wikimedia Commons is part of the
+              - link "non-profit" [ref=e355] [cursor=pointer]:
+                - /url: https://en.wikipedia.org/wiki/Non-profit_organization
+              - text: ","
+              - link "multilingual" [ref=e356] [cursor=pointer]:
+                - /url: https://en.wikipedia.org/wiki/Multilingualism
+              - text: ","
+              - link "free-content" [ref=e357] [cursor=pointer]:
+                - /url: /wiki/Commons:Licensing
+              - link "Wikimedia" [ref=e359] [cursor=pointer]:
+                - /url: https://meta.wikimedia.org/wiki/Wikimedia_movement
+              - text: family.
+            - list [ref=e361]:
+              - listitem [ref=e362]:
+                - link "Wikipedia" [ref=e365] [cursor=pointer]:
+                  - /url: "https://en.wikipedia.org/wiki/en:"
+                - generic [ref=e366]:
+                  - link "Wikipedia" [ref=e367] [cursor=pointer]:
+                    - /url: "https://en.wikipedia.org/wiki/en:"
+                  - text: Encyclopedia
+              - listitem [ref=e368]:
+                - link "Wiktionary" [ref=e371] [cursor=pointer]:
+                  - /url: "https://en.wiktionary.org/wiki/en:"
+                - generic [ref=e372]:
+                  - link "Wiktionary" [ref=e373] [cursor=pointer]:
+                    - /url: "https://en.wiktionary.org/wiki/en:"
+                  - text: Dictionary & thesaurus
+              - listitem [ref=e374]:
+                - link "Wikibooks" [ref=e377] [cursor=pointer]:
+                  - /url: "https://en.wikibooks.org/wiki/en:"
+                - generic [ref=e378]:
+                  - link "Wikibooks" [ref=e379] [cursor=pointer]:
+                    - /url: "https://en.wikibooks.org/wiki/en:"
+                  - text: Textbooks & manuals
+              - listitem [ref=e380]:
+                - link "Wikiquote" [ref=e383] [cursor=pointer]:
+                  - /url: "https://en.wikiquote.org/wiki/en:"
+                - generic [ref=e384]:
+                  - link "Wikiquote" [ref=e385] [cursor=pointer]:
+                    - /url: "https://en.wikiquote.org/wiki/en:"
+                  - text: Quotations
+              - listitem [ref=e386]:
+                - link "Wikispecies" [ref=e389] [cursor=pointer]:
+                  - /url: https://species.wikimedia.org/wiki/Main_Page
+                - generic [ref=e390]:
+                  - link "Wikispecies" [ref=e391] [cursor=pointer]:
+                    - /url: https://species.wikimedia.org/wiki/Main_Page
+                  - text: Species directory
+              - listitem [ref=e392]:
+                - link "Wikiversity" [ref=e395] [cursor=pointer]:
+                  - /url: "https://en.wikiversity.org/wiki/en:"
+                - generic [ref=e396]:
+                  - link "Wikiversity" [ref=e397] [cursor=pointer]:
+                    - /url: "https://en.wikiversity.org/wiki/en:"
+                  - text: Learning resources
+              - listitem [ref=e398]:
+                - link "Wikivoyage" [ref=e401] [cursor=pointer]:
+                  - /url: "https://en.wikivoyage.org/wiki/en:"
+                - generic [ref=e402]:
+                  - link "Wikivoyage" [ref=e403] [cursor=pointer]:
+                    - /url: "https://en.wikivoyage.org/wiki/en:"
+                  - text: Travel guide
+              - listitem [ref=e404]:
+                - link "Wikisource" [ref=e407] [cursor=pointer]:
+                  - /url: "https://en.wikisource.org/wiki/en:"
+                - generic [ref=e408]:
+                  - link "Wikisource" [ref=e409] [cursor=pointer]:
+                    - /url: "https://en.wikisource.org/wiki/en:"
+                  - text: Source texts
+              - listitem [ref=e410]:
+                - link "Wikidata" [ref=e413] [cursor=pointer]:
+                  - /url: https://www.wikidata.org/wiki/
+                - generic [ref=e414]:
+                  - link "Wikidata" [ref=e415] [cursor=pointer]:
+                    - /url: https://www.wikidata.org/wiki/Wikidata:Main_Page/Content/en
+                  - text: Knowledge base
+              - listitem [ref=e416]:
+                - link "MediaWiki" [ref=e419] [cursor=pointer]:
+                  - /url: https://www.mediawiki.org/wiki/Template:Main_page/en
+                - generic [ref=e420]:
+                  - link "MediaWiki" [ref=e421] [cursor=pointer]:
+                    - /url: https://www.mediawiki.org/wiki/Template:Main_page/en
+                  - text: Wiki software development
+              - listitem [ref=e422]:
+                - link "Wikifunctions" [ref=e425] [cursor=pointer]:
+                  - /url: https://www.wikifunctions.org/wiki/Wikifunctions:Main_Page/en
+                - generic [ref=e426]:
+                  - link "Wikifunctions" [ref=e427] [cursor=pointer]:
+                    - /url: https://www.wikifunctions.org/wiki/Template:Main_page/en
+                  - text: Library of functions
+              - listitem [ref=e428]:
+                - link "Meta-Wiki" [ref=e431] [cursor=pointer]:
+                  - /url: https://meta.wikimedia.org/wiki/Main_Page/en
+                - generic [ref=e432]:
+                  - link "Meta-Wiki" [ref=e433] [cursor=pointer]:
+                    - /url: https://meta.wikimedia.org/wiki/Main_Page/en
+                  - text: Coordination
+          - list [ref=e436]:
+            - listitem [ref=e437]:
+              - link "Afrikaans" [ref=e440] [cursor=pointer]:
+                - /url: /wiki/Tuisblad
+              - text: ·
+            - listitem [ref=e441]:
+              - link "Alemannisch" [ref=e444] [cursor=pointer]:
+                - /url: /wiki/Houptsyte
+              - text: ·
+            - listitem [ref=e445]:
+              - link "aragonés" [ref=e448] [cursor=pointer]:
+                - /url: /wiki/Portalada
+              - text: ·
+            - listitem [ref=e449]:
+              - link "Ænglisc" [ref=e452] [cursor=pointer]:
+                - /url: /wiki/H%C4%93afodtramet
+              - text: ·
+            - listitem [ref=e453]:
+              - link "अंगिका" [ref=e456] [cursor=pointer]:
+                - /url: /wiki/%E0%A4%AE%E0%A5%81%E0%A4%96%E0%A5%8D%E0%A4%AF_%E0%A4%AA%E0%A5%83%E0%A4%B7%E0%A5%8D%E0%A4%A0_(anp)
+              - text: ·
+            - listitem [ref=e457]:
+              - link "العربية" [ref=e460] [cursor=pointer]:
+                - /url: /wiki/%D8%A7%D9%84%D8%B5%D9%81%D8%AD%D8%A9_%D8%A7%D9%84%D8%B1%D8%A6%D9%8A%D8%B3%D9%8A%D8%A9
+              - text: ·
+            - listitem [ref=e461]:
+              - link "asturianu" [ref=e464] [cursor=pointer]:
+                - /url: /wiki/Entamu
+              - text: ·
+            - listitem [ref=e465]:
+              - link "авар" [ref=e468] [cursor=pointer]:
+                - /url: /wiki/%D0%91%D0%B5%D1%82%D3%80%D0%B5%D1%80%D0%B0%D0%B1_%D0%B3%D1%8C%D1%83%D0%BC%D0%B5%D1%80
+              - text: ·
+            - listitem [ref=e469]:
+              - link "Basa Bali" [ref=e472] [cursor=pointer]:
+                - /url: /wiki/Kaca_Utama
+              - text: ·
+            - listitem [ref=e473]:
+              - link "Boarisch" [ref=e476] [cursor=pointer]:
+                - /url: /wiki/Hauptseiten
+              - text: ·
+            - listitem [ref=e477]:
+              - link "беларуская" [ref=e480] [cursor=pointer]:
+                - /url: /wiki/%D0%9F%D0%B5%D1%80%D1%88%D0%B0%D1%8F_%D1%81%D1%82%D0%B0%D1%80%D0%BE%D0%BD%D0%BA%D0%B0
+              - text: ·
+            - listitem [ref=e481]:
+              - link "беларуская (тарашкевіца)" [ref=e484] [cursor=pointer]:
+                - /url: /wiki/%D0%93%D0%B0%D0%BB%D0%BE%D1%9E%D0%BD%D0%B0%D1%8F_%D1%81%D1%82%D0%B0%D1%80%D0%BE%D0%BD%D0%BA%D0%B0
+              - text: ·
+            - listitem [ref=e485]:
+              - link "български" [ref=e488] [cursor=pointer]:
+                - /url: /wiki/%D0%9D%D0%B0%D1%87%D0%B0%D0%BB%D0%BD%D0%B0_%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B8%D1%86%D0%B0
+              - text: ·
+            - listitem [ref=e489]:
+              - link "भोजपुरी" [ref=e492] [cursor=pointer]:
+                - /url: /wiki/%E0%A4%AE%E0%A5%81%E0%A4%96%E0%A5%8D%E0%A4%AF_%E0%A4%AA%E0%A4%A8%E0%A5%8D%E0%A4%A8%E0%A4%BE
+              - text: ·
+            - listitem [ref=e493]:
+              - link "Banjar" [ref=e496] [cursor=pointer]:
+                - /url: /wiki/Tungkaran_Tatambaian
+              - text: ·
+            - listitem [ref=e497]:
+              - link "বাংলা" [ref=e500] [cursor=pointer]:
+                - /url: /wiki/%E0%A6%AA%E0%A7%8D%E0%A6%B0%E0%A6%A7%E0%A6%BE%E0%A6%A8_%E0%A6%AA%E0%A6%BE%E0%A6%A4%E0%A6%BE
+              - text: ·
+            - listitem [ref=e501]:
+              - link "brezhoneg" [ref=e504] [cursor=pointer]:
+                - /url: /wiki/Degemer
+              - text: ·
+            - listitem [ref=e505]:
+              - link "bosanski" [ref=e508] [cursor=pointer]:
+                - /url: /wiki/Po%C4%8Detna_strana
+              - text: ·
+            - listitem [ref=e509]:
+              - link "català" [ref=e512] [cursor=pointer]:
+                - /url: /wiki/Commons:P%C3%A0gina_principal
+              - text: ·
+            - listitem [ref=e513]:
+              - link "閩東語 / Mìng-dĕ̤ng-ngṳ̄" [ref=e516] [cursor=pointer]:
+                - /url: /wiki/T%C3%A0u-hi%C4%95k
+              - text: ·
+            - listitem [ref=e517]:
+              - link "کوردی" [ref=e520] [cursor=pointer]:
+                - /url: /wiki/%D8%AF%DB%95%D8%B3%D8%AA%D9%BE%DB%8E%DA%A9
+              - text: ·
+            - listitem [ref=e521]:
+              - link "čeština" [ref=e524] [cursor=pointer]:
+                - /url: /wiki/Hlavn%C3%AD_strana
+              - text: ·
+            - listitem [ref=e525]:
+              - link "Cymraeg" [ref=e528] [cursor=pointer]:
+                - /url: /wiki/Hafan
+              - text: ·
+            - listitem [ref=e529]:
+              - link "dansk" [ref=e532] [cursor=pointer]:
+                - /url: /wiki/Forside
+              - text: ·
+            - listitem [ref=e533]:
+              - link "Deutsch" [ref=e536] [cursor=pointer]:
+                - /url: /wiki/Hauptseite
+              - text: ·
+            - listitem [ref=e537]:
+              - link "Zazaki" [ref=e540] [cursor=pointer]:
+                - /url: /wiki/Pela_Seri
+              - text: ·
+            - listitem [ref=e541]:
+              - link "Ελληνικά" [ref=e544] [cursor=pointer]:
+                - /url: /wiki/%CE%91%CF%81%CF%87%CE%B9%CE%BA%CE%AE_%CF%83%CE%B5%CE%BB%CE%AF%CE%B4%CE%B1
+              - text: ·
+            - listitem [ref=e545]:
+              - generic [ref=e547]: English
+              - text: ·
+            - listitem [ref=e548]:
+              - link "Esperanto" [ref=e551] [cursor=pointer]:
+                - /url: /wiki/%C4%88efpa%C4%9Do
+              - text: ·
+            - listitem [ref=e552]:
+              - link "español" [ref=e555] [cursor=pointer]:
+                - /url: /wiki/Portada
+              - text: ·
+            - listitem [ref=e556]:
+              - link "eesti" [ref=e559] [cursor=pointer]:
+                - /url: /wiki/Esileht
+              - text: ·
+            - listitem [ref=e560]:
+              - link "euskara" [ref=e563] [cursor=pointer]:
+                - /url: /wiki/Azala
+              - text: ·
+            - listitem [ref=e564]:
+              - link "estremeñu" [ref=e567] [cursor=pointer]:
+                - /url: /wiki/P%C3%A1hina_prencipal
+              - text: ·
+            - listitem [ref=e568]:
+              - link "فارسی" [ref=e571] [cursor=pointer]:
+                - /url: /wiki/%D8%B5%D9%81%D8%AD%D9%87%D9%94_%D8%A7%D8%B5%D9%84%DB%8C
+              - text: ·
+            - listitem [ref=e572]:
+              - link "suomi" [ref=e575] [cursor=pointer]:
+                - /url: /wiki/Etusivu
+              - text: ·
+            - listitem [ref=e576]:
+              - link "føroyskt" [ref=e579] [cursor=pointer]:
+                - /url: /wiki/Fors%C3%AD%C3%B0a/fo
+              - text: ·
+            - listitem [ref=e580]:
+              - link "français" [ref=e583] [cursor=pointer]:
+                - /url: /wiki/Accueil
+              - text: ·
+            - listitem [ref=e584]:
+              - link "Frysk" [ref=e587] [cursor=pointer]:
+                - /url: /wiki/Haadside
+              - text: ·
+            - listitem [ref=e588]:
+              - link "Gaeilge" [ref=e591] [cursor=pointer]:
+                - /url: /wiki/Pr%C3%ADomhleathanach
+              - text: ·
+            - listitem [ref=e592]:
+              - link "galego" [ref=e595] [cursor=pointer]:
+                - /url: /wiki/Portada_galega
+              - text: ·
+            - listitem [ref=e596]:
+              - link "Ἀρχαία ἑλληνικὴ" [ref=e599] [cursor=pointer]:
+                - /url: /wiki/%CE%9A%CF%85%CF%81%CE%AF%CE%B1_%CE%94%CE%AD%CE%BB%CF%84%CE%BF%CF%82
+              - text: ·
+            - listitem [ref=e600]:
+              - link "ગુજરાતી" [ref=e603] [cursor=pointer]:
+                - /url: /wiki/%E0%AA%AE%E0%AB%81%E0%AA%96%E0%AA%AA%E0%AB%83%E0%AA%B7%E0%AB%8D%E0%AA%A0
+              - text: ·
+            - listitem [ref=e604]:
+              - link "客家語 / Hak-kâ-ngî" [ref=e607] [cursor=pointer]:
+                - /url: /wiki/Th%C3%A8u-ya%CC%8Dp
+              - text: ·
+            - listitem [ref=e608]:
+              - link "עברית" [ref=e611] [cursor=pointer]:
+                - /url: /wiki/%D7%A2%D7%9E%D7%95%D7%93_%D7%A8%D7%90%D7%A9%D7%99
+              - text: ·
+            - listitem [ref=e612]:
+              - link "हिन्दी" [ref=e615] [cursor=pointer]:
+                - /url: /wiki/%E0%A4%AE%E0%A5%81%E0%A4%96%E0%A4%AA%E0%A5%83%E0%A4%B7%E0%A5%8D%E0%A4%A0_(hi)
+              - text: ·
+            - listitem [ref=e616]:
+              - link "hrvatski" [ref=e619] [cursor=pointer]:
+                - /url: /wiki/Glavna_stranica
+              - text: ·
+            - listitem [ref=e620]:
+              - link "hornjoserbsce" [ref=e623] [cursor=pointer]:
+                - /url: /wiki/H%C5%82owna_strona
+              - text: ·
+            - listitem [ref=e624]:
+              - link "magyar" [ref=e627] [cursor=pointer]:
+                - /url: /wiki/Kezd%C5%91lap
+              - text: ·
+            - listitem [ref=e628]:
+              - link "հայերեն" [ref=e631] [cursor=pointer]:
+                - /url: /wiki/%D4%B3%D5%AC%D5%AD%D5%A1%D5%BE%D5%B8%D6%80_%D4%B7%D5%BB
+              - text: ·
+            - listitem [ref=e632]:
+              - link "interlingua" [ref=e635] [cursor=pointer]:
+                - /url: /wiki/Pagina_principal
+              - text: ·
+            - listitem [ref=e636]:
+              - link "Bahasa Indonesia" [ref=e639] [cursor=pointer]:
+                - /url: /wiki/Halaman_Utama
+              - text: ·
+            - listitem [ref=e640]:
+              - link "íslenska" [ref=e643] [cursor=pointer]:
+                - /url: /wiki/Fors%C3%AD%C3%B0a/is
+              - text: ·
+            - listitem [ref=e644]:
+              - link "italiano" [ref=e647] [cursor=pointer]:
+                - /url: /wiki/Pagina_principale
+              - text: ·
+            - listitem [ref=e648]:
+              - link "日本語" [ref=e651] [cursor=pointer]:
+                - /url: /wiki/%E3%83%A1%E3%82%A4%E3%83%B3%E3%83%9A%E3%83%BC%E3%82%B8
+              - text: ·
+            - listitem [ref=e652]:
+              - link "Jawa" [ref=e655] [cursor=pointer]:
+                - /url: /wiki/Pendhapa
+              - text: ·
+            - listitem [ref=e656]:
+              - link "ქართული" [ref=e659] [cursor=pointer]:
+                - /url: /wiki/%E1%83%9B%E1%83%97%E1%83%90%E1%83%95%E1%83%90%E1%83%A0%E1%83%98_%E1%83%92%E1%83%95%E1%83%94%E1%83%A0%E1%83%93%E1%83%98
+              - text: ·
+            - listitem [ref=e660]:
+              - link "қазақша" [ref=e663] [cursor=pointer]:
+                - /url: /wiki/%D0%91%D0%B0%D1%81%D1%82%D1%8B_%D0%B1%D0%B5%D1%82
+              - text: ·
+            - listitem [ref=e664]:
+              - link "ភាសាខ្មែរ" [ref=e667] [cursor=pointer]:
+                - /url: /wiki/%E1%9E%91%E1%9F%86%E1%9E%96%E1%9F%90%E1%9E%9A%E1%9E%8A%E1%9E%BE%E1%9E%98
+              - text: ·
+            - listitem [ref=e668]:
+              - link "ಕನ್ನಡ" [ref=e671] [cursor=pointer]:
+                - /url: /wiki/%E0%B2%AE%E0%B3%81%E0%B2%96%E0%B3%8D%E0%B2%AF_%E0%B2%AA%E0%B3%81%E0%B2%9F
+              - text: ·
+            - listitem [ref=e672]:
+              - link "한국어" [ref=e675] [cursor=pointer]:
+                - /url: /wiki/%EB%8C%80%EB%AC%B8
+              - text: ·
+            - listitem [ref=e676]:
+              - link "조선말" [ref=e679] [cursor=pointer]:
+                - /url: /wiki/%EC%B2%AB%ED%8E%98%EC%A7%80
+              - text: ·
+            - listitem [ref=e680]:
+              - link "kurdî" [ref=e683] [cursor=pointer]:
+                - /url: /wiki/Destp%C3%AAk
+              - text: ·
+            - listitem [ref=e684]:
+              - link "Latina" [ref=e687] [cursor=pointer]:
+                - /url: /wiki/Pagina_prima
+              - text: ·
+            - listitem [ref=e688]:
+              - link "Lëtzebuergesch" [ref=e691] [cursor=pointer]:
+                - /url: /wiki/Haapts%C3%A4it
+              - text: ·
+            - listitem [ref=e692]:
+              - link "lietuvių" [ref=e695] [cursor=pointer]:
+                - /url: /wiki/Pagrindinis_puslapis
+              - text: ·
+            - listitem [ref=e696]:
+              - link "latviešu" [ref=e699] [cursor=pointer]:
+                - /url: /wiki/S%C4%81kumlapa
+              - text: ·
+            - listitem [ref=e700]:
+              - link "मैथिली" [ref=e703] [cursor=pointer]:
+                - /url: /wiki/%E0%A4%B8%E0%A4%AE%E0%A5%8D%E0%A4%AE%E0%A5%81%E0%A4%96_%E0%A4%AA%E0%A4%A8%E0%A5%8D%E0%A4%A8%E0%A4%BE
+              - text: ·
+            - listitem [ref=e704]:
+              - link "Malagasy" [ref=e707] [cursor=pointer]:
+                - /url: /wiki/Fandraisana
+              - text: ·
+            - listitem [ref=e708]:
+              - link "македонски" [ref=e711] [cursor=pointer]:
+                - /url: /wiki/%D0%93%D0%BB%D0%B0%D0%B2%D0%BD%D0%B0_%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B8%D1%86%D0%B0
+              - text: ·
+            - listitem [ref=e712]:
+              - link "മലയാളം" [ref=e715] [cursor=pointer]:
+                - /url: /wiki/%E0%B4%AA%E0%B5%8D%E0%B4%B0%E0%B4%A7%E0%B4%BE%E0%B4%A8_%E0%B4%A4%E0%B4%BE%E0%B5%BE
+              - text: ·
+            - listitem [ref=e716]:
+              - link "ꯃꯤꯇꯩ ꯂꯣꯟ" [ref=e719] [cursor=pointer]:
+                - /url: /wiki/%EA%AF%83%EA%AF%94%EA%AF%A8%EA%AF%91%EA%AF%A3%EA%AF%8F%EA%AF%95_%EA%AF%82%EA%AF%83%EA%AF%A5%EA%AF%8F
+              - text: ·
+            - listitem [ref=e720]:
+              - link "मराठी" [ref=e723] [cursor=pointer]:
+                - /url: /wiki/%E0%A4%AE%E0%A5%81%E0%A4%96%E0%A4%AA%E0%A5%83%E0%A4%B7%E0%A5%8D%E0%A4%A0_(mr)
+              - text: ·
+            - listitem [ref=e724]:
+              - link "Bahasa Melayu" [ref=e727] [cursor=pointer]:
+                - /url: /wiki/Laman_Utama
+              - text: ·
+            - listitem [ref=e728]:
+              - link "Malti" [ref=e731] [cursor=pointer]:
+                - /url: /wiki/Il-Pa%C4%A1na_prin%C4%8Bipali
+              - text: ·
+            - listitem [ref=e732]:
+              - link "Mirandés" [ref=e735] [cursor=pointer]:
+                - /url: /wiki/P%C3%A1igina_percipal
+              - text: ·
+            - listitem [ref=e736]:
+              - link "မြန်မာဘာသာ" [ref=e739] [cursor=pointer]:
+                - /url: /wiki/%E1%80%97%E1%80%9F%E1%80%AD%E1%80%AF%E1%80%85%E1%80%AC%E1%80%99%E1%80%BB%E1%80%80%E1%80%BA%E1%80%94%E1%80%BE%E1%80%AC
+              - text: ·
+            - listitem [ref=e740]:
+              - link "مازِرونی" [ref=e743] [cursor=pointer]:
+                - /url: /wiki/%DA%AF%D8%AA_%D9%88%D9%84%DA%AF
+              - text: ·
+            - listitem [ref=e744]:
+              - link "Nāhuatl" [ref=e747] [cursor=pointer]:
+                - /url: /wiki/Cal%C4%ABxatl
+              - text: ·
+            - listitem [ref=e748]:
+              - link "Napulitano" [ref=e751] [cursor=pointer]:
+                - /url: /wiki/Paggena_prencepale
+              - text: ·
+            - listitem [ref=e752]:
+              - link "Plattdüütsch" [ref=e755] [cursor=pointer]:
+                - /url: /wiki/H%C3%B6%C3%B6ftsiet
+              - text: ·
+            - listitem [ref=e756]:
+              - link "Nedersaksies" [ref=e759] [cursor=pointer]:
+                - /url: /wiki/V%C3%B6%C3%A4rblad
+              - text: ·
+            - listitem [ref=e760]:
+              - link "नेपाली" [ref=e763] [cursor=pointer]:
+                - /url: /wiki/%E0%A4%AE%E0%A5%81%E0%A4%96%E0%A5%8D%E0%A4%AF_%E0%A4%AA%E0%A5%83%E0%A4%B7%E0%A5%8D%E0%A4%A0
+              - text: ·
+            - listitem [ref=e764]:
+              - link "Nederlands" [ref=e767] [cursor=pointer]:
+                - /url: /wiki/Hoofdpagina
+              - text: ·
+            - listitem [ref=e768]:
+              - link "norsk nynorsk" [ref=e771] [cursor=pointer]:
+                - /url: /wiki/Hovudside
+              - text: ·
+            - listitem [ref=e772]:
+              - link "norsk" [ref=e775] [cursor=pointer]:
+                - /url: /wiki/Hovedside
+              - text: ·
+            - listitem [ref=e776]:
+              - link "occitan" [ref=e779] [cursor=pointer]:
+                - /url: /wiki/Acu%C3%A8lh
+              - text: ·
+            - listitem [ref=e780]:
+              - link "ଓଡ଼ିଆ" [ref=e783] [cursor=pointer]:
+                - /url: /wiki/%E0%AC%AA%E0%AD%8D%E0%AC%B0%E0%AC%A7%E0%AC%BE%E0%AC%A8_%E0%AC%AA%E0%AD%83%E0%AC%B7%E0%AD%8D%E0%AC%A0%E0%AC%BE
+              - text: ·
+            - listitem [ref=e784]:
+              - link "ирон" [ref=e787] [cursor=pointer]:
+                - /url: /wiki/%D0%A1%C3%A6%D0%B9%D1%80%D0%B0%D0%B3_%D1%84%D0%B0%D1%80%D1%81
+              - text: ·
+            - listitem [ref=e788]:
+              - link "ਪੰਜਾਬੀ" [ref=e791] [cursor=pointer]:
+                - /url: /wiki/%E0%A8%AE%E0%A9%81%E0%A9%B1%E0%A8%96_%E0%A8%B8%E0%A8%AB%E0%A8%BC%E0%A8%BE
+              - text: ·
+            - listitem [ref=e792]:
+              - link "Kapampangan" [ref=e795] [cursor=pointer]:
+                - /url: /wiki/Pamuklat
+              - text: ·
+            - listitem [ref=e796]:
+              - link "Picard" [ref=e799] [cursor=pointer]:
+                - /url: /wiki/Pache_picarte
+              - text: ·
+            - listitem [ref=e800]:
+              - link "polski" [ref=e803] [cursor=pointer]:
+                - /url: /wiki/Strona_g%C5%82%C3%B3wna
+              - text: ·
+            - listitem [ref=e804]:
+              - link "پنجابی" [ref=e807] [cursor=pointer]:
+                - /url: /wiki/%D9%85%DA%A9%DA%BE_%D8%B5%D9%81%D8%AD%DB%81
+              - text: ·
+            - listitem [ref=e808]:
+              - link "prūsiskan" [ref=e811] [cursor=pointer]:
+                - /url: /wiki/Galwas_p%C4%81usan
+              - text: ·
+            - listitem [ref=e812]:
+              - link "پښتو" [ref=e815] [cursor=pointer]:
+                - /url: /wiki/%D9%84%D9%88%D9%85%DA%93%DB%8C_%D9%85%D8%AE
+              - text: ·
+            - listitem [ref=e816]:
+              - link "português" [ref=e819] [cursor=pointer]:
+                - /url: /wiki/P%C3%A1gina_principal
+              - text: ·
+            - listitem [ref=e820]:
+              - link "Runa Simi" [ref=e823] [cursor=pointer]:
+                - /url: /wiki/Qhapaq_p%27anqa
+              - text: ·
+            - listitem [ref=e824]:
+              - link "română" [ref=e827] [cursor=pointer]:
+                - /url: /wiki/Pagina_principal%C4%83
+              - text: ·
+            - listitem [ref=e828]:
+              - link "русский" [ref=e831] [cursor=pointer]:
+                - /url: /wiki/%D0%97%D0%B0%D0%B3%D0%BB%D0%B0%D0%B2%D0%BD%D0%B0%D1%8F_%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B8%D1%86%D0%B0
+              - text: ·
+            - listitem [ref=e832]:
+              - link "संस्कृतम्" [ref=e835] [cursor=pointer]:
+                - /url: /wiki/%E0%A4%AE%E0%A5%81%E0%A4%96%E0%A4%AA%E0%A5%81%E0%A4%9F%E0%A4%AE%E0%A5%8D
+              - text: ·
+            - listitem [ref=e836]:
+              - link "ᱥᱟᱱᱛᱟᱲᱤ" [ref=e839] [cursor=pointer]:
+                - /url: /wiki/%E1%B1%A2%E1%B1%A9%E1%B1%AC%E1%B1%A9%E1%B1%9B_%E1%B1%A5%E1%B1%9F%E1%B1%A6%E1%B1%B4%E1%B1%9F
+              - text: ·
+            - listitem [ref=e840]:
+              - link "sardu" [ref=e843] [cursor=pointer]:
+                - /url: /wiki/P%C3%A0gina_printzipale
+              - text: ·
+            - listitem [ref=e844]:
+              - link "sicilianu" [ref=e847] [cursor=pointer]:
+                - /url: /wiki/P%C3%A0ggina_principali
+              - text: ·
+            - listitem [ref=e848]:
+              - link "Scots" [ref=e851] [cursor=pointer]:
+                - /url: /wiki/Scots_Commons
+              - text: ·
+            - listitem [ref=e852]:
+              - link "srpskohrvatski / српскохрватски" [ref=e855] [cursor=pointer]:
+                - /url: /wiki/Glavna_stranica_(sh)
+              - text: ·
+            - listitem [ref=e856]:
+              - link "සිංහල" [ref=e859] [cursor=pointer]:
+                - /url: /wiki/%E0%B6%B8%E0%B7%94%E0%B6%BD%E0%B7%8A_%E0%B6%B4%E0%B7%92%E0%B6%A7%E0%B7%94%E0%B7%80
+              - text: ·
+            - listitem [ref=e860]:
+              - link "Simple English" [ref=e863] [cursor=pointer]:
+                - /url: /wiki/Simple_English
+              - text: ·
+            - listitem [ref=e864]:
+              - link "slovenčina" [ref=e867] [cursor=pointer]:
+                - /url: /wiki/Hlavn%C3%A1_str%C3%A1nka
+              - text: ·
+            - listitem [ref=e868]:
+              - link "slovenščina" [ref=e871] [cursor=pointer]:
+                - /url: /wiki/Glavna_stran
+              - text: ·
+            - listitem [ref=e872]:
+              - link "Soomaaliga" [ref=e875] [cursor=pointer]:
+                - /url: /wiki/Bogga_Hore
+              - text: ·
+            - listitem [ref=e876]:
+              - link "shqip" [ref=e879] [cursor=pointer]:
+                - /url: /wiki/Faqja_kryesore
+              - text: ·
+            - listitem [ref=e880]:
+              - link "српски / srpski" [ref=e883] [cursor=pointer]:
+                - /url: /wiki/%D0%93%D0%BB%D0%B0%D0%B2%D0%BD%D0%B0_%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B0
+              - text: ·
+            - listitem [ref=e884]:
+              - link "Seeltersk" [ref=e887] [cursor=pointer]:
+                - /url: /wiki/Haudsiede_Commons
+              - text: ·
+            - listitem [ref=e888]:
+              - link "Sunda" [ref=e891] [cursor=pointer]:
+                - /url: /wiki/Tepas
+              - text: ·
+            - listitem [ref=e892]:
+              - link "svenska" [ref=e895] [cursor=pointer]:
+                - /url: /wiki/Huvudsida
+              - text: ·
+            - listitem [ref=e896]:
+              - link "ꠍꠤꠟꠐꠤ" [ref=e899] [cursor=pointer]:
+                - /url: /wiki/%EA%A0%9D%EA%A0%A5%EA%A0%9F_%EA%A0%99%EA%A0%A3%EA%A0%94%EA%A0%A3
+              - text: ·
+            - listitem [ref=e900]:
+              - link "ślůnski" [ref=e903] [cursor=pointer]:
+                - /url: /wiki/Przodni%C5%8F_zajta
+              - text: ·
+            - listitem [ref=e904]:
+              - link "தமிழ்" [ref=e907] [cursor=pointer]:
+                - /url: /wiki/%E0%AE%AE%E0%AF%81%E0%AE%A4%E0%AE%B1%E0%AF%8D_%E0%AE%AA%E0%AE%95%E0%AF%8D%E0%AE%95%E0%AE%AE%E0%AF%8D
+              - text: ·
+            - listitem [ref=e908]:
+              - link "తెలుగు" [ref=e911] [cursor=pointer]:
+                - /url: /wiki/%E0%B0%AE%E0%B1%8A%E0%B0%A6%E0%B0%9F%E0%B0%BF_%E0%B0%AA%E0%B1%87%E0%B0%9C%E0%B1%80
+              - text: ·
+            - listitem [ref=e912]:
+              - link "тоҷикӣ" [ref=e915] [cursor=pointer]:
+                - /url: /wiki/%D0%A1%D0%B0%D2%B3%D0%B8%D1%84%D0%B0%D0%B8_%D0%B0%D1%81%D0%BB%D3%A3
+              - text: ·
+            - listitem [ref=e916]:
+              - link "ไทย" [ref=e919] [cursor=pointer]:
+                - /url: /wiki/%E0%B8%AB%E0%B8%99%E0%B9%89%E0%B8%B2%E0%B8%AB%E0%B8%A5%E0%B8%B1%E0%B8%81
+              - text: ·
+            - listitem [ref=e920]:
+              - link "Tagalog" [ref=e923] [cursor=pointer]:
+                - /url: /wiki/Unang_Pahina
+              - text: ·
+            - listitem [ref=e924]:
+              - link "Türkçe" [ref=e927] [cursor=pointer]:
+                - /url: /wiki/Anasayfa
+              - text: ·
+            - listitem [ref=e928]:
+              - link "удмурт" [ref=e931] [cursor=pointer]:
+                - /url: /wiki/%D0%9A%D1%83%D1%82%D1%81%D0%BA%D0%BE%D0%BD_%D0%B1%D0%B0%D0%BC
+              - text: ·
+            - listitem [ref=e932]:
+              - link "українська" [ref=e935] [cursor=pointer]:
+                - /url: /wiki/%D0%93%D0%BE%D0%BB%D0%BE%D0%B2%D0%BD%D0%B0_%D1%81%D1%82%D0%BE%D1%80%D1%96%D0%BD%D0%BA%D0%B0
+              - text: ·
+            - listitem [ref=e936]:
+              - link "اردو" [ref=e939] [cursor=pointer]:
+                - /url: /wiki/%D8%B5%D9%81%D8%AD%DB%82_%D8%A7%D9%88%D9%84
+              - text: ·
+            - listitem [ref=e940]:
+              - link "vèneto" [ref=e943] [cursor=pointer]:
+                - /url: /wiki/Pajina_prinsipa%C5%82e
+              - text: ·
+            - listitem [ref=e944]:
+              - link "Tiếng Việt" [ref=e947] [cursor=pointer]:
+                - /url: /wiki/Trang_Ch%C3%ADnh
+              - text: ·
+            - listitem [ref=e948]:
+              - link "Volapük" [ref=e951] [cursor=pointer]:
+                - /url: /wiki/Cifapad
+              - text: ·
+            - listitem [ref=e952]:
+              - link "Winaray" [ref=e955] [cursor=pointer]:
+                - /url: /wiki/Syahan_nga_Pakli
+              - text: ·
+            - listitem [ref=e956]:
+              - link "ייִדיש" [ref=e959] [cursor=pointer]:
+                - /url: /wiki/%D7%A2%D7%A8%D7%A9%D7%98%D7%A2_%D7%96%D7%B2%D6%B7%D7%98
+              - text: ·
+            - listitem [ref=e960]:
+              - link "Yorùbá" [ref=e963] [cursor=pointer]:
+                - /url: /wiki/Oj%C3%BAew%C3%A9_%C3%80k%E1%BB%8D%CC%81k%E1%BB%8D%CC%81
+              - text: ·
+            - listitem [ref=e964]:
+              - link "粵語" [ref=e967] [cursor=pointer]:
+                - /url: /wiki/%E9%A0%AD%E7%89%88
+              - text: ·
+            - listitem [ref=e968]:
+              - link "文言" [ref=e971] [cursor=pointer]:
+                - /url: /wiki/%E5%8D%B7%E9%A6%96
+              - text: ·
+            - listitem [ref=e972]:
+              - link "中文" [ref=e975] [cursor=pointer]:
+                - /url: /wiki/%E9%A6%96%E9%A1%B5
+              - text: ·
+            - listitem [ref=e976]:
+              - link "閩南語 / Bân-lâm-gí" [ref=e979] [cursor=pointer]:
+                - /url: /wiki/Th%C3%A2u-ia%CC%8Dh
+        - generic [ref=e981]:
+          - text: "Hidden category:"
+          - list [ref=e982]:
+            - listitem [ref=e983]:
+              - link "Commons-en" [ref=e984] [cursor=pointer]:
+                - /url: /wiki/Category:Commons-en
+    - contentinfo [ref=e986]:
+      - list [ref=e987]:
+        - listitem [ref=e988]: This page was last edited on 23 May 2026, at 17:08.
+        - listitem [ref=e989]:
+          - text: Files are available under licenses specified on their description page. All structured data from the file namespace is available under the
+          - link "Creative Commons CC0 License" [ref=e990] [cursor=pointer]:
+            - /url: https://creativecommons.org/publicdomain/zero/1.0/
+          - text: ; all unstructured text is available under the
+          - link "Creative Commons Attribution-ShareAlike License" [ref=e991] [cursor=pointer]:
+            - /url: https://creativecommons.org/licenses/by-sa/4.0/
+          - text: ; additional terms may apply. By using this site, you agree to the
+          - link "Terms of Use" [ref=e992] [cursor=pointer]:
+            - /url: https://foundation.wikimedia.org/wiki/Special:MyLanguage/Policy:Terms_of_Use
+          - text: and the
+          - link "Privacy Policy" [ref=e993] [cursor=pointer]:
+            - /url: https://foundation.wikimedia.org/wiki/Special:MyLanguage/Policy:Privacy_policy
+          - text: .
+      - list:
+        - listitem [ref=e994]:
+          - link "Privacy policy" [ref=e995] [cursor=pointer]:
+            - /url: https://foundation.wikimedia.org/wiki/Special:MyLanguage/Policy:Privacy_policy
+        - listitem [ref=e996]:
+          - link "About Wikimedia Commons" [ref=e997] [cursor=pointer]:
+            - /url: /wiki/Commons:Welcome
+        - listitem [ref=e998]:
+          - link "Disclaimers" [ref=e999] [cursor=pointer]:
+            - /url: /wiki/Commons:General_disclaimer
+        - listitem [ref=e1000]:
+          - link "Code of Conduct" [ref=e1001] [cursor=pointer]:
+            - /url: https://foundation.wikimedia.org/wiki/Special:MyLanguage/Policy:Universal_Code_of_Conduct
+        - listitem [ref=e1002]:
+          - link "Developers" [ref=e1003] [cursor=pointer]:
+            - /url: https://developer.wikimedia.org
+        - listitem [ref=e1004]:
+          - link "Statistics" [ref=e1005] [cursor=pointer]:
+            - /url: https://stats.wikimedia.org/#/commons.wikimedia.org
+        - listitem [ref=e1006]:
+          - link "Cookie statement" [ref=e1007] [cursor=pointer]:
+            - /url: https://foundation.wikimedia.org/wiki/Special:MyLanguage/Policy:Cookie_statement
+        - listitem [ref=e1008]:
+          - link "Mobile view" [ref=e1009] [cursor=pointer]:
+            - /url: //commons.wikimedia.org/w/index.php?title=Main_Page&mobileaction=toggle_view_mobile
+      - list [ref=e1010]:
+        - listitem [ref=e1011]:
+          - link "Wikimedia Foundation" [ref=e1012] [cursor=pointer]:
+            - /url: https://www.wikimedia.org/
+            - img "Wikimedia Foundation" [ref=e1014]
+        - listitem [ref=e1015]:
+          - link "Powered by MediaWiki" [ref=e1016] [cursor=pointer]:
+            - /url: https://www.mediawiki.org/
+            - img "Powered by MediaWiki" [ref=e1018]
