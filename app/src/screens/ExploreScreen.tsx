@@ -230,12 +230,14 @@ const NearMeView: React.FC<{
           renderItem={({ item }) => (
             <View style={styles.gridCell}>
               <Pressable
-                onPress={() =>
+                onPress={() => {
+                  const sp = allSpecies?.find((s) => s.id === item.species_id);
                   navigation.navigate("CardDetail" as any, {
                     speciesId: item.species_id,
                     showAsLocked: true,
-                  })
-                }
+                    speciesSnapshot: sp,
+                  });
+                }}
                 testID={`explore-card-${item.species_id}`}
               >
                 <BirdCardThumb

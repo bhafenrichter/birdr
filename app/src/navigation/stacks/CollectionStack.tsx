@@ -5,7 +5,7 @@ import CardDetailScreen from "../../screens/CardDetailScreen";
 
 export type CollectionStackParamList = {
   CollectionGrid: undefined;
-  CardDetail: { speciesId: string; showAsLocked?: boolean };
+  CardDetail: { speciesId: string; showAsLocked?: boolean; speciesSnapshot?: any };
 };
 
 const Stack = createNativeStackNavigator<CollectionStackParamList>();

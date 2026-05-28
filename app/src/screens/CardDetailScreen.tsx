@@ -62,7 +62,11 @@ const CARD_HEIGHT = SCREEN_HEIGHT * 0.65;
 export const CardDetailScreen: React.FC = () => {
   const navigation = useNavigation<Nav>();
   const route = useRoute<RouteProps>();
-  const { speciesId, showAsLocked } = route.params as { speciesId: string; showAsLocked?: boolean };
+  const { speciesId, showAsLocked, speciesSnapshot } = route.params as {
+    speciesId: string;
+    showAsLocked?: boolean;
+    speciesSnapshot?: any;
+  };
   const insets = useSafeAreaInsets();
 
   const { data: allSpecies } = useAllSpecies();
@@ -97,14 +101,29 @@ export const CardDetailScreen: React.FC = () => {
   const enterScale = useSharedValue(0.3);
   const cardOpacity = useSharedValue(0);
   const sheetAnimatedIndex = useSharedValue(0);
+  const [imageReady, setImageReady] = useState(false);
 
+  // Dim overlay immediately, prefetch image, then animate card in
   useEffect(() => {
     overlayOpacity.value = withTiming(1, { duration: 250 });
-    enterScale.value = withTiming(1, {
-      duration: 350,
-      easing: Easing.out(Easing.cubic),
-    });
-    cardOpacity.value = withTiming(1, { duration: 200 });
+
+    const sp = speciesSnapshot ?? singleSpecies;
+    const imageUrl = sp?.illustration_url ?? sp?.hero_photo_url ?? null;
+
+    const animateCardIn = () => {
+      enterScale.value = withTiming(1, {
+        duration: 350,
+        easing: Easing.out(Easing.cubic),
+      });
+      cardOpacity.value = withTiming(1, { duration: 200 });
+      setImageReady(true);
+    };
+
+    if (imageUrl) {
+      Image.prefetch(imageUrl).then(animateCardIn).catch(animateCardIn);
+    } else {
+      animateCardIn();
+    }
   }, []);
 
   const animateOut = (cb: () => void) => {
@@ -148,42 +167,23 @@ export const CardDetailScreen: React.FC = () => {
     };
   });
 
-  // Use cached allSpecies first for instant render, singleSpecies as authoritative once loaded
-  const species = singleSpecies ?? allSpecies?.find((s) => s.id === speciesId);
+  // Use snapshot for instant render, singleSpecies as authoritative once loaded
+  const species = singleSpecies ?? speciesSnapshot ?? allSpecies?.find((s) => s.id === speciesId);
   const userCard = cards?.find((c) => c.species_id === speciesId);
   const sightings = (sightingsData ?? []).sort(
     (a, b) =>
       new Date(b.captured_at).getTime() - new Date(a.captured_at).getTime(),
   );
 
-  // Only show blank loading if we have NO species data at all (not even from cache)
-  if (!species) {
-    if (!speciesLoading && !allSpecies) {
-      // Still loading everything
-      return (
-        <View style={styles.container}>
-          <Animated.View style={[StyleSheet.absoluteFill, overlayStyle]}>
-            <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFill} />
-            <View style={[StyleSheet.absoluteFill, styles.overlayBg]} />
-          </Animated.View>
-        </View>
-      );
-    }
-
-    // Species not found
+  // Show loading overlay while species data or image is resolving
+  if (!species || !imageReady) {
     return (
-      <Pressable style={styles.overlay} onPress={handleBack}>
-        <View style={[styles.centered, { pointerEvents: "none" }]}>
-          <Text
-            variant="regular"
-            size="base"
-            color={Colors.white}
-            testID="card-detail-not-found"
-          >
-            Species not found
-          </Text>
-        </View>
-      </Pressable>
+      <View style={styles.container}>
+        <Animated.View style={[StyleSheet.absoluteFill, overlayStyle]}>
+          <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFill} />
+          <View style={[StyleSheet.absoluteFill, styles.overlayBg]} />
+        </Animated.View>
+      </View>
     );
   }
 
@@ -384,6 +384,7 @@ export const CardDetailScreen: React.FC = () => {
                           source={{ uri: sighting.photo_url }}
                           style={{ width: "100%", height: "100%" }}
                           contentFit="cover"
+                          cachePolicy="disk"
                         />
                       </View>
                     ) : (

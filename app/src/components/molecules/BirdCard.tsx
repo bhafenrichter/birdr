@@ -16,6 +16,7 @@ import Animated, {
   withRepeat,
   withTiming,
   Easing,
+  FadeIn,
 } from "react-native-reanimated";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
@@ -306,6 +307,7 @@ export const BirdCard: React.FC<BirdCardProps> = ({
                           opacity: 0.5,
                         }}
                         contentFit="cover"
+                        cachePolicy="disk"
                         blurRadius={8}
                         testID={`${testID}-illustration`}
                       />
@@ -684,6 +686,7 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
                         opacity: 0.5,
                       }}
                       contentFit="cover"
+                      cachePolicy="disk"
                       blurRadius={8}
                       testID={`${testID}-illustration`}
                     />
@@ -842,6 +845,7 @@ const ThumbImage: React.FC<{ uri: string; testID: string }> = ({
         source={{ uri }}
         style={{ width: "100%", height: "100%" }}
         contentFit="cover"
+        cachePolicy="disk"
         transition={200}
         onLoadEnd={() => setLoaded(true)}
         testID={testID}
@@ -869,6 +873,7 @@ const PhotoCarousel: React.FC<{
         source={{ uri: photos[index] }}
         style={{ width: "100%", height: "100%" }}
         contentFit="cover"
+        cachePolicy="disk"
         transition={200}
         onLoadEnd={() => setLoaded(true)}
         testID={`${testID}-carousel-${index}`}
@@ -941,7 +946,8 @@ const PhotoQualityBadge: React.FC<{ quality: PhotoQuality }> = ({ quality }) => 
   if (!config) return null;
 
   return (
-    <View
+    <Animated.View
+      entering={FadeIn.duration(300)}
       style={{
         position: "absolute",
         bottom: 6,
@@ -970,7 +976,7 @@ const PhotoQualityBadge: React.FC<{ quality: PhotoQuality }> = ({ quality }) => 
           {config.label}
         </Text>
       </LinearGradient>
-    </View>
+    </Animated.View>
   );
 };
 

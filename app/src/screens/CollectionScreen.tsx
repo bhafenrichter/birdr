@@ -59,11 +59,13 @@ export const CollectionScreen: React.FC = () => {
   ];
 
   const handleCardPress = (speciesId: string) => {
-    navigation.navigate("CardDetail", { speciesId });
+    const sp = species.find((s) => s.id === speciesId);
+    navigation.navigate("CardDetail", { speciesId, speciesSnapshot: sp });
   };
 
   const handleAllNACardPress = (speciesId: string) => {
-    navigation.navigate("CardDetail", { speciesId, showAsLocked: true });
+    const sp = species.find((s) => s.id === speciesId);
+    navigation.navigate("CardDetail", { speciesId, showAsLocked: true, speciesSnapshot: sp });
   };
 
   return (
