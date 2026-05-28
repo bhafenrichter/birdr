@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
-import { View, StyleSheet, ActivityIndicator, Pressable, Platform } from "react-native";
+import { View, StyleSheet, ActivityIndicator, Pressable, Platform, Dimensions } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -161,16 +162,26 @@ export const IdentifyingScreen: React.FC = () => {
             </Text>
           </>
         ) : (
-          <>
-            <View style={styles.errorCard}>
-              <AlertCircle size={32} color={Colors.coral} strokeWidth={1.5} />
+          <SafeAreaView style={styles.errorContainer}>
+            {/* Top group: image + text */}
+            <View style={styles.errorTopGroup}>
+              <View style={styles.errorImageWrapper}>
+                <Image
+                  source={{ uri: photoUri }}
+                  style={styles.errorImage}
+                  contentFit="cover"
+                />
+                <View style={styles.errorImageOverlay} />
+              </View>
+
+              <AlertCircle size={28} color={Colors.coral} strokeWidth={1.5} style={{ marginTop: Spacing.xl }} />
               <Text
                 variant="semiBold"
                 size="lg"
                 color={Colors.white}
                 align="center"
                 testID="identifying-error-title"
-                style={{ marginTop: Spacing.md }}
+                style={{ marginTop: Spacing.sm }}
               >
                 Something went wrong
               </Text>
@@ -185,6 +196,7 @@ export const IdentifyingScreen: React.FC = () => {
               </Text>
             </View>
 
+            {/* Bottom group: buttons */}
             <View style={styles.errorButtons}>
               <PrimaryButton
                 title="Try again"
@@ -207,7 +219,7 @@ export const IdentifyingScreen: React.FC = () => {
                 </Text>
               </Pressable>
             </View>
-          </>
+          </SafeAreaView>
         )}
       </View>
     </View>
@@ -224,19 +236,32 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  errorCard: {
-    alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.6)",
-    borderRadius: BorderRadius.xl,
-    paddingVertical: Spacing["3xl"],
+  errorContainer: {
+    flex: 1,
+    justifyContent: "space-between",
     paddingHorizontal: Spacing.xl,
-    marginHorizontal: Spacing.xl,
+    paddingBottom: Spacing.lg,
+  },
+  errorTopGroup: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  errorImageWrapper: {
+    width: Dimensions.get("window").width * 0.75,
+    aspectRatio: 4 / 3,
+    borderRadius: BorderRadius.xl,
+    overflow: "hidden",
+  },
+  errorImage: {
+    width: "100%",
+    height: "100%",
+  },
+  errorImageOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.3)",
   },
   errorButtons: {
-    position: "absolute",
-    bottom: Platform.OS === "ios" ? 50 : 30,
-    left: Spacing.xl,
-    right: Spacing.xl,
     gap: Spacing.md,
   },
   retakeBtn: {

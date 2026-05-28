@@ -1,5 +1,6 @@
 import React from "react";
-import { View, StyleSheet, Platform } from "react-native";
+import { View, StyleSheet, Dimensions } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import type { RouteProp } from "@react-navigation/native";
@@ -9,6 +10,8 @@ import { Text, PrimaryButton, GhostButton } from "../../components/atoms";
 import type { CaptureFlowParamList } from "../../navigation/stacks/CaptureFlowStack";
 
 type Route = RouteProp<CaptureFlowParamList, "TryAgain">;
+
+const SCREEN_WIDTH = Dimensions.get("window").width;
 
 export const TryAgainScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -22,50 +25,54 @@ export const TryAgainScreen: React.FC = () => {
   ];
 
   return (
-    <View style={styles.container} testID="try-again-screen">
-      {/* Photo thumbnail */}
-      <View style={styles.photoWrapper}>
-        <Image
-          source={{ uri: photoUri }}
-          style={styles.photo}
-          contentFit="cover"
-          testID="try-again-photo"
-        />
+    <SafeAreaView style={styles.container} testID="try-again-screen">
+      {/* Top group: photo + text + tips */}
+      <View style={styles.topGroup}>
+        {/* Photo */}
+        <View style={styles.photoWrapper}>
+          <Image
+            source={{ uri: photoUri }}
+            style={styles.photo}
+            contentFit="cover"
+            testID="try-again-photo"
+          />
+        </View>
+
+        <Text
+          variant="semiBold"
+          size="xl"
+          color={Colors.ink}
+          align="center"
+          testID="try-again-title"
+          style={{ marginTop: Spacing.xl }}
+        >
+          Couldn't identify this one
+        </Text>
+        <Text
+          variant="regular"
+          size="sm"
+          color={Colors.inkSoft}
+          align="center"
+          testID="try-again-subtitle"
+          style={{ marginTop: Spacing.sm }}
+        >
+          Try again with a clearer photo
+        </Text>
+
+        {/* Tips */}
+        <View style={styles.tipsCard} testID="try-again-tips">
+          {tips.map((tip, i) => (
+            <View key={i} style={styles.tipRow} testID={`try-again-tip-${i}`}>
+              <tip.icon size={20} color={Colors.sage} strokeWidth={1.5} />
+              <Text variant="regular" size="sm" color={Colors.ink} testID={`try-again-tip-${i}-text`}>
+                {tip.text}
+              </Text>
+            </View>
+          ))}
+        </View>
       </View>
 
-      <Text
-        variant="semiBold"
-        size="xl"
-        color={Colors.ink}
-        align="center"
-        testID="try-again-title"
-      >
-        Couldn't identify this one
-      </Text>
-      <Text
-        variant="regular"
-        size="sm"
-        color={Colors.inkSoft}
-        align="center"
-        testID="try-again-subtitle"
-        style={{ marginTop: Spacing.sm }}
-      >
-        Try again with a clearer photo
-      </Text>
-
-      {/* Tips */}
-      <View style={styles.tipsCard} testID="try-again-tips">
-        {tips.map((tip, i) => (
-          <View key={i} style={styles.tipRow} testID={`try-again-tip-${i}`}>
-            <tip.icon size={20} color={Colors.sage} strokeWidth={1.5} />
-            <Text variant="regular" size="sm" color={Colors.ink} testID={`try-again-tip-${i}-text`}>
-              {tip.text}
-            </Text>
-          </View>
-        ))}
-      </View>
-
-      {/* Actions */}
+      {/* Bottom group: buttons */}
       <View style={styles.actions}>
         <PrimaryButton
           title="Try again"
@@ -82,7 +89,7 @@ export const TryAgainScreen: React.FC = () => {
           testID="try-again-close"
         />
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -91,16 +98,19 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.cream,
     paddingHorizontal: Spacing.xl,
-    paddingTop: Platform.OS === "ios" ? 80 : 60,
+    justifyContent: "space-between",
+  },
+  topGroup: {
+    flex: 1,
     alignItems: "center",
+    justifyContent: "center",
   },
   photoWrapper: {
-    width: 120,
-    height: 120,
+    width: SCREEN_WIDTH * 0.65,
+    aspectRatio: 4 / 3,
     borderRadius: BorderRadius.xl,
     overflow: "hidden",
-    marginBottom: Spacing.xl,
-    ...Shadows.sm,
+    ...Shadows.md,
   },
   photo: {
     width: "100%",
@@ -121,9 +131,8 @@ const styles = StyleSheet.create({
     gap: Spacing.md,
   },
   actions: {
-    alignSelf: "stretch",
     gap: Spacing.sm,
-    marginTop: Spacing["3xl"],
+    paddingBottom: Spacing.lg,
   },
 });
 

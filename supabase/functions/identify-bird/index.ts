@@ -204,7 +204,7 @@ Deno.serve(async (req) => {
         bird_id_candidate_count: idResult.candidates.length,
         bird_id_photo_quality: idResult.photo_quality,
         bird_id_is_screen_photo: idResult.is_screen_photo,
-        subscription_tier: profile.subscription_tier,
+        subscription_tier: isSubscribed ? "paid" : "free",
       },
     }).catch(() => {}); // swallow errors — don't block the response
 

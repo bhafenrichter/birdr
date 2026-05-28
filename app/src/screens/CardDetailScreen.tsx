@@ -148,6 +148,7 @@ export const CardDetailScreen: React.FC = () => {
     };
   });
 
+  // Use cached allSpecies first for instant render, singleSpecies as authoritative once loaded
   const species = singleSpecies ?? allSpecies?.find((s) => s.id === speciesId);
   const userCard = cards?.find((c) => c.species_id === speciesId);
   const sightings = (sightingsData ?? []).sort(
@@ -155,19 +156,21 @@ export const CardDetailScreen: React.FC = () => {
       new Date(b.captured_at).getTime() - new Date(a.captured_at).getTime(),
   );
 
-  // Wait for the fresh species fetch before rendering the card
-  if (speciesLoading || !singleSpecies) {
-    return (
-      <View style={styles.container}>
-        <Animated.View style={[StyleSheet.absoluteFill, overlayStyle]}>
-          <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFill} />
-          <View style={[StyleSheet.absoluteFill, styles.overlayBg]} />
-        </Animated.View>
-      </View>
-    );
-  }
-
+  // Only show blank loading if we have NO species data at all (not even from cache)
   if (!species) {
+    if (!speciesLoading && !allSpecies) {
+      // Still loading everything
+      return (
+        <View style={styles.container}>
+          <Animated.View style={[StyleSheet.absoluteFill, overlayStyle]}>
+            <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFill} />
+            <View style={[StyleSheet.absoluteFill, styles.overlayBg]} />
+          </Animated.View>
+        </View>
+      );
+    }
+
+    // Species not found
     return (
       <Pressable style={styles.overlay} onPress={handleBack}>
         <View style={[styles.centered, { pointerEvents: "none" }]}>
