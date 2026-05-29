@@ -9,7 +9,8 @@ import Animated, {
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { Binoculars, Flame, Crown } from "lucide-react-native";
+import { Binoculars, Crown } from "lucide-react-native";
+import LottieView from "lottie-react-native";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import {
@@ -57,7 +58,7 @@ export const CaptureHubScreen: React.FC = () => {
 
   return (
     <ImageBackground
-      source={require("../../assets/capture-background.jpg")}
+      source={require("../../assets/forest.png")}
       style={styles.background}
       resizeMode="cover"
     >
@@ -79,7 +80,22 @@ export const CaptureHubScreen: React.FC = () => {
             onPress={() => navigation.navigate("StreakDetail")}
             testID="capture-hub-streak-chip"
           >
-            <Flame size={28} color={Colors.coral} strokeWidth={2} />
+            <View
+              style={{
+                width: 36,
+                height: 36,
+                overflow: "hidden",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <LottieView
+                source={require("../../assets/animations/streak_flame.json")}
+                autoPlay
+                loop
+                style={{ width: 60, height: 60 }}
+              />
+            </View>
             <Text
               variant="bold"
               size="lg"
@@ -100,10 +116,15 @@ export const CaptureHubScreen: React.FC = () => {
               ]}
               onPress={() => {
                 if (!isSubscribed && quotaRemaining <= 0) {
-                  posthog.capture("paywall_shown", { trigger: "capture_hub_quota_exceeded" });
+                  posthog.capture("paywall_shown", {
+                    trigger: "capture_hub_quota_exceeded",
+                  });
                   presentPaywall();
                 } else {
-                  posthog.capture("capture_started", { quota_remaining: quotaRemaining, is_subscribed: isSubscribed });
+                  posthog.capture("capture_started", {
+                    quota_remaining: quotaRemaining,
+                    is_subscribed: isSubscribed,
+                  });
                   navigation.navigate("CaptureFlow");
                 }
               }}

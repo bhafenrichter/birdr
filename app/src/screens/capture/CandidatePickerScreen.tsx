@@ -1,13 +1,15 @@
-import React from "react";
-import { View, StyleSheet, Pressable, Platform } from "react-native";
+import React, { useMemo } from "react";
+import { View, StyleSheet, Pressable, Platform, ScrollView } from "react-native";
 import { Image } from "expo-image";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import type { RouteProp } from "@react-navigation/native";
-import { X, ChevronRight, RefreshCw } from "lucide-react-native";
-import { Colors, Spacing, BorderRadius, Shadows, Fonts, FontSizes } from "../../theme";
+import { X, RefreshCw } from "lucide-react-native";
+import { Colors, Spacing, BorderRadius, Shadows } from "../../theme";
 import { Text, Pill } from "../../components/atoms";
+import { BirdCardThumb } from "../../components/molecules/BirdCard";
 import { usePostHog } from "../../contexts/PostHogProvider";
+import { useAllSpecies } from "../../hooks/useApi";
 import type { CaptureFlowParamList } from "../../navigation/stacks/CaptureFlowStack";
 import type { IdentifyCandidate } from "../../types/api";
 
@@ -19,6 +21,15 @@ export const CandidatePickerScreen: React.FC = () => {
   const route = useRoute<Route>();
   const posthog = usePostHog();
   const { photoUri, candidates, location, setting, photo_quality } = route.params;
+  const { data: allSpecies } = useAllSpecies();
+
+  const speciesMap = useMemo(() => {
+    const map = new Map<string, any>();
+    for (const sp of allSpecies ?? []) {
+      map.set(sp.id, sp);
+    }
+    return map;
+  }, [allSpecies]);
 
   const handleSelect = (candidate: IdentifyCandidate) => {
     if (!candidate.species_id) return;
@@ -88,29 +99,18 @@ export const CandidatePickerScreen: React.FC = () => {
         </Text>
       </View>
 
-      {/* Candidate rows */}
-      <View style={styles.candidates}>
+      {/* Candidate card thumbnails */}
+      <ScrollView
+        contentContainerStyle={styles.cardGrid}
+        showsVerticalScrollIndicator={false}
+      >
         {candidates.slice(0, 3).map((candidate, index) => {
+          const sp = candidate.species_id ? speciesMap.get(candidate.species_id) : null;
           const isTop = index === 0;
           return (
-            <Pressable
-              key={candidate.species_id ?? index}
-              style={[
-                styles.candidateRow,
-                isTop && styles.candidateRowTop,
-              ]}
-              onPress={() => handleSelect(candidate)}
-              testID={`candidate-row-${index}`}
-            >
-              {/* Reference image placeholder */}
-              <View style={styles.candidateAvatar}>
-                <Text variant="bold" size="lg" color={Colors.white} testID={`candidate-avatar-${index}`}>
-                  {candidate.common_name.charAt(0)}
-                </Text>
-              </View>
-
-              <View style={styles.candidateInfo}>
-                {isTop && (
+            <View key={candidate.species_id ?? index} style={styles.cardCell}>
+              {isTop && (
+                <View style={styles.mostLikelyBadge}>
                   <Pill
                     label="Most likely"
                     color={Colors.white}
@@ -118,45 +118,46 @@ export const CandidatePickerScreen: React.FC = () => {
                     size="sm"
                     testID="candidate-most-likely"
                   />
-                )}
-                <Text
-                  variant="medium"
-                  size="base"
-                  color={Colors.ink}
-                  testID={`candidate-name-${index}`}
-                >
-                  {candidate.common_name}
-                </Text>
-                {candidate.distinguishing_feature && (
-                  <Text
-                    variant="regular"
-                    size="xs"
-                    color={Colors.inkSoft}
-                    testID={`candidate-feature-${index}`}
-                  >
-                    {candidate.distinguishing_feature}
-                  </Text>
-                )}
-              </View>
-
-              <ChevronRight size={18} color={Colors.inkFaint} />
-            </Pressable>
+                </View>
+              )}
+              <Pressable
+                onPress={() => handleSelect(candidate)}
+                testID={`candidate-row-${index}`}
+              >
+                <BirdCardThumb
+                  data={{
+                    speciesName: candidate.common_name,
+                    familyName: sp?.family ?? "",
+                    speciesType: sp?.species_type_name ?? "",
+                    habitat: sp?.habitat_name ?? "",
+                    conservationTier: (candidate.conservation_status ?? "LC") as any,
+                    photoUri: null,
+                    sightingCount: 0,
+                    locked: false,
+                    rarity: sp?.rarity as any,
+                    illustrationUrl: sp?.illustration_url ?? null,
+                  }}
+                  testID={`candidate-thumb-${index}`}
+                />
+              </Pressable>
+            </View>
           );
         })}
-      </View>
+      </ScrollView>
 
       {/* None of these match */}
-      <View style={styles.divider} />
-      <Pressable
-        style={styles.noneRow}
-        onPress={handleNoneMatch}
-        testID="candidate-none-match"
-      >
-        <RefreshCw size={18} color={Colors.inkSoft} />
-        <Text variant="regular" size="base" color={Colors.inkSoft} testID="candidate-none-label">
-          None of these match
-        </Text>
-      </Pressable>
+      <View style={styles.bottomBar}>
+        <Pressable
+          style={styles.noneRow}
+          onPress={handleNoneMatch}
+          testID="candidate-none-match"
+        >
+          <RefreshCw size={18} color={Colors.inkSoft} />
+          <Text variant="regular" size="base" color={Colors.inkSoft} testID="candidate-none-label">
+            None of these match
+          </Text>
+        </Pressable>
+      </View>
     </View>
   );
 };
@@ -178,7 +179,7 @@ const styles = StyleSheet.create({
     marginHorizontal: Spacing.xl,
     borderRadius: BorderRadius.xl,
     overflow: "hidden",
-    height: "30%",
+    aspectRatio: 16 / 9,
   },
   photo: {
     width: "100%",
@@ -197,46 +198,27 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.xl,
     paddingVertical: Spacing.lg,
   },
-  candidates: {
-    paddingHorizontal: Spacing.xl,
+  cardGrid: {
+    flexDirection: "row",
+    paddingHorizontal: Spacing.lg,
     gap: Spacing.sm,
   },
-  candidateRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: Colors.white,
-    borderRadius: BorderRadius.xl,
-    padding: Spacing.lg,
-    gap: Spacing.md,
-    ...Shadows.sm,
-  },
-  candidateRowTop: {
-    borderWidth: 1.5,
-    borderColor: Colors.saffron,
-  },
-  candidateAvatar: {
-    width: 52,
-    height: 52,
-    borderRadius: BorderRadius.lg,
-    backgroundColor: Colors.sage,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  candidateInfo: {
+  cardCell: {
     flex: 1,
-    gap: 2,
   },
-  divider: {
-    height: 1,
-    backgroundColor: Colors.paper,
-    marginHorizontal: Spacing.xl,
-    marginTop: Spacing.xl,
+  mostLikelyBadge: {
+    alignItems: "center",
+    marginBottom: Spacing.xs,
+  },
+  bottomBar: {
+    paddingHorizontal: Spacing.xl,
+    paddingBottom: Spacing.xl,
   },
   noneRow: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
     gap: Spacing.md,
-    paddingHorizontal: Spacing.xl,
     paddingVertical: Spacing.lg,
   },
 });

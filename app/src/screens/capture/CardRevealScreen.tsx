@@ -160,10 +160,11 @@ export const CardRevealScreen: React.FC = () => {
           return;
         }
       } catch (e: any) {
-        // Confirm failed but we still show the reveal with optimistic data
+        // Confirm failed — show as repeat sighting (safe default)
+        // Better to under-celebrate than to show first sight for a repeat
         setConfirmResult({
           sighting_id: "pending",
-          is_first_sight: true,
+          is_first_sight: false,
           card: {
             species_id: speciesId,
             common_name: commonName,

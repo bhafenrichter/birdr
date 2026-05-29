@@ -145,7 +145,13 @@ export function useMapSightings(): UseQueryResult<
 export function useAllSpecies(): UseQueryResult<
   (Species & { species_type_name: string; habitat_name: string })[]
 > {
-  return useQuery(() => api.fetchAllSpecies());
+  const result = useQuery(() => api.fetchAllSpecies());
+
+  useEffect(() => {
+    return on(CAPTURE_COMPLETED, result.refetch);
+  }, [result.refetch]);
+
+  return result;
 }
 
 type SpeciesWithJoins = Species & { species_type_name: string; habitat_name: string };

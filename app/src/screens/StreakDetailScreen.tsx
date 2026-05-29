@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { View, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Flame } from "lucide-react-native";
+import LottieView from "lottie-react-native";
 import { Colors, Spacing, BorderRadius, Shadows, Fonts, FontSizes } from "../theme";
 import { Text } from "../components/atoms";
 import { useStreak, useCaptureDates } from "../hooks/useApi";
@@ -77,25 +77,32 @@ export const StreakDetailScreen: React.FC = () => {
       >
         {/* Current streak — large hero */}
         <View style={styles.heroCard} testID="streak-detail-hero">
-          <Flame size={48} color={Colors.coral} strokeWidth={1.5} />
-          <Text
-            variant="extraBold"
-            size="3xl"
-            color={Colors.ink}
-            testID="streak-detail-current-value"
-            style={{ marginTop: Spacing.sm }}
-          >
-            {String(currentStreak)}
-          </Text>
-          <Text
-            variant="regular"
-            size="base"
-            color={Colors.inkSoft}
-            testID="streak-detail-current-label"
-          >
-            day streak
-          </Text>
-
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <LottieView
+              source={require("../../assets/animations/streak_flame.json")}
+              autoPlay
+              loop
+              style={{ width: 120, height: 120 }}
+            />
+            <View style={{ marginLeft: Spacing.sm }}>
+              <Text
+                variant="extraBold"
+                size="3xl"
+                color={Colors.ink}
+                testID="streak-detail-current-value"
+              >
+                {String(currentStreak)}
+              </Text>
+              <Text
+                variant="regular"
+                size="base"
+                color={Colors.inkSoft}
+                testID="streak-detail-current-label"
+              >
+                day streak
+              </Text>
+            </View>
+          </View>
         </View>
 
         {/* Stat tiles */}
@@ -224,8 +231,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: Colors.white,
     borderRadius: BorderRadius.xl,
-    paddingVertical: Spacing["3xl"],
-    paddingHorizontal: Spacing.xl,
+    marginTop: Spacing.md,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
     ...Shadows.sm,
     marginBottom: Spacing.lg,
   },

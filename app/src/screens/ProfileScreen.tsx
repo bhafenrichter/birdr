@@ -1,5 +1,6 @@
 import React from "react";
 import { View, StyleSheet, ScrollView, Pressable, Linking } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import {
@@ -211,7 +212,7 @@ export const ProfileScreen: React.FC = () => {
                   color="rgba(255,255,255,0.8)"
                   testID="profile-upgrade-subtitle"
                 >
-                  From $2.50/month with the yearly plan
+                  From $2.08/month with the yearly plan
                 </Text>
               </View>
               <ChevronRight size={20} color={Colors.white} />
@@ -275,13 +276,14 @@ export const ProfileScreen: React.FC = () => {
           <View style={styles.section} testID="profile-dev-section">
             <ProfileRow
               icon={Bug}
-              label="Clear cache"
+              label="Clear cache & storage"
               onPress={async () => {
                 await clearCache();
+                await AsyncStorage.clear();
                 Toast.show({
                   type: "success",
-                  text1: "Cache cleared",
-                  text2: "All cached data has been purged.",
+                  text1: "Cache & storage cleared",
+                  text2: "All cached data and AsyncStorage have been purged.",
                 });
               }}
               testID="profile-row-clear-cache"

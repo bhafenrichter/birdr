@@ -117,6 +117,8 @@ export interface BirdCardData {
   shameBorder?: [string, string];
   /** Show the shame photo instead of normal photo */
   shamePhoto?: boolean;
+  /** Position the photo content (e.g. "top" for tall birds) */
+  contentPosition?: any;
 }
 
 export interface BirdCardProps {
@@ -747,7 +749,7 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
                       testID={`${testID}-shame-photo`}
                     />
                   ) : data.photoUri ? (
-                    <ThumbImage uri={data.photoUri} testID={`${testID}-thumb-photo`} />
+                    <ThumbImage uri={data.photoUri} testID={`${testID}-thumb-photo`} contentPosition={data.contentPosition} />
                   ) : (
                     <View
                       style={{ flex: 1, backgroundColor: Colors.sageTint }}
@@ -832,10 +834,11 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
 
 // ── Image with loading skeleton ───────────────────────────────────────────
 
-const ThumbImage: React.FC<{ uri: string; testID: string }> = ({
-  uri,
-  testID,
-}) => {
+const ThumbImage: React.FC<{
+  uri: string;
+  testID: string;
+  contentPosition?: any;
+}> = ({ uri, testID, contentPosition }) => {
   const [loaded, setLoaded] = useState(false);
 
   return (
@@ -845,6 +848,7 @@ const ThumbImage: React.FC<{ uri: string; testID: string }> = ({
         source={{ uri }}
         style={{ width: "100%", height: "100%" }}
         contentFit="cover"
+        contentPosition={contentPosition ?? "center"}
         cachePolicy="disk"
         transition={200}
         onLoadEnd={() => setLoaded(true)}

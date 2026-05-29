@@ -25,14 +25,14 @@ const PLANS: {
   {
     id: "weekly",
     name: "Weekly",
-    price: "$3.99",
+    price: "$1.99",
     priceDetail: "per week",
   },
   {
     id: "yearly",
     name: "Yearly",
-    price: "$29.99",
-    priceDetail: "per year · ~$2.50/mo",
+    price: "$24.99",
+    priceDetail: "per year · ~$2.08/mo",
     badge: "Best value",
   },
 ];

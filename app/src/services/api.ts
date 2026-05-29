@@ -167,10 +167,11 @@ export async function confirmSighting(
     achievementsUnlocked: result.achievements_unlocked?.length ?? 0,
   });
 
-  // Bust explore cache so spotted status updates
+  // Bust caches so collection and explore update
   await clearCache("explore:");
+  await clearCache("all_species");
 
-  // Notify listeners (e.g. useCards) to refetch
+  // Notify listeners (e.g. useCards, useAllSpecies) to refetch
   emit(CAPTURE_COMPLETED);
 
   return result;

@@ -73,10 +73,10 @@ export const HardPaywallScreen: React.FC = () => {
               </Text>
             </View>
             <Text variant="semiBold" size="lg" color={Colors.ink} testID="hard-paywall-yearly-price">
-              $29.99/year
+              $24.99/year
             </Text>
             <Text variant="regular" size="xs" color={Colors.inkSoft} testID="hard-paywall-yearly-detail">
-              ~$2.50/month
+              ~$2.08/month
             </Text>
           </Pressable>
 
@@ -89,7 +89,7 @@ export const HardPaywallScreen: React.FC = () => {
             testID="hard-paywall-plan-weekly"
           >
             <Text variant="semiBold" size="lg" color={Colors.ink} testID="hard-paywall-weekly-price">
-              $3.99/week
+              $1.99/week
             </Text>
           </Pressable>
         </View>
@@ -113,7 +113,7 @@ export const HardPaywallScreen: React.FC = () => {
 
         {/* CTA */}
         <PrimaryButton
-          title={`Subscribe · ${selectedPlan === "yearly" ? "$29.99/yr" : "$3.99/wk"}`}
+          title={`Subscribe · ${selectedPlan === "yearly" ? "$24.99/yr" : "$1.99/wk"}`}
           size="lg"
           fullWidth
           testID="hard-paywall-cta"
