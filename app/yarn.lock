@@ -1030,6 +1030,11 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
+"@lodev09/react-native-true-sheet@^3.10.1":
+  version "3.10.1"
+  resolved "https://registry.yarnpkg.com/@lodev09/react-native-true-sheet/-/react-native-true-sheet-3.10.1.tgz#eac35027791ec958cc84cf3ee4f3249bbc9c7f97"
+  integrity sha512-cF5AlYElBIaPyKWuu8WfDFZUm40Wbo5VC1fI6uF5N9mTxQ4w10PYc+msKUxuS6Kqhhl5pZrXRu186wfCPPdDLg==
+
 "@msgpackr-extract/msgpackr-extract-darwin-arm64@3.0.3":
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/@msgpackr-extract/msgpackr-extract-darwin-arm64/-/msgpackr-extract-darwin-arm64-3.0.3.tgz#9edec61b22c3082018a79f6d1c30289ddf3d9d11"
@@ -2302,11 +2307,6 @@ expo-asset@^56.0.14, expo-asset@~56.0.14:
     "@expo/image-utils" "^0.10.1"
     expo-constants "~56.0.15"
 
-expo-av@^16.0.8:
-  version "16.0.8"
-  resolved "https://registry.yarnpkg.com/expo-av/-/expo-av-16.0.8.tgz#b1671127f3b2ecaeb9c69fc2301cf791d4504dd6"
-  integrity sha512-cmVPftGR/ca7XBgs7R6ky36lF3OC0/MM/lpgX/yXqfv0jASTsh7AYX9JxHCwFmF+Z6JEB1vne9FDx4GiLcGreQ==
-
 expo-blur@~56.0.3:
   version "56.0.3"
   resolved "https://registry.yarnpkg.com/expo-blur/-/expo-blur-56.0.3.tgz#4420700813be7ed47298b9280d83fdfb32d04cdb"
@@ -2318,6 +2318,11 @@ expo-camera@~56.0.7:
   integrity sha512-c8z+UheidFintQyP9XLEDP43aK4PS/o9+TFLW0zEOjdqkYCBgoWq6Mw/Ps62kjBeftFY7xrp5ZLITbenNvbTaw==
   dependencies:
     barcode-detector "^3.0.0"
+
+expo-clipboard@^56.0.3:
+  version "56.0.3"
+  resolved "https://registry.yarnpkg.com/expo-clipboard/-/expo-clipboard-56.0.3.tgz#8adb541e17b8a2ed4edbe611cf165492c395c883"
+  integrity sha512-8mCdhmAomm0yBIonJFjAhKUXvSkc2avdNh4+rBwoe7DSWF2AC4w3uy+pa419rvVFbTyVxOBmh83UHAbUwD6qAg==
 
 expo-constants@~56.0.15:
   version "56.0.15"
@@ -2449,6 +2454,11 @@ expo-status-bar@~56.0.4:
   version "56.0.4"
   resolved "https://registry.yarnpkg.com/expo-status-bar/-/expo-status-bar-56.0.4.tgz#01a0b6f9946ae51fe9d85c961ae9b485383cfcab"
   integrity sha512-IGs/fDfkHXofy2ZQrGiXayhFK04HB85FZXorhcEhDZEcqASKgSqpak+HwUtAaR0MeTJwWyHNF7I6VmVbbp8EcA==
+
+expo-video@^56.1.2:
+  version "56.1.2"
+  resolved "https://registry.yarnpkg.com/expo-video/-/expo-video-56.1.2.tgz#4260d40186632689b530fd19268de92bb7c11839"
+  integrity sha512-NPdbwcPfPd7lgOcgTFi7m7Dqp1+3OSXJHrUDU4tXA/Ly4vuNpe35eZNA21F/OJtJqk/nw3r6PDZnSqw5XY0p6w==
 
 expo@~56.0.4:
   version "56.0.4"

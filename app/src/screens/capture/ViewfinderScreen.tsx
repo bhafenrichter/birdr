@@ -19,11 +19,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors, Spacing, BorderRadius, Shadows } from "../../theme";
 import { Text, CircleBtn } from "../../components/atoms";
 import { useAuth } from "../../contexts/AuthProvider";
+import { useRevenueCat } from "../../contexts/RevenueCatProvider";
 import type { CaptureFlowParamList } from "../../navigation/stacks/CaptureFlowStack";
 
 type Nav = NativeStackNavigationProp<CaptureFlowParamList>;
 
-const ZOOM_LEVELS = [1, 2, 3] as const;
+const ZOOM_LEVELS = [1, 2, 5] as const;
 
 export const ViewfinderScreen: React.FC = () => {
   const navigation = useNavigation<Nav>();
@@ -37,9 +38,9 @@ export const ViewfinderScreen: React.FC = () => {
   const { width, height } = useWindowDimensions();
   const isLandscape = width > height;
 
+  const { isSubscribed } = useRevenueCat();
   const dailyUsed = profile?.daily_captures_used ?? 0;
-  const isFree = (profile?.subscription_tier ?? "free") === "free";
-  const capturesRemaining = isFree ? Math.max(0, 3 - dailyUsed) : null;
+  const capturesRemaining = !isSubscribed ? Math.max(0, 3 - dailyUsed) : null;
 
   // Unlock orientation when this screen is focused, lock back on leave
   useEffect(() => {

@@ -148,7 +148,7 @@ export const CardDetailScreen: React.FC = () => {
     const sheetScale = interpolate(
       sheetAnimatedIndex.value,
       [0, 1],
-      [1, 0.65],
+      [1, 0.5],
       Extrapolation.CLAMP,
     );
     const scale = Math.min(enterScale.value, sheetScale);
@@ -323,17 +323,6 @@ export const CardDetailScreen: React.FC = () => {
                     </Text>
                     <Text variant="regular" size="xs" color={Colors.inkSoft}>
                       {`${sightings.length} spot${sightings.length === 1 ? "" : "s"}${uniqueLocations(sightings) > 1 ? ` across ${uniqueLocations(sightings)} locations` : ""} · since ${formatShortDate(userCard!.first_seen_at)}`}
-                    </Text>
-                  </View>
-                  <View style={styles.sightingsBadge}>
-                    <Star
-                      size={12}
-                      color={Colors.saffron}
-                      strokeWidth={2}
-                      fill={Colors.saffron}
-                    />
-                    <Text variant="semiBold" size="xs" color={Colors.saffron}>
-                      {`${sightings.length}`}
                     </Text>
                   </View>
                   <Pressable
@@ -624,6 +613,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: Spacing.sm,
+    paddingBottom: Spacing["3xl"],
   },
   locationPin: {
     width: 36,

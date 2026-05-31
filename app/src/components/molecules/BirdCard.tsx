@@ -45,19 +45,19 @@ import { ShinyCardOverlay } from "./ShinyCardOverlay";
 // ── Habitat background images ─────────────────────────────────────────────
 
 const HABITAT_BACKGROUNDS: Record<string, ImageSourcePropType> = {
-  Forests: require("../../../assets/habitats/forest.jpeg"),
-  "Grasslands & farmland": require("../../../assets/habitats/grasslands.jpeg"),
-  "Grasslands & Farmland": require("../../../assets/habitats/grasslands.jpeg"),
-  "Deserts & scrublands": require("../../../assets/habitats/dessert.jpeg"),
-  "Deserts & Scrublands": require("../../../assets/habitats/dessert.jpeg"),
-  Wetlands: require("../../../assets/habitats/wetlands.jpeg"),
-  Freshwater: require("../../../assets/habitats/wetlands.jpeg"),
-  "Coasts & ocean": require("../../../assets/habitats/beach.jpeg"),
-  "Coasts & Ocean": require("../../../assets/habitats/beach.jpeg"),
-  Mountains: require("../../../assets/habitats/mountains.jpeg"),
-  Tundra: require("../../../assets/habitats/tundra.jpeg"),
-  "Cities & towns": require("../../../assets/habitats/city.jpeg"),
-  "Cities & Towns": require("../../../assets/habitats/city.jpeg"),
+  Forests: require("../../../assets/habitats/v2/Forest.png"),
+  "Grasslands & farmland": require("../../../assets/habitats/v2/Farmland.png"),
+  "Grasslands & Farmland": require("../../../assets/habitats/v2/Farmland.png"),
+  "Deserts & scrublands": require("../../../assets/habitats/v2/Desert.png"),
+  "Deserts & Scrublands": require("../../../assets/habitats/v2/Desert.png"),
+  Wetlands: require("../../../assets/habitats/v2/Wetlands.png"),
+  Freshwater: require("../../../assets/habitats/v2/Freshwater.png"),
+  "Coasts & ocean": require("../../../assets/habitats/v2/Coastal.png"),
+  "Coasts & Ocean": require("../../../assets/habitats/v2/Coastal.png"),
+  Mountains: require("../../../assets/habitats/v2/Mountain.png"),
+  Tundra: require("../../../assets/habitats/v2/Tundra.png"),
+  "Cities & towns": require("../../../assets/habitats/v2/City.png"),
+  "Cities & Towns": require("../../../assets/habitats/v2/City.png"),
 };
 
 function getHabitatBackground(habitat: string): ImageSourcePropType | null {
@@ -69,7 +69,6 @@ const HABITAT_COLORS: Record<string, string> = {
   "Grasslands & farmland": "rgba(124, 152, 66, 1)",
   "Grasslands & Farmland": "rgba(124, 152, 66, 1)",
   "Deserts & scrublands": "rgba(194, 154, 88, 1)",
-  "Deserts & Scrublands": "rgba(194, 154, 88, 1)",
   Wetlands: "rgba(60, 120, 100, 1)",
   Freshwater: "rgba(50, 120, 150, 1)",
   "Coasts & ocean": "rgba(60, 140, 170, 1)",
@@ -86,7 +85,10 @@ function getHabitatColor(habitat: string): string {
 
 // ── Photo quality config ─────────────────────────────────────────────────
 
-const PHOTO_QUALITY_CONFIG: Record<string, { label: string; colors: [string, string] }> = {
+const PHOTO_QUALITY_CONFIG: Record<
+  string,
+  { label: string; colors: [string, string] }
+> = {
   pristine: { label: "Pristine", colors: ["#CE93D8", "#7B1FA2"] },
   good: { label: "Good", colors: ["#64B5F6", "#1565C0"] },
   fair: { label: "Fair", colors: ["#A8D8A8", "#4CAF50"] },
@@ -152,8 +154,8 @@ export const BirdCard: React.FC<BirdCardProps> = ({
       <LinearGradient
         colors={
           isLocked
-            ? ["#9E9E9E", "#757575"] as [string, string]
-            : [...borderColors] as [string, string, ...string[]]
+            ? (["#9E9E9E", "#757575"] as [string, string])
+            : ([...borderColors] as [string, string, ...string[]])
         }
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -178,10 +180,10 @@ export const BirdCard: React.FC<BirdCardProps> = ({
               source={getHabitatBackground(data.habitat)!}
               style={{
                 position: "absolute",
-                width: "120%",
-                height: "120%",
-                top: "-10%",
-                left: "-10%",
+                width: "100%",
+                height: "100%",
+                top: "0%",
+                left: "0%",
                 ...(isLocked ? { opacity: 0.5 } : {}),
               }}
               contentFit="cover"
@@ -249,8 +251,8 @@ export const BirdCard: React.FC<BirdCardProps> = ({
             <LinearGradient
               colors={
                 isLocked
-                  ? ["#9E9E9E", "#757575"] as [string, string]
-                  : [...borderColors] as [string, string, ...string[]]
+                  ? (["#9E9E9E", "#757575"] as [string, string])
+                  : ([...borderColors] as [string, string, ...string[]])
               }
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
@@ -277,8 +279,8 @@ export const BirdCard: React.FC<BirdCardProps> = ({
             <LinearGradient
               colors={
                 isLocked
-                  ? ["#9E9E9E", "#757575"] as [string, string]
-                  : [...borderColors] as [string, string, ...string[]]
+                  ? (["#9E9E9E", "#757575"] as [string, string])
+                  : ([...borderColors] as [string, string, ...string[]])
               }
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
@@ -292,9 +294,7 @@ export const BirdCard: React.FC<BirdCardProps> = ({
                   borderRadius: BorderRadius.lg - 2,
                   overflow: "hidden",
                   aspectRatio: 4 / 3,
-                  backgroundColor: isLocked
-                    ? "#8a8a8a"
-                    : Colors.paper,
+                  backgroundColor: isLocked ? "#8a8a8a" : Colors.paper,
                 }}
               >
                 {isLocked ? (
@@ -331,17 +331,6 @@ export const BirdCard: React.FC<BirdCardProps> = ({
                       >
                         ?
                       </Text>
-                      {data.illustrationAttribution && (
-                        <Text
-                          variant="regular"
-                          size="xs"
-                          color="rgba(255,255,255,0.5)"
-                          style={{ position: "absolute", bottom: 4, left: 6 }}
-                          testID={`${testID}-attribution`}
-                        >
-                          {`\u00A9 ${data.illustrationAttribution}`}
-                        </Text>
-                      )}
                     </BlurView>
                   </View>
                 ) : data.shamePhoto ? (
@@ -359,10 +348,26 @@ export const BirdCard: React.FC<BirdCardProps> = ({
                   />
                 ) : data.photoUri ? (
                   <>
-                    <ThumbImage uri={data.photoUri} testID={`${testID}-photo`} />
-                    {data.photoQuality && PHOTO_QUALITY_CONFIG[data.photoQuality] && (
-                      <PhotoQualityBadge quality={data.photoQuality} />
-                    )}
+                    <ThumbImage
+                      uri={data.photoUri}
+                      testID={`${testID}-photo`}
+                    />
+                    {data.photoQuality &&
+                      PHOTO_QUALITY_CONFIG[data.photoQuality] && (
+                        <PhotoQualityBadge quality={data.photoQuality} />
+                      )}
+                    {data.illustrationAttribution &&
+                      data.photoUri === data.illustrationUrl && (
+                        <Text
+                          variant="regular"
+                          size="xs"
+                          color="rgba(255,255,255,0.5)"
+                          style={{ position: "absolute", bottom: 4, left: 6, fontSize: 7 }}
+                          testID={`${testID}-attribution`}
+                        >
+                          {`\u00A9 ${data.illustrationAttribution}`}
+                        </Text>
+                      )}
                   </>
                 ) : (
                   <View
@@ -413,12 +418,54 @@ export const BirdCard: React.FC<BirdCardProps> = ({
               </View>
             )}
             {isLocked && (
-              <View style={{ marginBottom: Spacing.sm }} testID={`${testID}-about-skeleton`}>
-                <View style={{ height: 14, width: "95%", backgroundColor: "rgba(255,255,255,0.2)", borderRadius: 4, marginBottom: 6 }} />
-                <View style={{ height: 14, width: "80%", backgroundColor: "rgba(255,255,255,0.15)", borderRadius: 4, marginBottom: 6 }} />
-                <View style={{ height: 14, width: "88%", backgroundColor: "rgba(255,255,255,0.12)", borderRadius: 4, marginBottom: 6 }} />
-                <View style={{ height: 14, width: "60%", backgroundColor: "rgba(255,255,255,0.1)", borderRadius: 4, marginBottom: Spacing.md }} />
-                <View style={{ height: 14, width: "50%", backgroundColor: "rgba(255,255,255,0.08)", borderRadius: 4 }} />
+              <View
+                style={{ marginBottom: Spacing.sm }}
+                testID={`${testID}-about-skeleton`}
+              >
+                <View
+                  style={{
+                    height: 14,
+                    width: "95%",
+                    backgroundColor: "rgba(255,255,255,0.2)",
+                    borderRadius: 4,
+                    marginBottom: 6,
+                  }}
+                />
+                <View
+                  style={{
+                    height: 14,
+                    width: "80%",
+                    backgroundColor: "rgba(255,255,255,0.15)",
+                    borderRadius: 4,
+                    marginBottom: 6,
+                  }}
+                />
+                <View
+                  style={{
+                    height: 14,
+                    width: "88%",
+                    backgroundColor: "rgba(255,255,255,0.12)",
+                    borderRadius: 4,
+                    marginBottom: 6,
+                  }}
+                />
+                <View
+                  style={{
+                    height: 14,
+                    width: "60%",
+                    backgroundColor: "rgba(255,255,255,0.1)",
+                    borderRadius: 4,
+                    marginBottom: Spacing.md,
+                  }}
+                />
+                <View
+                  style={{
+                    height: 14,
+                    width: "50%",
+                    backgroundColor: "rgba(255,255,255,0.08)",
+                    borderRadius: 4,
+                  }}
+                />
               </View>
             )}
             {(data.firstSight || !isLocked) && (
@@ -550,8 +597,8 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
       <LinearGradient
         colors={
           isLocked
-            ? ["#9E9E9E", "#757575"] as [string, string]
-            : [...borderColors] as [string, string, ...string[]]
+            ? (["#9E9E9E", "#757575"] as [string, string])
+            : ([...borderColors] as [string, string, ...string[]])
         }
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -576,10 +623,10 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
               source={getHabitatBackground(data.habitat)!}
               style={{
                 position: "absolute",
-                width: "120%",
-                height: "120%",
-                top: "-10%",
-                left: "-10%",
+                width: "100%",
+                height: "100%",
+                top: "0%",
+                left: "0%",
                 ...(isLocked ? { opacity: 0.5 } : {}),
               }}
               contentFit="cover"
@@ -628,8 +675,8 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
             <LinearGradient
               colors={
                 isLocked
-                  ? ["#9E9E9E", "#757575"] as [string, string]
-                  : [...borderColors] as [string, string, ...string[]]
+                  ? (["#9E9E9E", "#757575"] as [string, string])
+                  : ([...borderColors] as [string, string, ...string[]])
               }
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
@@ -710,16 +757,6 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
                     >
                       ?
                     </Text>
-                    {data.illustrationAttribution && (
-                      <Text
-                        variant="regular"
-                        size="xs"
-                        color="rgba(255,255,255,0.4)"
-                        style={{ position: "absolute", bottom: 2, left: 4, fontSize: 7 }}
-                      >
-                        {`\u00A9 ${data.illustrationAttribution}`}
-                      </Text>
-                    )}
                   </BlurView>
                 </View>
               </LinearGradient>
@@ -749,7 +786,25 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
                       testID={`${testID}-shame-photo`}
                     />
                   ) : data.photoUri ? (
-                    <ThumbImage uri={data.photoUri} testID={`${testID}-thumb-photo`} contentPosition={data.contentPosition} />
+                    <>
+                      <ThumbImage
+                        uri={data.photoUri}
+                        testID={`${testID}-thumb-photo`}
+                        contentPosition={data.contentPosition}
+                      />
+                      {data.illustrationAttribution &&
+                        data.photoUri === data.illustrationUrl && (
+                          <Text
+                            variant="regular"
+                            size="xs"
+                            color="rgba(255,255,255,0.4)"
+                            style={{ position: "absolute", bottom: 2, left: 4, fontSize: 7 }}
+                            testID={`${testID}-thumb-attribution`}
+                          >
+                            {`\u00A9 ${data.illustrationAttribution}`}
+                          </Text>
+                        )}
+                    </>
                   ) : (
                     <View
                       style={{ flex: 1, backgroundColor: Colors.sageTint }}
@@ -798,23 +853,41 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
                 }}
               />
             </View>
-            {!isLocked && data.sightingCount != null && data.sightingCount > 0 && (
-              <Text
-                variant="semiBold"
-                size="xs"
-                color={Colors.white}
-                style={{
-                  textShadowColor: "rgba(0,0,0,0.6)",
-                  textShadowOffset: { width: 0, height: 1 },
-                  textShadowRadius: 2,
-                }}
-                testID={`${testID}-thumb-count`}
-              >
-                {data.sightingCount === 1
-                  ? "★ 1 sighting"
-                  : `★ ${data.sightingCount} sightings`}
-              </Text>
-            )}
+            {!isLocked &&
+              data.sightingCount != null &&
+              data.sightingCount > 0 && (
+                <LinearGradient
+                  colors={[...rc.borderColors] as [string, string, ...string[]]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    alignSelf: "flex-start",
+                    paddingHorizontal: Spacing.sm,
+                    paddingVertical: 3,
+                    borderRadius: BorderRadius.full,
+                    gap: 4,
+                    marginBottom: Spacing.xs,
+                  }}
+                  testID={`${testID}-thumb-count`}
+                >
+                  <Text
+                    variant="bold"
+                    size="xs"
+                    color={Colors.white}
+                    style={{
+                      textShadowColor: "rgba(0,0,0,0.4)",
+                      textShadowOffset: { width: 0, height: 1 },
+                      textShadowRadius: 2,
+                    }}
+                  >
+                    {data.sightingCount === 1
+                      ? "★ 1 sighting"
+                      : `★ ${data.sightingCount} sightings`}
+                  </Text>
+                </LinearGradient>
+              )}
           </View>
         </View>
       </LinearGradient>
@@ -899,7 +972,10 @@ const PhotoCarousel: React.FC<{
         }}
       >
         <GHPressable
-          onPress={() => { setLoaded(false); setIndex((i) => Math.max(0, i - 1)); }}
+          onPress={() => {
+            setLoaded(false);
+            setIndex((i) => Math.max(0, i - 1));
+          }}
           disabled={index === 0}
           hitSlop={10}
           style={{ paddingHorizontal: 4, justifyContent: "center" }}
@@ -913,12 +989,20 @@ const PhotoCarousel: React.FC<{
           </Text>
         </GHPressable>
 
-        <Text variant="semiBold" size="sm" color={Colors.white} style={{ lineHeight: 20 }}>
+        <Text
+          variant="semiBold"
+          size="sm"
+          color={Colors.white}
+          style={{ lineHeight: 20 }}
+        >
           {`${index + 1}/${photos.length}`}
         </Text>
 
         <GHPressable
-          onPress={() => { setLoaded(false); setIndex((i) => Math.min(photos.length - 1, i + 1)); }}
+          onPress={() => {
+            setLoaded(false);
+            setIndex((i) => Math.min(photos.length - 1, i + 1));
+          }}
           disabled={index === photos.length - 1}
           hitSlop={10}
           style={{ paddingHorizontal: 4, justifyContent: "center" }}
@@ -926,7 +1010,11 @@ const PhotoCarousel: React.FC<{
           <Text
             variant="bold"
             size="lg"
-            color={index === photos.length - 1 ? "rgba(255,255,255,0.3)" : Colors.white}
+            color={
+              index === photos.length - 1
+                ? "rgba(255,255,255,0.3)"
+                : Colors.white
+            }
           >
             ›
           </Text>
@@ -945,7 +1033,9 @@ const PhotoCarousel: React.FC<{
 
 // ── Photo quality badge ───────────────────────────────────────────────────
 
-const PhotoQualityBadge: React.FC<{ quality: PhotoQuality }> = ({ quality }) => {
+const PhotoQualityBadge: React.FC<{ quality: PhotoQuality }> = ({
+  quality,
+}) => {
   const config = PHOTO_QUALITY_CONFIG[quality];
   if (!config) return null;
 
@@ -972,11 +1062,7 @@ const PhotoQualityBadge: React.FC<{ quality: PhotoQuality }> = ({ quality }) => 
         }}
       >
         <Camera size={14} color={Colors.white} strokeWidth={2.5} />
-        <Text
-          variant="bold"
-          size="sm"
-          color={Colors.white}
-        >
+        <Text variant="bold" size="sm" color={Colors.white}>
           {config.label}
         </Text>
       </LinearGradient>

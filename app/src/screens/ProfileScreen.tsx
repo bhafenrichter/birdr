@@ -238,7 +238,7 @@ export const ProfileScreen: React.FC = () => {
             <ProfileRow
               icon={CreditCard}
               label="Manage subscription"
-              onPress={presentCustomerCenter}
+              onPress={() => navigation.navigate("Subscription")}
               testID="profile-row-subscription"
             />
           ) : null}

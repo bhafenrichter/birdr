@@ -351,7 +351,7 @@ export const AchievementsScreen: React.FC = () => {
       const relevant = getRelevantSpecies(achievement);
 
       openSheet(
-        <View style={{ flex: 1 }}>
+        <View>
           {/* Header */}
           <View style={styles.sheetHeader}>
             <View style={styles.sheetHeaderRow}>
@@ -433,12 +433,13 @@ export const AchievementsScreen: React.FC = () => {
               );
             })()
           ) : (
-            <FlatList
-              data={relevant}
-              keyExtractor={(item) => item.id}
+            <ScrollView
+              style={{ maxHeight: 400 }}
               contentContainerStyle={styles.sheetList}
-              renderItem={({ item }) => (
-                <View style={styles.speciesRow}>
+              showsVerticalScrollIndicator={false}
+            >
+              {relevant.map((item) => (
+                <View key={item.id} style={styles.speciesRow}>
                   <View
                     style={[
                       styles.speciesDot,
@@ -472,8 +473,8 @@ export const AchievementsScreen: React.FC = () => {
                     </Text>
                   </View>
                 </View>
-              )}
-            />
+              ))}
+            </ScrollView>
           )}
         </View>,
       );
@@ -988,7 +989,7 @@ const styles = StyleSheet.create({
   },
   sheetHeader: {
     paddingHorizontal: Spacing.xl,
-    paddingTop: Spacing.md,
+    paddingTop: Spacing.xl,
     paddingBottom: Spacing.md,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: Colors.paper,

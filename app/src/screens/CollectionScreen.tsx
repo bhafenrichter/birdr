@@ -4,7 +4,6 @@ import {
   StyleSheet,
   Pressable,
   TextInput as RNTextInput,
-  ActivityIndicator,
 } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { FlashList } from "@shopify/flash-list";
@@ -22,11 +21,8 @@ import {
 } from "../theme";
 import { Text, SegmentedControl, CardSkeletonGrid } from "../components/atoms";
 import { BirdCardThumb } from "../components/molecules/BirdCard";
-import {
-  useCards,
-  useAllSpecies,
-  useAllSpeciesPaginated,
-} from "../hooks/useApi";
+import { useCards, useAllSpecies } from "../hooks/useApi";
+import { MyMapView } from "../components/molecules/MyMapView";
 import type { CollectionStackParamList } from "../navigation/stacks/CollectionStack";
 
 type Nav = NativeStackNavigationProp<CollectionStackParamList>;
@@ -55,7 +51,7 @@ export const CollectionScreen: React.FC = () => {
 
   const segments = [
     `Spotted · ${spottedCards.length}`,
-    `All NA · ${species.length}`,
+    "My map",
   ];
 
   const handleCardPress = (speciesId: string) => {
@@ -63,10 +59,6 @@ export const CollectionScreen: React.FC = () => {
     navigation.navigate("CardDetail", { speciesId, speciesSnapshot: sp });
   };
 
-  const handleAllNACardPress = (speciesId: string) => {
-    const sp = species.find((s) => s.id === speciesId);
-    navigation.navigate("CardDetail", { speciesId, showAsLocked: true, speciesSnapshot: sp });
-  };
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]} testID="collection-screen">
@@ -92,8 +84,8 @@ export const CollectionScreen: React.FC = () => {
         />
       </View>
 
-      {/* Search bar */}
-      <View style={styles.searchBar} testID="collection-search">
+      {/* Search bar — only on Spotted tab */}
+      {segmentIndex === 0 && <View style={styles.searchBar} testID="collection-search">
         <Search size={18} color={Colors.inkFaint} />
         <RNTextInput
           style={styles.searchInput}
@@ -103,7 +95,7 @@ export const CollectionScreen: React.FC = () => {
           onChangeText={setSearchQuery}
           testID="collection-search-input"
         />
-      </View>
+      </View>}
 
       {/* Grid */}
       {segmentIndex === 0 ? (
@@ -115,10 +107,11 @@ export const CollectionScreen: React.FC = () => {
           onCardPress={handleCardPress}
         />
       ) : (
-        <AllNAView
-          searchQuery={searchQuery}
-          spottedIds={spottedIds}
-          onCardPress={handleAllNACardPress}
+        <MyMapView
+          onMarkerPress={(id) => {
+            const sp = species.find((s) => s.id === id);
+            navigation.navigate("CardDetail", { speciesId: id, speciesSnapshot: sp });
+          }}
         />
       )}
     </SafeAreaView>
@@ -209,90 +202,6 @@ const SpottedView: React.FC<{
   );
 };
 
-// ── All NA view (paginated 3-col grid) ────────────────────────────────────
-
-const AllNAView: React.FC<{
-  searchQuery: string;
-  spottedIds: Set<string>;
-  onCardPress: (id: string) => void;
-}> = ({ searchQuery, spottedIds, onCardPress }) => {
-  const { data, isLoading, isLoadingMore, hasMore, loadMore } =
-    useAllSpeciesPaginated(searchQuery);
-
-  if (isLoading) {
-    return <CardSkeletonGrid count={6} testID="collection-all-loading" />;
-  }
-
-  if (data.length === 0) {
-    return (
-      <View style={styles.emptyState} testID="collection-all-empty">
-        <Text
-          variant="semiBold"
-          size="lg"
-          color={Colors.ink}
-          align="center"
-          testID="collection-all-empty-title"
-        >
-          No species match "{searchQuery}"
-        </Text>
-      </View>
-    );
-  }
-
-  return (
-    <FlashList
-      data={data}
-      keyExtractor={(item) => item.id}
-      numColumns={2}
-      contentContainerStyle={styles.gridContent}
-      showsVerticalScrollIndicator={false}
-      onEndReached={loadMore}
-      onEndReachedThreshold={0.5}
-      ListFooterComponent={
-        isLoadingMore ? (
-          <View style={styles.loadingFooter}>
-            <ActivityIndicator size="small" color={Colors.sage} />
-          </View>
-        ) : null
-      }
-      renderItem={({ item, index }) => {
-        const spotted = spottedIds.has(item.id);
-        const delay = Math.min(index, 7) * 80;
-        return (
-          <Animated.View
-            style={styles.gridCell}
-            entering={FadeIn.delay(delay).duration(400)}
-          >
-            <Pressable
-              onPress={() => onCardPress(item.id)}
-              testID={`collection-card-${item.id}`}
-            >
-              <Animated.View sharedTransitionTag={`card-${item.id}`}>
-                <BirdCardThumb
-                  data={{
-                    speciesName: item.common_name,
-                    familyName: item.family,
-                    speciesType: item.species_type_name,
-                    habitat: item.habitat_name,
-                    conservationTier: item.conservation_status as any,
-                    photoUri: spotted ? ((item as any).illustration_url ?? null) : null,
-                    sightingCount: spotted ? 1 : 0,
-                    locked: !spotted,
-                    rarity: item.rarity as any,
-                    about: item.about_text,
-                    illustrationUrl: (item as any).illustration_url,
-                    illustrationAttribution: (item as any).illustration_attribution,
-                  }}
-                  testID={`collection-thumb-${item.id}`}
-                />
-              </Animated.View>
-            </Pressable>
-          </Animated.View>
-        );
-      }}
-    />
-  );
-};
 
 const styles = StyleSheet.create({
   container: {

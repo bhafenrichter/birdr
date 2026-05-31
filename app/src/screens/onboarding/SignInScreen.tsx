@@ -1,6 +1,7 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { View, StyleSheet, Pressable, Platform } from "react-native";
 import { Image } from "expo-image";
+import { VideoView, useVideoPlayer } from "expo-video";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -10,9 +11,18 @@ import { useAuth } from "../../contexts/AuthProvider";
 import type { OnboardingStackParamList } from "../../navigation/stacks/OnboardingStack";
 import AppleLogo from "../../../assets/apple-logo.svg";
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const iconVideo = require("../../../assets/animations/icon.mp4");
+
 export const SignInScreen: React.FC = () => {
   const { signInWithApple, signInWithGoogle, isSignedIn } = useAuth();
   const navigation = useNavigation<NativeStackNavigationProp<OnboardingStackParamList>>();
+
+  const player = useVideoPlayer(iconVideo, (p) => {
+    p.loop = true;
+    p.muted = true;
+    p.play();
+  });
 
   useEffect(() => {
     if (isSignedIn) {
@@ -23,13 +33,16 @@ export const SignInScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container} testID="sign-in-screen">
       <View style={styles.content}>
-        {/* App icon */}
-        <Image
-          source={require("../../../assets/icon.png")}
-          style={styles.appIcon}
-          contentFit="contain"
-          testID="sign-in-icon"
-        />
+        {/* App icon animation */}
+        <View style={styles.appIcon}>
+          <VideoView
+            player={player}
+            style={{ width: "100%", height: "100%" }}
+            contentFit="cover"
+            nativeControls={false}
+            testID="sign-in-icon"
+          />
+        </View>
 
         {/* Wordmark */}
         <Text
@@ -122,6 +135,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.xl,
     borderWidth: 1,
     borderColor: Colors.sage,
+    overflow: "hidden",
   },
   buttons: {
     paddingHorizontal: Spacing.xl,

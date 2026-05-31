@@ -1,16 +1,15 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
-import { View, StyleSheet, Pressable, Dimensions } from "react-native";
+import { View, StyleSheet, Pressable, Dimensions, TextInput as RNTextInput, ActivityIndicator } from "react-native";
 import * as Location from "expo-location";
 import { FlashList } from "@shopify/flash-list";
 import { SafeAreaView } from "react-native-safe-area-context";
-import MapView, { Marker, Region } from "react-native-maps";
-import { MapPin, Binoculars } from "lucide-react-native";
+import { MapPin, Search } from "lucide-react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import type {
   NativeStackNavigationProp,
   NativeStackScreenProps,
 } from "@react-navigation/native-stack";
-import { Colors, Spacing, BorderRadius, Shadows } from "../theme";
+import { Colors, Spacing, BorderRadius, Shadows, Fonts, FontSizes } from "../theme";
 import {
   Text,
   SegmentedControl,
@@ -19,7 +18,7 @@ import {
   CardSkeletonGrid,
 } from "../components/atoms";
 import { BirdCardThumb } from "../components/molecules/BirdCard";
-import { useExploreSpecies, useProfile, useCards, useMapSightings, useAllSpecies } from "../hooks/useApi";
+import { useExploreSpecies, useCards, useAllSpecies, useAllSpeciesPaginated } from "../hooks/useApi";
 import type { ExploreStackParamList } from "../navigation/stacks/ExploreStack";
 
 type Nav = NativeStackNavigationProp<ExploreStackParamList>;
@@ -49,7 +48,7 @@ export const ExploreScreen: React.FC = () => {
       {/* Segmented control */}
       <View style={styles.segmentWrapper}>
         <SegmentedControl
-          segments={["Near me", "My map"]}
+          segments={["Near me", "All North America"]}
           selectedIndex={segmentIndex}
           onSelect={setSegmentIndex}
           testID="explore-segment"
@@ -59,7 +58,7 @@ export const ExploreScreen: React.FC = () => {
       {segmentIndex === 0 ? (
         <NearMeView navigation={navigation} routeParams={route.params} />
       ) : (
-        <MyMapView />
+        <AllNAView navigation={navigation} />
       )}
     </SafeAreaView>
   );
@@ -268,163 +267,106 @@ const NearMeView: React.FC<{
   );
 };
 
-// ── My Map ─────────────────────────────────────────────────────────────────
+// ── All NA view (paginated grid) ─────────────────────────────────────────
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
-
-const US_CENTER: Region = {
-  latitude: 39.8283,
-  longitude: -98.5795,
-  latitudeDelta: 40,
-  longitudeDelta: 40,
-};
-
-const MyMapView: React.FC = () => {
-  const navigation = useNavigation<Nav>();
-  const { data: cards, isLoading: cardsLoading } = useCards();
-  const { data: mapSightings, isLoading: sightingsLoading } = useMapSightings();
-  const mapRef = useRef<MapView>(null);
-
-  const allCards = cards ?? [];
-  const sightings = mapSightings ?? [];
-  const totalCaptures = allCards.reduce((sum, c) => sum + c.sighting_count, 0);
-  const totalSpecies = allCards.length;
-
-  // Unique states from sighting locations
-  const uniqueStates = useMemo(() => {
-    const states = new Set<string>();
-    for (const s of sightings) {
-      if (s.named_location) {
-        const parts = s.named_location.split(", ");
-        if (parts.length >= 2) states.add(parts[parts.length - 1]);
-      }
-    }
-    return states.size;
-  }, [sightings]);
-
-  // Fit map to sighting markers on first load
-  useEffect(() => {
-    if (sightings.length > 0 && mapRef.current) {
-      const coords = sightings.map((s) => ({
-        latitude: s.lat!,
-        longitude: s.lon!,
-      }));
-      mapRef.current.fitToCoordinates(coords, {
-        edgePadding: { top: 60, right: 60, bottom: 60, left: 60 },
-        animated: true,
-      });
-    }
-  }, [sightings.length > 0]);
-
-  const handleMarkerPress = useCallback(
-    (speciesId: string) => {
-      navigation.navigate("CardDetail", { speciesId });
-    },
-    [navigation],
+const AllNAView: React.FC<{ navigation: Nav }> = ({ navigation }) => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const { data: allSpecies } = useAllSpecies();
+  const { data: cards } = useCards();
+  const spottedIds = useMemo(
+    () => new Set((cards ?? []).map((c) => c.species_id)),
+    [cards],
   );
+  const { data, isLoading, isLoadingMore, hasMore, loadMore } =
+    useAllSpeciesPaginated(searchQuery);
 
   return (
-    <View style={styles.myMapContainer} testID="explore-my-map">
-      {/* Stats trio */}
-      <View style={styles.statsTrio}>
-        <StatBlock
-          value={String(totalCaptures)}
-          label="Captures"
-          isLoading={cardsLoading}
-          testID="explore-stat-captures"
-        />
-        <StatBlock
-          value={String(totalSpecies)}
-          label="Species"
-          isLoading={cardsLoading}
-          testID="explore-stat-species"
-        />
-        <StatBlock
-          value={uniqueStates > 0 ? String(uniqueStates) : "—"}
-          label="States"
-          isLoading={sightingsLoading}
-          testID="explore-stat-states"
+    <View style={{ flex: 1 }} testID="explore-all-na">
+      {/* Search bar */}
+      <View style={styles.searchBar}>
+        <Search size={18} color={Colors.inkFaint} />
+        <RNTextInput
+          style={styles.searchInput}
+          placeholder="Search species..."
+          placeholderTextColor={Colors.inkFaint}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          testID="explore-all-na-search"
         />
       </View>
 
-      {/* Map */}
-      <View style={styles.mapContainer} testID="explore-map">
-        <MapView
-          ref={mapRef}
-          style={styles.map}
-          initialRegion={US_CENTER}
-          showsUserLocation
-          showsMyLocationButton={false}
-          testID="explore-map-view"
-        >
-          {sightings.map((sighting) => (
-            <Marker
-              key={sighting.id}
-              coordinate={{
-                latitude: sighting.lat!,
-                longitude: sighting.lon!,
-              }}
-              tracksViewChanges={false}
-              onPress={() =>
-                handleMarkerPress((sighting as any).species?.id ?? sighting.species_id)
-              }
-            >
-              <View style={styles.mapMarker}>
-                <Binoculars size={16} color={Colors.white} strokeWidth={2} />
+      {isLoading ? (
+        <CardSkeletonGrid count={6} testID="explore-all-loading" />
+      ) : data.length === 0 ? (
+        <View style={styles.emptyState} testID="explore-all-empty">
+          <Text
+            variant="semiBold"
+            size="lg"
+            color={Colors.ink}
+            align="center"
+          >
+            No species match "{searchQuery}"
+          </Text>
+        </View>
+      ) : (
+        <FlashList
+          data={data}
+          keyExtractor={(item) => item.id}
+          numColumns={2}
+          contentContainerStyle={styles.gridContent}
+          showsVerticalScrollIndicator={false}
+          onEndReached={loadMore}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={
+            isLoadingMore ? (
+              <View style={{ paddingVertical: Spacing.xl, alignItems: "center" }}>
+                <ActivityIndicator size="small" color={Colors.sage} />
               </View>
-              <View style={styles.mapMarkerTail} />
-            </Marker>
-          ))}
-        </MapView>
-
-        {sightings.length === 0 && (
-          <View style={styles.mapEmptyOverlay} pointerEvents="none">
-            <MapPin size={32} color={Colors.inkFaint} strokeWidth={1.5} />
-            <Text
-              variant="regular"
-              size="sm"
-              color={Colors.inkFaint}
-              align="center"
-              style={{ marginTop: Spacing.sm }}
-            >
-              Your sightings will appear here
-            </Text>
-          </View>
-        )}
-      </View>
+            ) : null
+          }
+          renderItem={({ item, index }) => {
+            const spotted = spottedIds.has(item.id);
+            return (
+              <View style={styles.gridCell}>
+                <Pressable
+                  onPress={() => {
+                    navigation.navigate("CardDetail" as any, {
+                      speciesId: item.id,
+                      showAsLocked: true,
+                      speciesSnapshot: item,
+                    });
+                  }}
+                  testID={`explore-all-card-${item.id}`}
+                >
+                  <BirdCardThumb
+                    data={{
+                      speciesName: item.common_name,
+                      familyName: item.family,
+                      speciesType: item.species_type_name,
+                      habitat: item.habitat_name,
+                      conservationTier: item.conservation_status as any,
+                      photoUri: spotted
+                        ? ((item as any).illustration_url ?? null)
+                        : null,
+                      sightingCount: spotted ? 1 : 0,
+                      locked: !spotted,
+                      rarity: item.rarity as any,
+                      about: item.about_text,
+                      illustrationUrl: (item as any).illustration_url,
+                      illustrationAttribution:
+                        (item as any).illustration_attribution,
+                    }}
+                    testID={`explore-all-thumb-${item.id}`}
+                  />
+                </Pressable>
+              </View>
+            );
+          }}
+        />
+      )}
     </View>
   );
 };
-
-const StatBlock: React.FC<{
-  value: string;
-  label: string;
-  isLoading?: boolean;
-  testID: string;
-}> = ({ value, label, isLoading, testID }) => (
-  <View style={styles.statBlock} testID={testID}>
-    {isLoading ? (
-      <View style={styles.statBone} />
-    ) : (
-      <Text
-        variant="bold"
-        size="xl"
-        color={Colors.ink}
-        testID={`${testID}-value`}
-      >
-        {value}
-      </Text>
-    )}
-    <Text
-      variant="regular"
-      size="xs"
-      color={Colors.inkSoft}
-      testID={`${testID}-label`}
-    >
-      {label}
-    </Text>
-  </View>
-);
 
 const SEASON_LABELS: Record<string, string> = {
   year_round: "Year-round resident",
@@ -466,77 +408,30 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.xs,
     paddingVertical: Spacing.xs,
   },
-  myMapContainer: {
-    flex: 1,
-    paddingHorizontal: Spacing.xl,
-  },
-  statsTrio: {
-    flexDirection: "row",
-    gap: Spacing.sm,
-    marginBottom: Spacing.lg,
-  },
-  statBlock: {
-    flex: 1,
-    alignItems: "center",
-    paddingVertical: Spacing.lg,
-    backgroundColor: Colors.white,
-    borderRadius: BorderRadius.lg,
-    ...Shadows.sm,
-  },
-  statBone: {
-    width: 32,
-    height: 20,
-    borderRadius: 6,
-    backgroundColor: Colors.paper,
-  },
   emptyState: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: Spacing.xl,
   },
-  mapContainer: {
-    flex: 1,
-    borderRadius: BorderRadius.xl,
-    overflow: "hidden",
-    marginBottom: Spacing.lg,
-  },
-  map: {
-    flex: 1,
-  },
-  mapEmptyOverlay: {
-    ...StyleSheet.absoluteFill,
-    position: "absolute",
+  searchBar: {
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(245, 241, 232, 0.7)",
+    marginHorizontal: Spacing.xl,
+    marginBottom: Spacing.xs,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.lg,
+    gap: Spacing.sm,
+    ...Shadows.sm,
   },
-  mapMarker: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: Colors.sage,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 2,
-    borderColor: Colors.white,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  mapMarkerTail: {
-    width: 0,
-    height: 0,
-    borderLeftWidth: 6,
-    borderRightWidth: 6,
-    borderTopWidth: 8,
-    borderLeftColor: "transparent",
-    borderRightColor: "transparent",
-    borderTopColor: Colors.sage,
-    alignSelf: "center",
-    marginTop: -1,
+  searchInput: {
+    flex: 1,
+    fontFamily: Fonts.regular,
+    fontSize: FontSizes.base,
+    color: Colors.ink,
+    paddingVertical: 2,
   },
 });
 

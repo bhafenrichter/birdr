@@ -1,5 +1,12 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect } from "react";
 import { View, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withTiming,
+  Easing,
+} from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import LottieView from "lottie-react-native";
 import { Colors, Spacing, BorderRadius, Shadows, Fonts, FontSizes } from "../theme";
@@ -177,38 +184,76 @@ export const StreakDetailScreen: React.FC = () => {
           {Array.from({ length: weekCount }).map((_, week) => (
             <View key={`week-${week}`} style={styles.calendarRow}>
               {calendarDays.slice(week * 7, (week + 1) * 7).map((day, i) => (
+                day.isToday && day.day != null ? (
+                  <PulsingTodayCell key={day.date} day={day} />
+                ) : (
                 <View
                   key={day.date || `blank-${week}-${i}`}
-                  style={[
-                    styles.calendarCell,
-                    styles.calendarDay,
-                    day.day != null && day.isCapture && styles.calendarDayCapture,
-                    day.day != null && day.isToday && !day.isCapture && styles.calendarDayToday,
-                  ]}
+                  style={styles.calendarCell}
                   testID={day.date ? `streak-day-${day.date}` : undefined}
                 >
                   {day.day != null && (
-                    <Text
-                      variant={day.isCapture ? "semiBold" : "regular"}
-                      size="xs"
-                      color={
-                        day.isCapture
-                          ? Colors.white
-                          : day.isToday
-                            ? Colors.coral
+                    <View style={[
+                      styles.calendarDay,
+                      day.isCapture && styles.calendarDayCapture,
+                    ]}>
+                      <Text
+                        variant={day.isCapture ? "semiBold" : "regular"}
+                        size="xs"
+                        color={
+                          day.isCapture
+                            ? Colors.sage
                             : Colors.inkSoft
-                      }
-                    >
-                      {String(day.day)}
-                    </Text>
+                        }
+                      >
+                        {String(day.day)}
+                      </Text>
+                    </View>
                   )}
                 </View>
+                )
               ))}
             </View>
           ))}
         </View>
       </ScrollView>
     </SafeAreaView>
+  );
+};
+
+// ── Pulsing today cell ────────────────────────────────────────────────────
+
+const PulsingTodayCell: React.FC<{
+  day: { date: string; day: number | null; isCapture: boolean; isToday: boolean };
+}> = ({ day }) => {
+  const scale = useSharedValue(1);
+
+  useEffect(() => {
+    scale.value = withRepeat(
+      withTiming(1.15, { duration: 800, easing: Easing.inOut(Easing.ease) }),
+      -1,
+      true,
+    );
+  }, []);
+
+  const pulseStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  return (
+    <View style={[styles.calendarCell]} testID={`streak-day-${day.date}`}>
+      <Animated.View
+        style={[
+          styles.calendarDay,
+          styles.calendarDayToday,
+          pulseStyle,
+        ]}
+      >
+        <Text variant="semiBold" size="xs" color={Colors.white}>
+          {String(day.day)}
+        </Text>
+      </Animated.View>
+    </View>
   );
 };
 
@@ -269,14 +314,16 @@ const styles = StyleSheet.create({
   calendarDay: {
     borderRadius: BorderRadius.full,
     margin: 2,
+    width: 32,
+    height: 32,
+    alignItems: "center",
+    justifyContent: "center",
   },
   calendarDayCapture: {
-    backgroundColor: Colors.coral,
+    backgroundColor: Colors.sageTint,
   },
   calendarDayToday: {
-    borderWidth: 1.5,
-    borderColor: Colors.coral,
-    borderStyle: "dashed",
+    backgroundColor: Colors.sage,
   },
 });
 

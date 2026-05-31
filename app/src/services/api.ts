@@ -6,7 +6,7 @@
 import * as FileSystem from "expo-file-system/legacy";
 import { supabase } from "./supabase";
 import { logger } from "./logger";
-import { getCached, setCache } from "./cache";
+import { getCached, setCache, clearCache } from "./cache";
 import { emit, CAPTURE_COMPLETED } from "./events";
 import type {
   IdentifyBirdResponse,
@@ -228,6 +228,34 @@ export async function fetchExploreSpecies(
 export async function deleteAccount(): Promise<DeleteAccountResponse> {
   logger.warn("Deleting user account");
   return invokeFunction<DeleteAccountResponse>("delete-account");
+}
+
+/**
+ * Sync subscription tier to the profiles table.
+ * Called when RevenueCat detects a subscription change.
+ */
+export async function syncSubscriptionTier(
+  tier: "free" | "pro",
+): Promise<void> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({ subscription_tier: tier })
+    .eq("id", user.id);
+
+  if (error) {
+    logger.error("Failed to sync subscription tier", {
+      tier,
+      code: error.code,
+      message: error.message,
+    });
+  } else {
+    logger.info("Subscription tier synced", { tier });
+  }
 }
 
 // ── Direct DB Queries ──────────────────────────────────────────────────────

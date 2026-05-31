@@ -187,53 +187,52 @@ export const CardRevealScreen: React.FC = () => {
 
     // Beat 1: Identifying (background dims)
     setBeat(1);
-    bgOpacity.value = withTiming(0.85, { duration: 800 * d });
+    bgOpacity.value = withTiming(0.85, { duration: 400 * d });
 
-    // Beat 2: Match found (~1.5s in)
-    const beat2Delay = 1500 * d;
+    // Beat 2: Match found + confetti (~0.5s in)
+    const beat2Delay = 500 * d;
     setTimeout(() => {
       setBeat(2);
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      particleOpacity.value = withTiming(1, { duration: 300 });
+      particleOpacity.value = withTiming(1, { duration: 200 });
       setCanSkip(true);
     }, beat2Delay);
 
-    // Beat 3: Card materializes (~2.5s in)
-    const beat3Delay = 2500 * d;
+    // Beat 3: Card materializes (~1.2s in)
+    const beat3Delay = 1200 * d;
     setTimeout(() => {
       setBeat(3);
       Haptics.impactAsync(scale.haptic);
-      cardOpacity.value = withTiming(1, { duration: 500 });
+      cardOpacity.value = withTiming(1, { duration: 400 });
       cardScale.value = withSpring(1, { damping: 12, stiffness: 100 });
     }, beat3Delay);
 
-    // Beat 4: First Sight banner (~3.5s in)
-    const beat4Delay = 3500 * d;
+    // Beat 4: First Sight banner (~2s in)
+    const beat4Delay = 2000 * d;
     setTimeout(() => {
       setBeat(4);
-      bannerOpacity.value = withTiming(1, { duration: 400 });
+      bannerOpacity.value = withTiming(1, { duration: 300 });
     }, beat4Delay);
 
-    // Beat 5: Settled (~4.5s in)
-    const beat5Delay = 4500 * d;
+    // Beat 5: Settled (~2.8s in)
+    const beat5Delay = 2800 * d;
     setTimeout(() => {
       setBeat(5);
-      settledScale.value = withTiming(0.85, { duration: 500 });
-      bonusOpacity.value = withDelay(300, withTiming(1, { duration: 400 }));
-      bgOpacity.value = withTiming(0, { duration: 600 });
+      bonusOpacity.value = withDelay(200, withTiming(1, { duration: 300 }));
+      bgOpacity.value = withTiming(0, { duration: 500 });
     }, beat5Delay);
   }, [confirmResult]);
 
   const handleSkip = useCallback(() => {
-    if (!canSkip) return;
+    if (!canSkip || beat >= 5) return;
     posthog.capture("card_reveal_skipped", { beat });
     setBeat(5);
     bgOpacity.value = withTiming(0, { duration: 300 });
     cardOpacity.value = withTiming(1, { duration: 200 });
-    cardScale.value = withTiming(0.85, { duration: 300 });
+    cardScale.value = withTiming(1, { duration: 200 });
     bannerOpacity.value = withTiming(1, { duration: 200 });
     bonusOpacity.value = withTiming(1, { duration: 200 });
-  }, [canSkip]);
+  }, [canSkip, beat]);
 
   const handleContinue = () => {
     // Back to viewfinder for next shot
@@ -387,7 +386,7 @@ export const CardRevealScreen: React.FC = () => {
           style={[styles.cardContainer, cardStyle]}
           testID="card-reveal-card"
         >
-          <View style={{ width: Dimensions.get("window").width * 0.92, height: Dimensions.get("window").height * 0.65 }}>
+          <View style={{ width: Dimensions.get("window").width * 0.75, height: Dimensions.get("window").height * 0.52 }}>
             <BirdCard
               data={{
                 speciesName: commonName,

@@ -18,7 +18,7 @@ import Animated, {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { Video, ResizeMode } from "expo-av";
+import { VideoView, useVideoPlayer } from "expo-video";
 import LottieView from "lottie-react-native";
 import { Colors, Spacing, BorderRadius, RarityConfig } from "../../theme";
 import { Text, PrimaryButton } from "../../components/atoms";
@@ -33,8 +33,6 @@ const { width, height: SCREEN_HEIGHT } = Dimensions.get("window");
 // ── Slide 1: Video demo of identifying a bird ───────────────────────────
 
 const IdentifySlideVisual: React.FC<{ visible?: boolean }> = () => {
-  const videoRef = useRef<Video>(null);
-
   return (
     <View style={visualStyles.videoContainer} testID="welcome-visual-identify">
       <View style={visualStyles.phoneFrame}>

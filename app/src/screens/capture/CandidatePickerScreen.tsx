@@ -99,6 +99,17 @@ export const CandidatePickerScreen: React.FC = () => {
         </Text>
       </View>
 
+      {/* Most likely badge */}
+      <View style={styles.mostLikelyBadge}>
+        <Pill
+          label="Most likely"
+          color={Colors.white}
+          backgroundColor={Colors.saffron}
+          size="sm"
+          testID="candidate-most-likely"
+        />
+      </View>
+
       {/* Candidate card thumbnails */}
       <ScrollView
         contentContainerStyle={styles.cardGrid}
@@ -106,20 +117,8 @@ export const CandidatePickerScreen: React.FC = () => {
       >
         {candidates.slice(0, 3).map((candidate, index) => {
           const sp = candidate.species_id ? speciesMap.get(candidate.species_id) : null;
-          const isTop = index === 0;
           return (
             <View key={candidate.species_id ?? index} style={styles.cardCell}>
-              {isTop && (
-                <View style={styles.mostLikelyBadge}>
-                  <Pill
-                    label="Most likely"
-                    color={Colors.white}
-                    backgroundColor={Colors.saffron}
-                    size="sm"
-                    testID="candidate-most-likely"
-                  />
-                </View>
-              )}
               <Pressable
                 onPress={() => handleSelect(candidate)}
                 testID={`candidate-row-${index}`}
@@ -131,7 +130,7 @@ export const CandidatePickerScreen: React.FC = () => {
                     speciesType: sp?.species_type_name ?? "",
                     habitat: sp?.habitat_name ?? "",
                     conservationTier: (candidate.conservation_status ?? "LC") as any,
-                    photoUri: null,
+                    photoUri: sp?.illustration_url ?? null,
                     sightingCount: 0,
                     locked: false,
                     rarity: sp?.rarity as any,
@@ -200,14 +199,16 @@ const styles = StyleSheet.create({
   },
   cardGrid: {
     flexDirection: "row",
+    flexWrap: "wrap",
     paddingHorizontal: Spacing.lg,
     gap: Spacing.sm,
   },
   cardCell: {
-    flex: 1,
+    width: "48%",
   },
   mostLikelyBadge: {
-    alignItems: "center",
+    alignItems: "flex-start",
+    paddingHorizontal: Spacing.lg,
     marginBottom: Spacing.xs,
   },
   bottomBar: {

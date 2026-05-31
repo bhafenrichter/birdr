@@ -1,58 +1,81 @@
-import React, { useState } from "react";
-import { View, StyleSheet, ScrollView, Pressable } from "react-native";
+import React from "react";
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  Pressable,
+  Linking,
+  Platform,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
-import { ArrowLeft, Check, X } from "lucide-react-native";
-import { Colors, Spacing, BorderRadius, Shadows, Fonts, FontSizes } from "../theme";
-import { Text, CircleBtn, PrimaryButton, GhostButton } from "../components/atoms";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import type { ProfileStackParamList } from "../navigation/stacks/ProfileStack";
+import {
+  ArrowLeft,
+  Crown,
+  MessageSquare,
+  ExternalLink,
+  Copy,
+} from "lucide-react-native";
+import * as Clipboard from "expo-clipboard";
+import Toast from "react-native-toast-message";
+import { Colors, Spacing, BorderRadius, Shadows } from "../theme";
+import { Text, CircleBtn } from "../components/atoms";
 import { useProfile } from "../hooks/useApi";
-
-type Plan = "free" | "weekly" | "yearly";
-
-const PLANS: {
-  id: Plan;
-  name: string;
-  price: string;
-  priceDetail: string;
-  badge?: string;
-}[] = [
-  {
-    id: "free",
-    name: "Free",
-    price: "$0",
-    priceDetail: "3 captures/day",
-  },
-  {
-    id: "weekly",
-    name: "Weekly",
-    price: "$1.99",
-    priceDetail: "per week",
-  },
-  {
-    id: "yearly",
-    name: "Yearly",
-    price: "$24.99",
-    priceDetail: "per year · ~$2.08/mo",
-    badge: "Best value",
-  },
-];
-
-const FEATURES = [
-  { label: "Photo identification", free: true },
-  { label: "Collection & cards", free: true },
-  { label: "Streaks & achievements", free: true },
-  { label: "Explore nearby species", free: true },
-  { label: "Unlimited daily captures", free: false },
-];
+import { useRevenueCat } from "../contexts/RevenueCatProvider";
+import { toastConfig } from "../config/toast";
 
 export const SubscriptionScreen: React.FC = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<ProfileStackParamList>>();
   const { data: profile } = useProfile();
-  const isSubscribed = profile?.subscription_tier !== "free";
-  const [selectedPlan, setSelectedPlan] = useState<Plan>("yearly");
+  const { isSubscribed, customerInfo } = useRevenueCat();
+
+  const customerId = profile?.customer_id ?? "—";
+
+  // Get active subscription details from RevenueCat
+  const activeEntitlements = customerInfo?.entitlements.active ?? {};
+  const entitlement = Object.values(activeEntitlements)[0];
+  const expirationDate = entitlement?.expirationDate
+    ? new Date(entitlement.expirationDate).toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      })
+    : null;
+  const willRenew = entitlement?.willRenew ?? false;
+
+  const handleManageSubscription = () => {
+    // Deep link to App Store / Play Store subscription management
+    if (Platform.OS === "ios") {
+      Linking.openURL("https://apps.apple.com/account/subscriptions");
+    } else {
+      Linking.openURL(
+        "https://play.google.com/store/account/subscriptions",
+      );
+    }
+  };
+
+  const handleCopyId = async () => {
+    await Clipboard.setStringAsync(customerId);
+    Toast.show({
+      type: "success",
+      text1: "Copied",
+      text2: "Your user ID has been copied to clipboard.",
+    });
+  };
+
+  const handleContactUs = () => {
+    navigation.navigate("SendFeedback");
+  };
+
 
   return (
-    <SafeAreaView style={styles.container} edges={["top", "left", "right"]} testID="subscription-screen">
+    <SafeAreaView
+      style={styles.container}
+      edges={["top", "left", "right"]}
+      testID="subscription-screen"
+    >
       {/* Top bar */}
       <View style={styles.topBar}>
         <CircleBtn
@@ -69,7 +92,7 @@ export const SubscriptionScreen: React.FC = () => {
           color={Colors.ink}
           testID="subscription-title"
         >
-          {isSubscribed ? "Your plan" : "Upgrade"}
+          Subscription
         </Text>
         <View style={{ width: 36 }} />
       </View>
@@ -78,181 +101,169 @@ export const SubscriptionScreen: React.FC = () => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Hero */}
-        <Text
-          variant="bold"
-          size="2xl"
-          color={Colors.ink}
-          align="center"
-          testID="subscription-hero-title"
-        >
-          Unlimited captures
-        </Text>
-        <Text
-          variant="regular"
-          size="sm"
-          color={Colors.inkSoft}
-          align="center"
-          testID="subscription-hero-subtitle"
-          style={{ marginTop: Spacing.sm, marginBottom: Spacing.xl }}
-        >
-          Remove the daily limit and capture every bird you see
-        </Text>
-
-        {/* Plan picker */}
-        <View style={styles.planRow} testID="subscription-plans">
-          {PLANS.map((plan) => {
-            const isSelected = selectedPlan === plan.id;
-            const isCurrent =
-              (isSubscribed && plan.id === "yearly") ||
-              (!isSubscribed && plan.id === "free");
-
-            return (
-              <Pressable
-                key={plan.id}
-                style={[
-                  styles.planCard,
-                  isSelected && styles.planCardSelected,
-                ]}
-                onPress={() => setSelectedPlan(plan.id)}
-                testID={`subscription-plan-${plan.id}`}
-              >
-                {plan.badge && (
-                  <View style={styles.planBadge}>
-                    <Text variant="bold" size="xs" color={Colors.white} testID={`plan-badge-${plan.id}`}>
-                      {plan.badge}
-                    </Text>
-                  </View>
-                )}
-                <Text
-                  variant="semiBold"
-                  size="base"
-                  color={isSelected ? Colors.sage : Colors.ink}
-                  testID={`plan-name-${plan.id}`}
-                >
-                  {plan.name}
-                </Text>
-                <Text
-                  variant="bold"
-                  size="xl"
-                  color={isSelected ? Colors.sage : Colors.ink}
-                  testID={`plan-price-${plan.id}`}
-                >
-                  {plan.price}
-                </Text>
-                <Text
-                  variant="regular"
-                  size="xs"
-                  color={Colors.inkSoft}
-                  testID={`plan-detail-${plan.id}`}
-                >
-                  {plan.priceDetail}
-                </Text>
-                {isCurrent && (
-                  <Text
-                    variant="medium"
-                    size="xs"
-                    color={Colors.sage}
-                    testID={`plan-current-${plan.id}`}
-                    style={{ marginTop: Spacing.xs }}
-                  >
-                    Current
-                  </Text>
-                )}
-              </Pressable>
-            );
-          })}
-        </View>
-
-        {/* Features comparison */}
-        <View style={styles.featuresCard} testID="subscription-features">
-          {FEATURES.map((feat, i) => (
-            <View
-              key={feat.label}
-              style={[
-                styles.featureRow,
-                i < FEATURES.length - 1 && styles.featureRowBorder,
-              ]}
-              testID={`subscription-feature-${i}`}
-            >
-              <Text variant="regular" size="sm" color={Colors.ink} style={{ flex: 1 }} testID={`feature-label-${i}`}>
-                {feat.label}
+        {/* Plan status card */}
+        <View style={styles.planCard} testID="subscription-plan-card">
+          <View style={styles.planHeader}>
+            <View style={styles.proBadge}>
+              <Crown size={16} color={Colors.white} strokeWidth={2} />
+              <Text variant="bold" size="sm" color={Colors.white}>
+                Pro
               </Text>
-              {/* Free column */}
-              <View style={styles.featureCheck}>
-                {feat.free ? (
-                  <Check size={16} color={Colors.sage} strokeWidth={2.5} />
-                ) : (
-                  <X size={16} color={Colors.inkFaint} strokeWidth={1.5} />
-                )}
-              </View>
-              {/* Pro column */}
-              <View style={styles.featureCheck}>
-                <Check size={16} color={Colors.sage} strokeWidth={2.5} />
-              </View>
             </View>
-          ))}
-          {/* Column headers */}
-          <View style={styles.featureHeader}>
-            <View style={{ flex: 1 }} />
-            <Text
-              variant="medium"
-              size="xs"
-              color={Colors.inkFaint}
-              style={styles.featureCheck}
-              testID="feature-header-free"
-            >
-              Free
-            </Text>
-            <Text
-              variant="medium"
-              size="xs"
-              color={Colors.sage}
-              style={styles.featureCheck}
-              testID="feature-header-pro"
-            >
-              Pro
-            </Text>
           </View>
+
+          {isSubscribed ? (
+            <View style={styles.planDetails}>
+              <Text
+                variant="bold"
+                size="xl"
+                color={Colors.ink}
+                testID="subscription-plan-name"
+              >
+                birdr Pro
+              </Text>
+              <Text
+                variant="regular"
+                size="sm"
+                color={Colors.inkSoft}
+                testID="subscription-plan-status"
+                style={{ marginTop: Spacing.xs }}
+              >
+                {willRenew
+                  ? `Renews ${expirationDate ?? "soon"}`
+                  : `Expires ${expirationDate ?? "soon"}`}
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.planDetails}>
+              <Text
+                variant="bold"
+                size="xl"
+                color={Colors.ink}
+                testID="subscription-plan-name"
+              >
+                Free Plan
+              </Text>
+              <Text
+                variant="regular"
+                size="sm"
+                color={Colors.inkSoft}
+                style={{ marginTop: Spacing.xs }}
+              >
+                3 captures per day
+              </Text>
+            </View>
+          )}
         </View>
 
-        {/* CTA */}
-        {selectedPlan !== "free" && (
-          <View style={styles.ctaSection}>
-            <PrimaryButton
-              title={`Subscribe · ${PLANS.find((p) => p.id === selectedPlan)?.price ?? ""}`}
-              size="lg"
-              fullWidth
-              testID="subscription-cta"
+        {/* User ID */}
+        <View style={styles.section}>
+          <Text
+            variant="medium"
+            size="xs"
+            color={Colors.inkFaint}
+            style={styles.sectionLabel}
+          >
+            YOUR USER ID
+          </Text>
+          <Pressable
+            style={styles.row}
+            onPress={handleCopyId}
+            testID="subscription-user-id"
+          >
+            <View style={{ flex: 1 }}>
+              <Text
+                variant="regular"
+                size="sm"
+                color={Colors.ink}
+                testID="subscription-user-id-value"
+              >
+                {customerId}
+              </Text>
+              <Text
+                variant="regular"
+                size="xs"
+                color={Colors.inkFaint}
+                style={{ marginTop: 2 }}
+              >
+                Tap to copy — include this in support requests
+              </Text>
+            </View>
+            <Copy size={18} color={Colors.inkFaint} strokeWidth={1.5} />
+          </Pressable>
+        </View>
+
+        {/* Actions */}
+        <View style={styles.section}>
+          <Text
+            variant="medium"
+            size="xs"
+            color={Colors.inkFaint}
+            style={styles.sectionLabel}
+          >
+            MANAGE
+          </Text>
+
+          {isSubscribed && (
+            <Pressable
+              style={styles.row}
+              onPress={handleManageSubscription}
+              testID="subscription-manage"
+            >
+              <ExternalLink
+                size={20}
+                color={Colors.ink}
+                strokeWidth={1.5}
+              />
+              <Text
+                variant="regular"
+                size="base"
+                color={Colors.ink}
+                style={{ flex: 1, marginLeft: Spacing.md }}
+              >
+                Manage or cancel subscription
+              </Text>
+            </Pressable>
+          )}
+
+          <Pressable
+            style={styles.row}
+            onPress={handleContactUs}
+            testID="subscription-contact"
+          >
+            <MessageSquare
+              size={20}
+              color={Colors.ink}
+              strokeWidth={1.5}
             />
             <Text
               variant="regular"
-              size="xs"
-              color={Colors.inkFaint}
-              align="center"
-              testID="subscription-legal"
-              style={{ marginTop: Spacing.md }}
+              size="base"
+              color={Colors.ink}
+              style={{ flex: 1, marginLeft: Spacing.md }}
             >
-              Cancel anytime. Supports a small team building birdr.
+              Contact us
             </Text>
-          </View>
-        )}
+          </Pressable>
 
-        {/* Restore */}
-        <Pressable
-          style={styles.restoreLink}
-          testID="subscription-restore"
+        </View>
+
+        {/* Info note */}
+        <Text
+          variant="regular"
+          size="xs"
+          color={Colors.inkFaint}
+          align="center"
+          style={{ marginTop: Spacing.xl, paddingHorizontal: Spacing.xl }}
+          testID="subscription-info"
         >
-          <Text
-            variant="regular"
-            size="sm"
-            color={Colors.sage}
-            testID="subscription-restore-label"
-          >
-            Restore purchases
-          </Text>
-        </Pressable>
+          {Platform.OS === "ios"
+            ? "Subscriptions are managed through the App Store. To cancel, open Settings → Apple ID → Subscriptions."
+            : "Subscriptions are managed through Google Play. To cancel, open Play Store → Payments & subscriptions."}
+        </Text>
       </ScrollView>
+
+      <Toast config={toastConfig} topOffset={60} />
     </SafeAreaView>
   );
 };
@@ -271,74 +282,49 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: Spacing.xl,
-    paddingBottom: Spacing["5xl"],
-  },
-  planRow: {
-    flexDirection: "row",
-    gap: Spacing.sm,
-    marginBottom: Spacing.xl,
+    paddingBottom: Spacing["4xl"],
   },
   planCard: {
-    flex: 1,
-    alignItems: "center",
-    paddingVertical: Spacing.xl,
-    paddingHorizontal: Spacing.sm,
     backgroundColor: Colors.white,
     borderRadius: BorderRadius.xl,
-    borderWidth: 2,
-    borderColor: "transparent",
+    padding: Spacing.xl,
+    marginBottom: Spacing.lg,
     ...Shadows.sm,
   },
-  planCardSelected: {
-    borderColor: Colors.sage,
-    backgroundColor: Colors.sageTint,
+  planHeader: {
+    flexDirection: "row",
+    marginBottom: Spacing.md,
   },
-  planBadge: {
-    position: "absolute",
-    top: -10,
-    paddingVertical: 2,
-    paddingHorizontal: Spacing.sm,
-    backgroundColor: Colors.saffron,
+  proBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.xs,
+    backgroundColor: Colors.sage,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
     borderRadius: BorderRadius.full,
   },
-  featuresCard: {
+  planDetails: {},
+  section: {
     backgroundColor: Colors.white,
     borderRadius: BorderRadius.xl,
-    padding: Spacing.lg,
-    marginBottom: Spacing.xl,
+    marginBottom: Spacing.lg,
+    overflow: "hidden",
     ...Shadows.sm,
   },
-  featureHeader: {
-    flexDirection: "row",
-    alignItems: "center",
+  sectionLabel: {
+    letterSpacing: 1,
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.lg,
     paddingBottom: Spacing.sm,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: Colors.paper,
-    marginBottom: Spacing.sm,
-    position: "absolute",
-    top: Spacing.lg,
-    left: Spacing.lg,
-    right: Spacing.lg,
   },
-  featureRow: {
+  row: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: Spacing.sm,
-  },
-  featureRowBorder: {
+    paddingVertical: Spacing.lg,
+    paddingHorizontal: Spacing.lg,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: Colors.paper,
-  },
-  featureCheck: {
-    width: 48,
-    alignItems: "center",
-  },
-  ctaSection: {
-    marginBottom: Spacing.lg,
-  },
-  restoreLink: {
-    alignItems: "center",
-    paddingVertical: Spacing.md,
   },
 });
 

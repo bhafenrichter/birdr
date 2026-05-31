@@ -65,15 +65,23 @@ export const CaptureHubScreen: React.FC = () => {
       <SafeAreaView style={styles.container} testID="capture-hub-screen">
         {/* Top header bar */}
         <View style={styles.headerBar}>
-          <Text
-            variant="bold"
-            size="2xl"
-            color={Colors.sage}
-            testID="capture-hub-wordmark"
-          >
-            birdr
-          </Text>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: Spacing.xs }}>
+            <Text
+              variant="bold"
+              size="2xl"
+              color={Colors.sage}
+              testID="capture-hub-wordmark"
+            >
+              birdr
+            </Text>
+            {isSubscribed && (
+              <View style={{ marginTop: -16, shadowColor: "#edb915", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.6, shadowRadius: 4 }}>
+                <Crown size={16} color="#edb915" strokeWidth={2.5} testID="capture-hub-pro-badge" />
+              </View>
+            )}
+          </View>
 
+          <View style={{ flexDirection: "row", alignItems: "center", gap: Spacing.sm }}>
           {/* Streak chip — tappable */}
           <Pressable
             style={styles.streakChip}
@@ -105,6 +113,7 @@ export const CaptureHubScreen: React.FC = () => {
               {String(currentStreak)}
             </Text>
           </Pressable>
+          </View>
         </View>
 
         <View style={styles.scrollContent}>
@@ -173,6 +182,24 @@ export const CaptureHubScreen: React.FC = () => {
                 </Text>
               </Pressable>
             </>
+          )}
+          {isSubscribed && (
+            <LinearGradient
+              colors={["#f8e15c", "#edb915"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={{
+                marginTop: Spacing.xl,
+                paddingHorizontal: Spacing.lg,
+                paddingVertical: Spacing.xs,
+                borderRadius: BorderRadius.full,
+              }}
+              testID="capture-hub-unlimited"
+            >
+              <Text variant="semiBold" size="sm" color={Colors.white}>
+                Unlimited captures
+              </Text>
+            </LinearGradient>
           )}
         </View>
       </SafeAreaView>

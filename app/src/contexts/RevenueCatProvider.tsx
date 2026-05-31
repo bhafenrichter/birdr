@@ -14,13 +14,18 @@ import Purchases, {
 import RevenueCatUI from "react-native-purchases-ui";
 import { ENV } from "../config/env";
 import { logger } from "../services/logger";
+import { syncSubscriptionTier } from "../services/api";
 import { useAuth } from "./AuthProvider";
 import { usePostHog } from "./PostHogProvider";
 import { useProfile } from "../hooks/useApi";
+import { emit } from "../services/events";
+
+/** Emitted when subscription status changes so UI can react */
+export const SUBSCRIPTION_CHANGED = "subscription_changed";
 
 // ── Entitlement + Product IDs ─────────────────────────────────────────────
 
-const ENTITLEMENT_ID = "Hoftware Pro";
+const ENTITLEMENT_ID = "birdr_pro";
 
 // ── Context Type ──────────────────────────────────────────────────────────
 
@@ -59,7 +64,7 @@ const RevenueCatContext = createContext<RevenueCatContextType>({
 export const RevenueCatProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const { user } = useAuth();
+  const { user, refreshProfile } = useAuth();
   const posthog = usePostHog();
   const { data: profile } = useProfile();
   const [isReady, setIsReady] = useState(false);
@@ -143,7 +148,7 @@ export const RevenueCatProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // ── Handle customer info updates ──────────────────────────────────────
 
-  const handleCustomerInfoUpdate = (info: CustomerInfo) => {
+  const handleCustomerInfoUpdate = async (info: CustomerInfo) => {
     setCustomerInfo(info);
     const hasEntitlement = !!info.entitlements.active[ENTITLEMENT_ID];
     setIsSubscribed(hasEntitlement);
@@ -151,6 +156,14 @@ export const RevenueCatProvider: React.FC<{ children: React.ReactNode }> = ({
       isSubscribed: hasEntitlement,
       activeEntitlements: Object.keys(info.entitlements.active),
     });
+
+    // Sync subscription tier to Supabase so the server enforces it correctly
+    try {
+      await syncSubscriptionTier(hasEntitlement ? "pro" : "free");
+      // Refresh the profile so the app sees the updated tier immediately
+      await refreshProfile();
+      emit(SUBSCRIPTION_CHANGED);
+    } catch {}
   };
 
   // ── Present RevenueCat Paywall ────────────────────────────────────────
