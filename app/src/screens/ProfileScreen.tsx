@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, StyleSheet, ScrollView, Pressable, Linking } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -12,6 +12,7 @@ import {
   Trash2,
   ChevronRight,
   Bug,
+  Unlock,
 } from "lucide-react-native";
 import Toast from "react-native-toast-message";
 import { useNavigation } from "@react-navigation/native";
@@ -35,6 +36,7 @@ import {
 } from "../hooks/useApi";
 import { useRevenueCat } from "../contexts/RevenueCatProvider";
 import { clearCache } from "../services/cache";
+import { isAllCardsUnlocked, setUnlockAllCards } from "../services/devSettings";
 import { usePostHog } from "../contexts/PostHogProvider";
 import type { ProfileStackParamList } from "../navigation/stacks/ProfileStack";
 
@@ -43,6 +45,7 @@ type Nav = NativeStackNavigationProp<ProfileStackParamList>;
 export const ProfileScreen: React.FC = () => {
   const navigation = useNavigation<Nav>();
   const { profile } = useAuth();
+  const [devUnlockAll, setDevUnlockAll] = useState(isAllCardsUnlocked());
   const { data: streakData, isLoading: streakLoading } = useStreak();
   const { data: achievements, isLoading: achievementsLoading } = useAchievements();
   const { data: cards, isLoading: cardsLoading } = useCards();
@@ -287,6 +290,21 @@ export const ProfileScreen: React.FC = () => {
                 });
               }}
               testID="profile-row-clear-cache"
+            />
+            <ProfileRow
+              icon={Unlock}
+              label={`Unlock all cards: ${devUnlockAll ? "ON" : "OFF"}`}
+              onPress={async () => {
+                const newValue = !devUnlockAll;
+                await setUnlockAllCards(newValue);
+                setDevUnlockAll(newValue);
+                Toast.show({
+                  type: "success",
+                  text1: newValue ? "All cards unlocked" : "Cards locked normally",
+                  text2: "Restart screens to see the change.",
+                });
+              }}
+              testID="profile-row-unlock-cards"
             />
           </View>
         )}

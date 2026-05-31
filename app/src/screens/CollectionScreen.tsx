@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   View,
   StyleSheet,
@@ -6,6 +6,7 @@ import {
   TextInput as RNTextInput,
 } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
+import { Image } from "expo-image";
 import { FlashList } from "@shopify/flash-list";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Search } from "lucide-react-native";
@@ -127,6 +128,17 @@ const SpottedView: React.FC<{
   isLoading: boolean;
   onCardPress: (id: string) => void;
 }> = ({ cards, species, searchQuery, isLoading, onCardPress }) => {
+  // Prefetch illustration URLs so images are ready before fade-in
+  useEffect(() => {
+    const urls: string[] = [];
+    for (const card of cards.slice(0, 20)) {
+      const sp = species.find((s: any) => s.id === card.species_id);
+      const url = card.hero_photo_url ?? (sp as any)?.illustration_url;
+      if (url) urls.push(url);
+    }
+    if (urls.length > 0) Image.prefetch(urls);
+  }, [cards, species]);
+
   if (isLoading) {
     return <CardSkeletonGrid count={6} testID="collection-spotted-skeleton" />;
   }
@@ -168,11 +180,11 @@ const SpottedView: React.FC<{
       showsVerticalScrollIndicator={false}
       renderItem={({ item, index }) => {
         const sp = species.find((s: any) => s.id === item.species_id);
-        const delay = Math.min(index, 7) * 80;
+        const delay = Math.min(index, 7) * 120;
         return (
           <Animated.View
             style={styles.gridCell}
-            entering={FadeIn.delay(delay).duration(400)}
+            entering={FadeIn.delay(delay).duration(600)}
           >
             <Pressable
               onPress={() => onCardPress(item.species_id)}

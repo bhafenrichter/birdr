@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo, useRef, useCallback } from "react"
 import { View, StyleSheet, Pressable, Dimensions, TextInput as RNTextInput, ActivityIndicator } from "react-native";
 import * as Location from "expo-location";
 import { FlashList } from "@shopify/flash-list";
+import { Image } from "expo-image";
+import Animated, { FadeIn } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MapPin, Search } from "lucide-react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
@@ -19,6 +21,7 @@ import {
 } from "../components/atoms";
 import { BirdCardThumb } from "../components/molecules/BirdCard";
 import { useExploreSpecies, useCards, useAllSpecies, useAllSpeciesPaginated } from "../hooks/useApi";
+import { isAllCardsUnlocked } from "../services/devSettings";
 import type { ExploreStackParamList } from "../navigation/stacks/ExploreStack";
 
 type Nav = NativeStackNavigationProp<ExploreStackParamList>;
@@ -140,6 +143,14 @@ const NearMeView: React.FC<{
     return map;
   }, [allSpecies]);
 
+  // Prefetch illustration URLs for the first batch of species
+  useEffect(() => {
+    const urls = list.slice(0, 20)
+      .map((item) => illustrationMap.get(item.species_id)?.url)
+      .filter(Boolean) as string[];
+    if (urls.length > 0) Image.prefetch(urls);
+  }, [list, illustrationMap]);
+
   if (locationError && !location) {
     return (
       <View style={{ flex: 1 }} testID="explore-no-location">
@@ -226,8 +237,11 @@ const NearMeView: React.FC<{
           numColumns={2}
           contentContainerStyle={styles.gridContent}
           showsVerticalScrollIndicator={false}
-          renderItem={({ item }) => (
-            <View style={styles.gridCell}>
+          renderItem={({ item, index }) => (
+            <Animated.View
+              style={styles.gridCell}
+              entering={FadeIn.delay(Math.min(index, 7) * 120).duration(600)}
+            >
               <Pressable
                 onPress={() => {
                   const sp = allSpecies?.find((s) => s.id === item.species_id);
@@ -246,11 +260,11 @@ const NearMeView: React.FC<{
                     speciesType: item.species_type,
                     habitat: item.habitat,
                     conservationTier: item.conservation_status as any,
-                    photoUri: (item.spotted || spottedIds.has(item.species_id))
+                    photoUri: (item.spotted || spottedIds.has(item.species_id) || isAllCardsUnlocked())
                       ? (illustrationMap.get(item.species_id)?.url ?? null)
                       : null,
                     sightingCount: item.sighting_count,
-                    locked: !(item.spotted || spottedIds.has(item.species_id)),
+                    locked: isAllCardsUnlocked() ? false : !(item.spotted || spottedIds.has(item.species_id)),
                     rarity: item.rarity as any,
                     about: item.about_text,
                     illustrationUrl: illustrationMap.get(item.species_id)?.url ?? null,
@@ -259,7 +273,7 @@ const NearMeView: React.FC<{
                   testID={`explore-thumb-${item.species_id}`}
                 />
               </Pressable>
-            </View>
+            </Animated.View>
           )}
         />
       )}
@@ -345,11 +359,11 @@ const AllNAView: React.FC<{ navigation: Nav }> = ({ navigation }) => {
                       speciesType: item.species_type_name,
                       habitat: item.habitat_name,
                       conservationTier: item.conservation_status as any,
-                      photoUri: spotted
+                      photoUri: (spotted || isAllCardsUnlocked())
                         ? ((item as any).illustration_url ?? null)
                         : null,
                       sightingCount: spotted ? 1 : 0,
-                      locked: !spotted,
+                      locked: isAllCardsUnlocked() ? false : !spotted,
                       rarity: item.rarity as any,
                       about: item.about_text,
                       illustrationUrl: (item as any).illustration_url,

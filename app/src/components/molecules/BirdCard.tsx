@@ -187,6 +187,7 @@ export const BirdCard: React.FC<BirdCardProps> = ({
                 ...(isLocked ? { opacity: 0.5 } : {}),
               }}
               contentFit="cover"
+              blurRadius={12}
               testID={`${testID}-habitat-bg`}
             />
           )}
@@ -267,6 +268,11 @@ export const BirdCard: React.FC<BirdCardProps> = ({
                 variant="bold"
                 size={compact ? "xs" : "sm"}
                 color={Colors.white}
+                style={{
+                  textShadowColor: "rgba(0,0,0,0.4)",
+                  textShadowOffset: { width: 0, height: 1 },
+                  textShadowRadius: 2,
+                }}
                 testID={`${testID}-rarity`}
               >
                 {rc.label}
@@ -399,9 +405,9 @@ export const BirdCard: React.FC<BirdCardProps> = ({
                   color={Colors.white}
                   style={{
                     lineHeight: 20,
-                    textShadowColor: "rgba(0,0,0,0.5)",
+                    textShadowColor: "rgba(0,0,0,0.7)",
                     textShadowOffset: { width: 0, height: 1 },
-                    textShadowRadius: 2,
+                    textShadowRadius: 4,
                   }}
                   testID={`${testID}-about-text`}
                 >
@@ -630,6 +636,7 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
                 ...(isLocked ? { opacity: 0.5 } : {}),
               }}
               contentFit="cover"
+              blurRadius={12}
               testID={`${testID}-habitat-bg`}
             />
           )}
@@ -691,6 +698,11 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
                 variant="bold"
                 size="xs"
                 color={Colors.white}
+                style={{
+                  textShadowColor: "rgba(0,0,0,0.4)",
+                  textShadowOffset: { width: 0, height: 1 },
+                  textShadowRadius: 2,
+                }}
                 testID={`${testID}-rarity`}
               >
                 {rc.badge}

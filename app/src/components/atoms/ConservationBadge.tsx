@@ -36,7 +36,17 @@ export const ConservationBadge: React.FC<ConservationBadgeProps> = ({
 
   return (
     <View style={containerStyle} testID={testID} accessible accessibilityLabel={`Conservation status: ${TIER_LABELS[tier]}`}>
-      <Text variant="bold" size="xs" color={Colors.white} testID={`${testID}-label`}>
+      <Text
+        variant="bold"
+        size="sm"
+        color={Colors.white}
+        style={{
+          textShadowColor: "rgba(0,0,0,0.4)",
+          textShadowOffset: { width: 0, height: 1 },
+          textShadowRadius: 2,
+        }}
+        testID={`${testID}-label`}
+      >
         {tier}
       </Text>
     </View>

@@ -480,6 +480,10 @@ The following behaviors are fixed in v1 with sensible defaults and not user-conf
 - **Units** — Imperial (US launch). No metric toggle.
 - **Appearance** — follows the system light/dark setting. No in-app override.
 
+**Dev-only tools** (hidden in production builds, visible only in `__DEV__` mode):
+
+- **Unlock all cards** — toggle that overrides the collection view to show all ~900 species as spotted with mock sighting data. Does not write to the database — it's a client-side render override. Useful for testing collection grid performance, card detail layouts, filters, and the All North America view at full population. Toggle off to return to real data.
+
 ### 6.11 Delete account flow
 
 Required by App Store policy. Two-step destructive confirmation to prevent accidental deletion. Presented as a native bottom sheet via `react-native-true-sheet`.

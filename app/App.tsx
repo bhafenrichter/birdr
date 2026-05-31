@@ -22,12 +22,16 @@ import { HapticProvider } from "./src/contexts/HapticProvider";
 import { BottomSheetProvider } from "./src/contexts/BottomSheetProvider";
 import { RootNavigator } from "./src/navigation/RootNavigator";
 import { toastConfig } from "./src/config/toast";
+import { loadDevSettings } from "./src/services/devSettings";
 
 // Keep the splash screen visible while we load fonts
 SplashScreen.preventAutoHideAsync();
 
 // Suppress yellow warning banner in dev
 LogBox.ignoreAllLogs(true);
+
+// Load dev settings (persisted toggles for debug mode)
+loadDevSettings();
 
 /**
  * Provider hierarchy (per CLAUDE.md):

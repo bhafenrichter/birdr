@@ -49,6 +49,7 @@ import {
   useSpeciesStates,
 } from "../hooks/useApi";
 import { USStatesMap } from "../components/molecules/USStatesMap";
+import { isAllCardsUnlocked } from "../services/devSettings";
 import type { CollectionStackParamList } from "../navigation/stacks/CollectionStack";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
@@ -260,7 +261,7 @@ export const CardDetailScreen: React.FC = () => {
                       ? `${formatDate(userCard!.first_seen_at)}${firstSighting?.setting ? `, ${firstSighting.setting}` : ""}${firstSighting?.named_location ? `, ${firstSighting.named_location}` : ""}`
                       : undefined,
                     sightingCount: userCard?.sighting_count,
-                    locked: dataReady && !isSpotted,
+                    locked: isAllCardsUnlocked() ? false : (dataReady && !isSpotted),
                     rarity: species.rarity,
                     allPhotos: isSpotted && !showAsLocked && sightings.length > 1 ? sightings.map((s) => s.photo_url) : undefined,
                     photoQuality: !showAsLocked ? lastSighting?.photo_quality : undefined,
