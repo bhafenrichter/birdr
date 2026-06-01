@@ -103,15 +103,32 @@ export const CardDetailScreen: React.FC = () => {
   const cardOpacity = useSharedValue(0);
   const sheetAnimatedIndex = useSharedValue(0);
   const [imageReady, setImageReady] = useState(false);
+  const hasAnimated = useRef(false);
 
-  // Dim overlay immediately, prefetch image, then animate card in
+  // Dim overlay immediately
   useEffect(() => {
     overlayOpacity.value = withTiming(1, { duration: 250 });
+  }, []);
 
-    const sp = speciesSnapshot ?? singleSpecies;
-    const imageUrl = sp?.illustration_url ?? sp?.hero_photo_url ?? null;
+  // Wait for all data + prefetch images, then animate card in
+  useEffect(() => {
+    if (hasAnimated.current) return;
+    if (!species) return;
+
+    // Wait for card/sighting data to settle before showing
+    if (cardsLoading || sightingsLoading) return;
+
+    const userCard = cards?.find((c) => c.species_id === speciesId);
+    const isSpotted = !!userCard;
+
+    // Determine the final image that will be shown
+    const finalPhotoUri = isSpotted && !showAsLocked
+      ? (userCard?.hero_photo_url ?? (species as any).illustration_url)
+      : (species as any).illustration_url;
 
     const animateCardIn = () => {
+      if (hasAnimated.current) return;
+      hasAnimated.current = true;
       enterScale.value = withTiming(1, {
         duration: 350,
         easing: Easing.out(Easing.cubic),
@@ -120,12 +137,15 @@ export const CardDetailScreen: React.FC = () => {
       setImageReady(true);
     };
 
-    if (imageUrl) {
-      Image.prefetch(imageUrl).then(animateCardIn).catch(animateCardIn);
+    // Prefetch all images that the card will show
+    const urls = [finalPhotoUri, (species as any).illustration_url].filter(Boolean);
+    if (urls.length > 0) {
+      Promise.all(urls.map((u: string) => Image.prefetch(u).catch(() => {})))
+        .then(animateCardIn);
     } else {
       animateCardIn();
     }
-  }, []);
+  }, [species, cardsLoading, sightingsLoading, cards, speciesId, showAsLocked]);
 
   const animateOut = (cb: () => void) => {
     bottomSheetRef.current?.close();
