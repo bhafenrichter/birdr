@@ -67,6 +67,6 @@ export const BottomSheetProvider: React.FC<{ children: React.ReactNode }> = ({
 const styles = StyleSheet.create({
   sheetContent: {
     backgroundColor: Colors.white,
-    paddingBottom: Spacing["4xl"],
+    paddingBottom: 0,
   },
 });

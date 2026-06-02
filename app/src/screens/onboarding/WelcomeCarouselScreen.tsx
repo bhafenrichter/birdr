@@ -32,25 +32,34 @@ const { width, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 // ── Slide 1: Video demo of identifying a bird ───────────────────────────
 
-const IdentifySlideVisual: React.FC<{ visible?: boolean }> = () => {
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const trailerVideo = require("../../../assets/trailer.mp4");
+
+const IdentifySlideVisual: React.FC<{ visible?: boolean }> = ({ visible = false }) => {
+  const player = useVideoPlayer(trailerVideo, (p) => {
+    p.loop = true;
+    p.muted = true;
+    if (visible) p.play();
+  });
+
+  useEffect(() => {
+    if (visible) {
+      player.play();
+    } else {
+      player.pause();
+    }
+  }, [visible]);
+
   return (
     <View style={visualStyles.videoContainer} testID="welcome-visual-identify">
       <View style={visualStyles.phoneFrame}>
         <View style={visualStyles.phoneScreen}>
-          {/* Replace source with your .mp4 asset */}
-          {/* e.g. require("../../../assets/onboarding/identify-demo.mp4") */}
-          <View
-            style={{
-              flex: 1,
-              backgroundColor: Colors.paper,
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Text variant="regular" size="sm" color={Colors.inkFaint}>
-              Add identify-demo.mp4
-            </Text>
-          </View>
+          <VideoView
+            player={player}
+            style={{ width: "100%", height: "100%" }}
+            contentFit="cover"
+            nativeControls={false}
+          />
         </View>
       </View>
     </View>
@@ -76,7 +85,7 @@ const CARD_STACK = [
     habitat: "Grasslands & Farmland",
     rarity: "rare" as const,
     photoUri: "https://enctbzysromgremkqykc.supabase.co/storage/v1/object/public/species-assets/illustrations/passerina-ciris.jpg",
-    delay: 2000,
+    delay: 1500,
     rotation: 2,
     offsetX: 0,
   },
@@ -87,7 +96,7 @@ const CARD_STACK = [
     rarity: "legendary" as const,
     photoUri: "https://enctbzysromgremkqykc.supabase.co/storage/v1/object/public/species-assets/illustrations/grus-americana.jpg",
     contentPosition: "top",
-    delay: 4000,
+    delay: 3000,
     rotation: -4,
     offsetX: 50,
   },
@@ -343,7 +352,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.xl,
   },
   visualArea: {
-    flex: 3,
+    flex: 6,
     alignItems: "center",
     justifyContent: "flex-end",
   },
@@ -384,9 +393,9 @@ const visualStyles = StyleSheet.create({
     justifyContent: "center",
   },
   phoneFrame: {
-    width: 160,
-    height: 300,
-    borderRadius: 24,
+    width: width * 0.55,
+    aspectRatio: 9 / 19.5,
+    borderRadius: 32,
     borderWidth: 4,
     borderColor: Colors.ink,
     backgroundColor: Colors.ink,
@@ -395,7 +404,7 @@ const visualStyles = StyleSheet.create({
   },
   phoneScreen: {
     flex: 1,
-    borderRadius: 20,
+    borderRadius: 28,
     overflow: "hidden",
     backgroundColor: Colors.paper,
   },

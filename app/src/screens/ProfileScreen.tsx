@@ -38,6 +38,8 @@ import {
 } from "../hooks/useApi";
 import { useRevenueCat } from "../contexts/RevenueCatProvider";
 import { clearCache } from "../services/cache";
+import { useGlobalSheet } from "../contexts/BottomSheetProvider";
+import { deleteAccount } from "../services/api";
 import { isAllCardsUnlocked, setUnlockAllCards, getCaptureOverride, setCaptureOverride } from "../services/devSettings";
 import type { CaptureOverride } from "../services/devSettings";
 import { usePostHog } from "../contexts/PostHogProvider";
@@ -47,7 +49,7 @@ type Nav = NativeStackNavigationProp<ProfileStackParamList>;
 
 export const ProfileScreen: React.FC = () => {
   const navigation = useNavigation<Nav>();
-  const { profile } = useAuth();
+  const { profile, signOut } = useAuth();
   const [devUnlockAll, setDevUnlockAll] = useState(isAllCardsUnlocked());
   const [devCaptureOverride, setDevCaptureOverride] = useState<CaptureOverride>(getCaptureOverride());
   const { data: streakData, isLoading: streakLoading } = useStreak();
@@ -61,6 +63,7 @@ export const ProfileScreen: React.FC = () => {
   const memberSince = profile?.created_at ?? new Date().toISOString();
   const { isSubscribed, presentPaywall, presentCustomerCenter } = useRevenueCat();
   const posthog = usePostHog();
+  const { open: openSheet, close: closeSheet } = useGlobalSheet();
   const currentStreak = streakData?.current_streak ?? 0;
   const totalCaptures =
     cards?.reduce((sum, c) => sum + c.sighting_count, 0) ?? 0;
@@ -278,7 +281,83 @@ export const ProfileScreen: React.FC = () => {
           <ProfileRow
             icon={Trash2}
             label="Delete account"
-            onPress={() => { posthog.capture("delete_account_initiated"); }}
+            onPress={() => {
+              posthog.capture("delete_account_initiated");
+              openSheet(
+                <View style={{ paddingHorizontal: Spacing.xl, paddingTop: Spacing["3xl"], alignItems: "center" }}>
+                  <View style={{
+                    width: 64,
+                    height: 64,
+                    borderRadius: 32,
+                    backgroundColor: Colors.sageTint,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginBottom: Spacing.xl,
+                  }}>
+                    <Trash2 size={28} color={Colors.coral} strokeWidth={2} />
+                  </View>
+                  <Text variant="bold" size="xl" color={Colors.coral} align="center">
+                    Delete your account?
+                  </Text>
+                  <Text
+                    variant="regular"
+                    size="sm"
+                    color={Colors.inkSoft}
+                    align="center"
+                    style={{ marginTop: Spacing.lg }}
+                  >
+                    This will permanently delete all your sightings, photos, achievements, and streaks. This action cannot be undone.
+                  </Text>
+                  <Pressable
+                    style={{
+                      backgroundColor: Colors.coral,
+                      borderRadius: BorderRadius.full,
+                      paddingVertical: Spacing.lg,
+                      alignItems: "center",
+                      alignSelf: "stretch",
+                      marginTop: Spacing["3xl"],
+                    }}
+                    onPress={async () => {
+                      closeSheet();
+                      try {
+                        await deleteAccount();
+                        posthog.capture("account_deleted");
+                        Toast.show({
+                          type: "success",
+                          text1: "Account deleted",
+                          text2: "Your data has been permanently removed.",
+                        });
+                        await signOut();
+                      } catch (e: any) {
+                        Toast.show({
+                          type: "error",
+                          text1: "Failed to delete account",
+                          text2: e.message ?? "Please try again.",
+                        });
+                      }
+                    }}
+                    testID="profile-confirm-delete"
+                  >
+                    <Text variant="semiBold" size="base" color={Colors.white}>
+                      Yes, delete my account
+                    </Text>
+                  </Pressable>
+                  <Pressable
+                    style={{
+                      paddingVertical: Spacing.lg,
+                      alignItems: "center",
+                      marginTop: Spacing.md,
+                    }}
+                    onPress={closeSheet}
+                    testID="profile-cancel-delete"
+                  >
+                    <Text variant="medium" size="base" color={Colors.inkSoft}>
+                      Cancel
+                    </Text>
+                  </Pressable>
+                </View>,
+              );
+            }}
             destructive
             testID="profile-row-delete"
           />

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { View, StyleSheet, Pressable, Platform } from "react-native";
+import { View, StyleSheet, Pressable, Platform, Linking } from "react-native";
 import { Image } from "expo-image";
 import { VideoView, useVideoPlayer } from "expo-video";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -19,7 +19,7 @@ export const SignInScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<OnboardingStackParamList>>();
 
   const player = useVideoPlayer(iconVideo, (p) => {
-    p.loop = true;
+    p.loop = false;
     p.muted = true;
     p.play();
   });
@@ -111,7 +111,26 @@ export const SignInScreen: React.FC = () => {
           align="center"
           testID="sign-in-legal"
         >
-          By continuing, you agree to our Terms of Service and Privacy Policy
+          By continuing, you agree to our{" "}
+          <Text
+            variant="regular"
+            size="xs"
+            color={Colors.sage}
+            onPress={() => Linking.openURL("https://hoftware.gitbook.io/birdr/legal/terms-of-service")}
+            testID="sign-in-terms-link"
+          >
+            Terms of Service
+          </Text>
+          {" "}and{" "}
+          <Text
+            variant="regular"
+            size="xs"
+            color={Colors.sage}
+            onPress={() => Linking.openURL("https://hoftware.gitbook.io/birdr/legal/privacy-policy")}
+            testID="sign-in-privacy-link"
+          >
+            Privacy Policy
+          </Text>
         </Text>
       </View>
     </SafeAreaView>
