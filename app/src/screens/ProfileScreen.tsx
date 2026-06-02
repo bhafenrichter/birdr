@@ -13,6 +13,8 @@ import {
   ChevronRight,
   Bug,
   Unlock,
+  Camera,
+  BookOpen,
 } from "lucide-react-native";
 import Toast from "react-native-toast-message";
 import { useNavigation } from "@react-navigation/native";
@@ -36,7 +38,8 @@ import {
 } from "../hooks/useApi";
 import { useRevenueCat } from "../contexts/RevenueCatProvider";
 import { clearCache } from "../services/cache";
-import { isAllCardsUnlocked, setUnlockAllCards } from "../services/devSettings";
+import { isAllCardsUnlocked, setUnlockAllCards, getCaptureOverride, setCaptureOverride } from "../services/devSettings";
+import type { CaptureOverride } from "../services/devSettings";
 import { usePostHog } from "../contexts/PostHogProvider";
 import type { ProfileStackParamList } from "../navigation/stacks/ProfileStack";
 
@@ -46,6 +49,7 @@ export const ProfileScreen: React.FC = () => {
   const navigation = useNavigation<Nav>();
   const { profile } = useAuth();
   const [devUnlockAll, setDevUnlockAll] = useState(isAllCardsUnlocked());
+  const [devCaptureOverride, setDevCaptureOverride] = useState<CaptureOverride>(getCaptureOverride());
   const { data: streakData, isLoading: streakLoading } = useStreak();
   const { data: achievements, isLoading: achievementsLoading } = useAchievements();
   const { data: cards, isLoading: cardsLoading } = useCards();
@@ -255,6 +259,12 @@ export const ProfileScreen: React.FC = () => {
             onPress={() => navigation.navigate("SendFeedback")}
             testID="profile-row-feedback"
           />
+          <ProfileRow
+            icon={BookOpen}
+            label="Documentation"
+            onPress={() => Linking.openURL("https://hoftware.gitbook.io/birdr")}
+            testID="profile-row-docs"
+          />
         </View>
 
         {/* Sign out */}
@@ -306,6 +316,23 @@ export const ProfileScreen: React.FC = () => {
               }}
               testID="profile-row-unlock-cards"
             />
+            <ProfileRow
+              icon={Camera}
+              label={`Capture override: ${devCaptureOverride === "off" ? "OFF" : devCaptureOverride === "first_sight" ? "First Sight" : "Repeat"}`}
+              onPress={async () => {
+                const cycle: CaptureOverride[] = ["off", "first_sight", "repeat"];
+                const nextIdx = (cycle.indexOf(devCaptureOverride) + 1) % cycle.length;
+                const next = cycle[nextIdx];
+                await setCaptureOverride(next);
+                setDevCaptureOverride(next);
+                Toast.show({
+                  type: "success",
+                  text1: next === "off" ? "Capture override OFF" : `Capture override: ${next === "first_sight" ? "First Sight" : "Repeat Sighting"}`,
+                  text2: next === "off" ? "Normal capture flow restored." : "Next capture will skip the API call.",
+                });
+              }}
+              testID="profile-row-capture-override"
+            />
           </View>
         )}
 
@@ -313,7 +340,7 @@ export const ProfileScreen: React.FC = () => {
         <View style={styles.footer} testID="profile-footer">
           <View style={styles.footerLinks}>
             <Pressable
-              onPress={() => Linking.openURL("https://hoftware.io/privacy")}
+              onPress={() => Linking.openURL("https://hoftware.gitbook.io/birdr/legal/privacy-policy")}
               testID="profile-privacy"
             >
               <Text variant="regular" size="xs" color={Colors.sage}>
@@ -324,7 +351,7 @@ export const ProfileScreen: React.FC = () => {
               ·
             </Text>
             <Pressable
-              onPress={() => Linking.openURL("https://hoftware.io/terms")}
+              onPress={() => Linking.openURL("https://hoftware.gitbook.io/birdr/legal/terms-of-service")}
               testID="profile-terms"
             >
               <Text variant="regular" size="xs" color={Colors.sage}>

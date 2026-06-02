@@ -186,7 +186,9 @@ export async function fetchExploreSpecies(
   params: ExploreSpeciesParams,
 ): Promise<ExploreSpeciesResponse> {
   // Build a cache key from the params that affect the result
-  const cacheKey = `explore:${params.lat.toFixed(1)}:${params.lon.toFixed(1)}:${params.mode ?? "near_me"}:${params.season_filter ?? ""}:${params.species_type_slug ?? ""}`;
+  // Round to whole degree (~111km) — the edge function resolves to state level anyway,
+  // so all locations within the same area return the same species list
+  const cacheKey = `explore:${params.lat.toFixed(0)}:${params.lon.toFixed(0)}:${params.mode ?? "near_me"}:${params.season_filter ?? ""}:${params.species_type_slug ?? ""}`;
 
   // Try cache first
   const cached = await getCached<ExploreSpeciesResponse>(cacheKey);

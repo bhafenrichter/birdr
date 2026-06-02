@@ -5,7 +5,7 @@
 
 // ── Enums ──────────────────────────────────────────────────────────────────
 
-export type ConservationStatus = "LC" | "NT" | "VU" | "EN" | "CR";
+export type ConservationStatus = "LC" | "NT" | "VU" | "EN" | "CR" | "EX";
 export type Rarity = "common" | "uncommon" | "rare" | "epic" | "legendary" | "extinct";
 export type Season = "year_round" | "summer" | "winter" | "migratory" | "rare";
 export type SubscriptionTier = "free" | "weekly" | "yearly";

@@ -6,6 +6,11 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/loading-background.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#EAF5E5"
+    },
     "scheme": "birdr",
     "ios": {
       "supportsTablet": false,

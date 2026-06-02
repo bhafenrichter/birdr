@@ -188,6 +188,7 @@ export const BirdCard: React.FC<BirdCardProps> = ({
               }}
               contentFit="cover"
               blurRadius={12}
+              transition={200}
               testID={`${testID}-habitat-bg`}
             />
           )}
@@ -317,6 +318,7 @@ export const BirdCard: React.FC<BirdCardProps> = ({
                         contentFit="cover"
                         cachePolicy="disk"
                         blurRadius={8}
+                        transition={300}
                         testID={`${testID}-illustration`}
                       />
                     )}
@@ -637,6 +639,7 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
               }}
               contentFit="cover"
               blurRadius={12}
+              transition={200}
               testID={`${testID}-habitat-bg`}
             />
           )}
@@ -749,6 +752,7 @@ export const BirdCardThumb: React.FC<BirdCardThumbProps> = ({
                       contentFit="cover"
                       cachePolicy="disk"
                       blurRadius={8}
+                      transition={300}
                       testID={`${testID}-illustration`}
                     />
                   )}

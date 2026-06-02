@@ -44,7 +44,7 @@ export const PhotoPreviewScreen: React.FC = () => {
           accessibilityRole="button"
           accessibilityLabel="Retake"
         >
-          <Text variant="medium" size="md" color={Colors.white} testID="photo-preview-retake-label">
+          <Text variant="medium" size="md" color={Colors.ink} testID="photo-preview-retake-label">
             Retake
           </Text>
         </Pressable>
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: Spacing.lg,
     borderRadius: BorderRadius.full,
-    backgroundColor: "rgba(255,255,255,0.2)",
+    backgroundColor: "rgba(255,255,255,1)",
   },
 });
 

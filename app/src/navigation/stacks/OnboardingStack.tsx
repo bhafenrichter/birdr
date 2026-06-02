@@ -3,13 +3,10 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import WelcomeCarouselScreen from "../../screens/onboarding/WelcomeCarouselScreen";
 import SignInScreen from "../../screens/onboarding/SignInScreen";
 import PermissionsScreen from "../../screens/onboarding/PermissionsScreen";
-import TutorialCaptureScreen from "../../screens/onboarding/TutorialCaptureScreen";
-
 export type OnboardingStackParamList = {
   Welcome: undefined;
   SignIn: undefined;
   Permissions: undefined;
-  TutorialCapture: undefined;
   Complete: undefined;
 };
 
@@ -33,7 +30,6 @@ export const OnboardingStack: React.FC<{ initialRouteName?: keyof OnboardingStac
     <Stack.Screen name="Welcome" component={WelcomeCarouselScreen} />
     <Stack.Screen name="SignIn" component={SignInScreen} />
     <Stack.Screen name="Permissions" component={PermissionsScreen} />
-    <Stack.Screen name="TutorialCapture" component={TutorialCaptureScreen} />
     <Stack.Screen
       name="Complete"
       component={CompleteScreen}

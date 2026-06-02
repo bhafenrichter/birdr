@@ -30,6 +30,7 @@ export type CaptureFlowParamList = {
     location?: { lat: number; lon: number };
     setting?: string;
     photo_quality?: PhotoQuality;
+    _devOverride?: "first_sight" | "repeat";
   };
   HardPaywall: undefined;
   ShameCard: undefined;

@@ -10,9 +10,10 @@ import Toast from "react-native-toast-message";
 import { AlertCircle } from "lucide-react-native";
 import { Colors, Spacing, BorderRadius } from "../../theme";
 import { Text, PrimaryButton } from "../../components/atoms";
-import { identifyBird, confirmSighting } from "../../services/api";
+import { identifyBird, confirmSighting, fetchAllSpecies } from "../../services/api";
 import { useAuth } from "../../contexts/AuthProvider";
 import { usePostHog } from "../../contexts/PostHogProvider";
+import { getCaptureOverride } from "../../services/devSettings";
 import type { CaptureFlowParamList } from "../../navigation/stacks/CaptureFlowStack";
 import type { IdentifyBirdResponse } from "../../types/api";
 
@@ -35,6 +36,25 @@ export const IdentifyingScreen: React.FC = () => {
 
     (async () => {
       try {
+        // Dev override — skip API and go straight to card reveal
+        const captureOverride = getCaptureOverride();
+        if (captureOverride !== "off") {
+          const allSpecies = await fetchAllSpecies();
+          const randomSpecies = allSpecies[Math.floor(Math.random() * allSpecies.length)];
+          // Short delay to simulate identification
+          await new Promise((r) => setTimeout(r, 800));
+          navigation.replace("CardReveal", {
+            photoUri,
+            speciesId: randomSpecies.id,
+            commonName: randomSpecies.common_name,
+            conservationStatus: randomSpecies.conservation_status ?? "LC",
+            setting: "on a bird feeder",
+            photo_quality: "good",
+            _devOverride: captureOverride,
+          });
+          return;
+        }
+
         // Get location — request permission if not yet granted
         let location: { lat: number; lon: number } | undefined;
         try {

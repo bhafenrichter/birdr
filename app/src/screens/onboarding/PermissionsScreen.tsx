@@ -94,7 +94,7 @@ export const PermissionsScreen: React.FC = () => {
 
   const handleContinue = useCallback(() => {
     posthog.capture("onboarding_step_completed", { step: "permissions", camera: granted.camera, location: granted.location, notifications: granted.notifications });
-    navigation.navigate("TutorialCapture");
+    navigation.navigate("Complete");
   }, [navigation, posthog, granted]);
 
   return (

@@ -360,7 +360,7 @@ async function matchSpecies(
         conservation_status: match?.conservation_status ?? null,
       };
     })
-    .filter((c) => c.species_id !== null);
+    .filter((c) => c.species_id !== null && c.conservation_status !== "EX");
 }
 
 /**

@@ -102,7 +102,6 @@ export const CardDetailScreen: React.FC = () => {
   const enterScale = useSharedValue(0.3);
   const cardOpacity = useSharedValue(0);
   const sheetAnimatedIndex = useSharedValue(0);
-  const [imageReady, setImageReady] = useState(false);
   const hasAnimated = useRef(false);
 
   // Dim overlay immediately
@@ -110,42 +109,23 @@ export const CardDetailScreen: React.FC = () => {
     overlayOpacity.value = withTiming(1, { duration: 250 });
   }, []);
 
-  // Wait for all data + prefetch images, then animate card in
+  // Animate card in once data is ready — card is rendered at opacity 0 from the start
+  // so expo-image begins loading immediately
   useEffect(() => {
     if (hasAnimated.current) return;
     if (!species) return;
-
-    // Wait for card/sighting data to settle before showing
     if (cardsLoading || sightingsLoading) return;
 
-    const userCard = cards?.find((c) => c.species_id === speciesId);
-    const isSpotted = !!userCard;
-
-    // Determine the final image that will be shown
-    const finalPhotoUri = isSpotted && !showAsLocked
-      ? (userCard?.hero_photo_url ?? (species as any).illustration_url)
-      : (species as any).illustration_url;
-
-    const animateCardIn = () => {
-      if (hasAnimated.current) return;
-      hasAnimated.current = true;
+    hasAnimated.current = true;
+    // Small delay to let the image decode from cache/network
+    setTimeout(() => {
       enterScale.value = withTiming(1, {
         duration: 350,
         easing: Easing.out(Easing.cubic),
       });
       cardOpacity.value = withTiming(1, { duration: 200 });
-      setImageReady(true);
-    };
-
-    // Prefetch all images that the card will show
-    const urls = [finalPhotoUri, (species as any).illustration_url].filter(Boolean);
-    if (urls.length > 0) {
-      Promise.all(urls.map((u: string) => Image.prefetch(u).catch(() => {})))
-        .then(animateCardIn);
-    } else {
-      animateCardIn();
-    }
-  }, [species, cardsLoading, sightingsLoading, cards, speciesId, showAsLocked]);
+    }, 100);
+  }, [species, cardsLoading, sightingsLoading]);
 
   const animateOut = (cb: () => void) => {
     bottomSheetRef.current?.close();
@@ -196,8 +176,9 @@ export const CardDetailScreen: React.FC = () => {
       new Date(b.captured_at).getTime() - new Date(a.captured_at).getTime(),
   );
 
-  // Show loading overlay while species data or image is resolving
-  if (!species || !imageReady) {
+  // Show loading overlay while species data is resolving
+  // Card renders at opacity 0 below so images start loading immediately
+  if (!species) {
     return (
       <View style={styles.container}>
         <Animated.View style={[StyleSheet.absoluteFill, overlayStyle]}>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { View, StyleSheet, Pressable, Platform, Dimensions } from "react-native";
 import * as FileSystem from "expo-file-system/legacy";
 import * as Location from "expo-location";
@@ -50,10 +50,101 @@ const RARITY_SCALE: Record<
   CR: { durationMult: 1.6, haptic: Haptics.ImpactFeedbackStyle.Heavy },
 };
 
+// ── Rotating achievement banner ───────────────────────────────────────────
+
+const AchievementBanner: React.FC<{
+  streak: { current_streak: number; longest_streak: number } | null;
+  achievements: Array<{ achievement_id: string; category: string; name: string }>;
+}> = ({ streak, achievements }) => {
+  // Build stable list of items
+  const items = useMemo(() => {
+    const list: Array<{ emoji: string; title: string; subtitle: string }> = [];
+    if (streak) {
+      list.push({
+        emoji: "🔥",
+        title: `${streak.current_streak}-day streak`,
+        subtitle: "Keep it going!",
+      });
+    }
+    for (const ach of achievements) {
+      list.push({
+        emoji: "🏆",
+        title: ach.name,
+        subtitle: "Achievement unlocked",
+      });
+    }
+    return list;
+  }, [streak, achievements]);
+
+  const indexRef = useRef(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const translateX = useSharedValue(0);
+  const bannerOpacity = useSharedValue(1);
+  const screenWidth = Dimensions.get("window").width;
+  const itemCount = items.length;
+
+  const advanceIndex = useCallback(() => {
+    const next = (indexRef.current + 1) % itemCount;
+    indexRef.current = next;
+    setCurrentIndex(next);
+  }, [itemCount]);
+
+  useEffect(() => {
+    if (itemCount <= 1) return;
+    const interval = setInterval(() => {
+      // Slide out left
+      translateX.value = withTiming(-screenWidth * 0.3, { duration: 250 });
+      bannerOpacity.value = withTiming(0, { duration: 250 });
+      // After slide out, advance and slide in
+      setTimeout(() => {
+        advanceIndex();
+        translateX.value = screenWidth * 0.3;
+        translateX.value = withTiming(0, { duration: 300 });
+        bannerOpacity.value = withTiming(1, { duration: 300 });
+      }, 280);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [itemCount, advanceIndex]);
+
+  const animStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: translateX.value }],
+    opacity: bannerOpacity.value,
+  }));
+
+  if (items.length === 0) return null;
+
+  const idx = currentIndex % items.length;
+  const item = items[idx];
+  if (!item) return null;
+
+  return (
+    <View style={styles.achievementBannerContainer}>
+      <Animated.View style={[styles.achievementCard, animStyle]}>
+        <Text variant="bold" size="sm" color={item.emoji === "🔥" ? Colors.coral : Colors.saffron}>
+          {item.emoji}
+        </Text>
+        <View style={{ flex: 1, marginLeft: Spacing.sm }}>
+          <Text variant="semiBold" size="sm" color={Colors.white} numberOfLines={1}>
+            {item.title}
+          </Text>
+          <Text variant="regular" size="xs" color="rgba(255,255,255,0.6)" numberOfLines={1}>
+            {item.subtitle}
+          </Text>
+        </View>
+        {items.length > 1 && (
+          <Text variant="regular" size="xs" color="rgba(255,255,255,0.3)">
+            {`${idx + 1}/${items.length}`}
+          </Text>
+        )}
+      </Animated.View>
+    </View>
+  );
+};
+
 export const CardRevealScreen: React.FC = () => {
   const navigation = useNavigation<Nav>();
   const route = useRoute<Route>();
-  const { photoUri, speciesId, commonName, conservationStatus, location, setting, photo_quality } =
+  const { photoUri, speciesId, commonName, conservationStatus, location, setting, photo_quality, _devOverride } =
     route.params;
   const { refreshProfile } = useAuth();
   const posthog = usePostHog();
@@ -97,6 +188,27 @@ export const CardRevealScreen: React.FC = () => {
 
     (async () => {
       try {
+        // Dev override — skip API, fake the result
+        if (_devOverride) {
+          await new Promise((r) => setTimeout(r, 500));
+          setConfirmResult({
+            sighting_id: "dev-override",
+            is_first_sight: _devOverride === "first_sight",
+            card: {
+              species_id: speciesId,
+              common_name: commonName,
+              scientific_name: "",
+              conservation_status: tier,
+              sighting_count: _devOverride === "first_sight" ? 1 : 3,
+            },
+            streak: { current_streak: 5, longest_streak: 12, streak_extended: true },
+            achievements_unlocked: _devOverride === "first_sight"
+              ? [{ achievement_id: "collection_5", category: "collection" as const, name: "Getting Your Wings" }]
+              : [],
+          });
+          return;
+        }
+
         // Read photo as base64
         const base64 = await FileSystem.readAsStringAsync(photoUri, {
           encoding: FileSystem.EncodingType.Base64,
@@ -179,9 +291,9 @@ export const CardRevealScreen: React.FC = () => {
     })();
   }, []);
 
-  // Run the 5-beat animation sequence — only after confirm returns first sight
+  // Run the 5-beat animation sequence — for both first sight and repeat
   useEffect(() => {
-    if (!confirmResult || !confirmResult.is_first_sight) return;
+    if (!confirmResult) return;
 
     const d = scale.durationMult;
 
@@ -261,105 +373,15 @@ export const CardRevealScreen: React.FC = () => {
     opacity: bonusOpacity.value,
   }));
 
-  // Repeat sighting — show a simpler screen, no confetti
-  if (confirmResult && !confirmResult.is_first_sight) {
-    return (
-      <View style={styles.container} testID="card-repeat-screen">
-        <Animated.View
-          style={[styles.overlay]}
-          entering={FadeIn.duration(400)}
-        />
-
-        {/* Banner */}
-        <Animated.View
-          style={styles.repeatBanner}
-          entering={FadeIn.delay(200).duration(500)}
-        >
-          <Text
-            variant="bold"
-            size="xs"
-            color={Colors.saffron}
-            align="center"
-            style={{ letterSpacing: 2, textTransform: "uppercase" }}
-          >
-            Welcome back, old friend
-          </Text>
-          <Text
-            variant="bold"
-            size="2xl"
-            color={Colors.white}
-            align="center"
-            style={{ marginTop: Spacing.xs }}
-          >
-            {commonName}
-          </Text>
-        </Animated.View>
-
-        {/* Card */}
-        <Animated.View
-          style={styles.repeatCard}
-          entering={FadeIn.delay(400).duration(500).springify().damping(14)}
-        >
-          <View style={{ width: Dimensions.get("window").width * 0.88, height: Dimensions.get("window").height * 0.55 }}>
-            <BirdCard
-              data={{
-                speciesName: commonName,
-                familyName: species?.family ?? "",
-                speciesType: species?.species_type_name ?? "",
-                habitat: species?.habitat_name ?? "",
-                conservationTier: tier,
-                photoUri: photoUri,
-                sightingCount: confirmResult.card.sighting_count,
-                rarity: species?.rarity as any,
-                about: species?.about_text,
-                firstSight: [
-                  new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
-                  setting,
-                ].filter(Boolean).join(", "),
-              }}
-              compact
-              testID="card-repeat-full"
-            />
-          </View>
-        </Animated.View>
-
-        {/* Continue */}
-        <Animated.View
-          style={styles.settledContainer}
-          entering={FadeIn.delay(800).duration(400)}
-        >
-          {confirmResult.streak?.streak_extended && (
-            <View style={styles.achievementCard}>
-              <Text variant="bold" size="sm" color={Colors.coral}>🔥</Text>
-              <View style={{ flex: 1, marginLeft: Spacing.sm }}>
-                <Text variant="semiBold" size="sm" color={Colors.white}>
-                  {`${confirmResult.streak.current_streak}-day streak`}
-                </Text>
-                <Text variant="regular" size="xs" color="rgba(255,255,255,0.6)">
-                  Keep it going!
-                </Text>
-              </View>
-            </View>
-          )}
-          <Pressable
-            style={styles.continueBtn}
-            onPress={handleContinue}
-            testID="card-repeat-continue"
-          >
-            <Text variant="semiBold" size="base" color={Colors.white}>
-              Continue
-            </Text>
-          </Pressable>
-        </Animated.View>
-      </View>
-    );
-  }
+  // Determine banner text based on first sight vs repeat
+  const isFirstSight = confirmResult?.is_first_sight ?? true;
+  const bannerLabel = isFirstSight ? "First Sight" : "Welcome back, old friend";
 
   return (
     <Pressable
       style={styles.container}
       onPress={handleSkip}
-      testID="card-reveal-screen"
+      testID={isFirstSight ? "card-reveal-screen" : "card-repeat-screen"}
     >
       {/* Dark overlay */}
       <Animated.View
@@ -367,8 +389,8 @@ export const CardRevealScreen: React.FC = () => {
         testID="card-reveal-overlay"
       />
 
-      {/* Confetti burst */}
-      {beat >= 2 && (
+      {/* Confetti burst — first sight only */}
+      {beat >= 2 && isFirstSight && (
         <ConfettiCannon
           count={80}
           origin={{ x: Dimensions.get("window").width / 2, y: -20 }}
@@ -410,7 +432,7 @@ export const CardRevealScreen: React.FC = () => {
         </Animated.View>
       )}
 
-      {/* First Sight banner — above card */}
+      {/* Banner — above card */}
       {beat >= 4 && (
         <Animated.View
           style={[styles.bannerContainer, bannerStyle]}
@@ -424,7 +446,7 @@ export const CardRevealScreen: React.FC = () => {
             testID="card-reveal-first-sight-label"
             style={{ letterSpacing: 2, textTransform: "uppercase" }}
           >
-            First Sight
+            {bannerLabel}
           </Text>
           <Text
             variant="bold"
@@ -438,52 +460,16 @@ export const CardRevealScreen: React.FC = () => {
         </Animated.View>
       )}
 
-      {/* Settled state: achievements + CTA */}
+      {/* Settled state: rotating achievement banner + CTA */}
       {beat >= 5 && (
         <Animated.View
           style={[styles.settledContainer, bonusStyle]}
           testID="card-reveal-settled"
         >
-          {/* Achievement cards — show streak + first achievement, then summarize the rest */}
-          {confirmResult?.streak && confirmResult.streak.streak_extended && (
-            <View style={styles.achievementCard}>
-              <Text variant="bold" size="sm" color={Colors.coral}>🔥</Text>
-              <View style={{ flex: 1, marginLeft: Spacing.sm }}>
-                <Text variant="semiBold" size="sm" color={Colors.white}>
-                  {`${confirmResult.streak.current_streak}-day streak`}
-                </Text>
-                <Text variant="regular" size="xs" color="rgba(255,255,255,0.6)">
-                  Keep it going!
-                </Text>
-              </View>
-            </View>
-          )}
-          {confirmResult?.achievements_unlocked.slice(0, 1).map((ach) => (
-            <View key={ach.achievement_id} style={styles.achievementCard}>
-              <Text variant="bold" size="sm" color={Colors.saffron}>🏆</Text>
-              <View style={{ flex: 1, marginLeft: Spacing.sm }}>
-                <Text variant="semiBold" size="sm" color={Colors.white}>
-                  {ach.name}
-                </Text>
-                <Text variant="regular" size="xs" color="rgba(255,255,255,0.6)">
-                  Achievement unlocked
-                </Text>
-              </View>
-            </View>
-          ))}
-          {(confirmResult?.achievements_unlocked.length ?? 0) > 1 && (
-            <View style={styles.achievementCard}>
-              <Text variant="bold" size="sm" color={Colors.saffron}>🏆</Text>
-              <View style={{ flex: 1, marginLeft: Spacing.sm }}>
-                <Text variant="semiBold" size="sm" color={Colors.white}>
-                  {`+${confirmResult!.achievements_unlocked.length - 1} more achievement${confirmResult!.achievements_unlocked.length - 1 > 1 ? "s" : ""}`}
-                </Text>
-                <Text variant="regular" size="xs" color="rgba(255,255,255,0.6)">
-                  Check your profile to see them all
-                </Text>
-              </View>
-            </View>
-          )}
+          <AchievementBanner
+            streak={confirmResult?.streak?.streak_extended ? confirmResult.streak : null}
+            achievements={confirmResult?.achievements_unlocked ?? []}
+          />
 
           {/* Continue button */}
           <Pressable
@@ -527,6 +513,11 @@ const styles = StyleSheet.create({
     left: Spacing.xl,
     right: Spacing.xl,
   },
+  achievementBannerContainer: {
+    overflow: "hidden",
+    borderRadius: BorderRadius.lg,
+    marginBottom: Spacing.sm,
+  },
   achievementCard: {
     flexDirection: "row",
     alignItems: "center",
@@ -534,7 +525,6 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.lg,
     paddingVertical: Spacing.md,
     paddingHorizontal: Spacing.lg,
-    marginBottom: Spacing.sm,
   },
   continueBtn: {
     backgroundColor: Colors.sage,
@@ -542,17 +532,6 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.lg,
     alignItems: "center",
     marginTop: Spacing.md,
-  },
-  repeatBanner: {
-    position: "absolute",
-    top: Platform.OS === "ios" ? "12%" : "8%",
-    alignSelf: "center",
-    alignItems: "center",
-  },
-  repeatCard: {
-    position: "absolute",
-    top: "20%",
-    alignSelf: "center",
   },
 });
 
