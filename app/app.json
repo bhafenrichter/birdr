@@ -8,7 +8,8 @@
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/loading-background.png",
-      "resizeMode": "cover",
+      "imageWidth": 320,
+      "resizeMode": "contain",
       "backgroundColor": "#EAF5E5"
     },
     "scheme": "birdr",
@@ -16,7 +17,11 @@
       "supportsTablet": false,
       "bundleIdentifier": "com.hoftware.birdr",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSCameraUsageDescription": "birdr uses your camera to photograph birds. Your photo is analyzed by AI to identify the species, which is then added as a collectible card to your personal bird collection. For example, point your camera at a robin in your backyard to identify and collect it.",
+        "NSLocationWhenInUseUsageDescription": "birdr uses your location to show bird species commonly spotted in your area and to record where each bird was sighted in your collection. For example, opening the Explore tab shows birds found near your current location.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "birdr uses your location to show bird species commonly spotted in your area and to record where each bird was sighted in your collection. For example, opening the Explore tab shows birds found near your current location.",
+        "NSLocationAlwaysUsageDescription": "birdr uses your location to show bird species commonly spotted in your area and to record where each bird was sighted in your collection. For example, opening the Explore tab shows birds found near your current location."
       }
     },
     "android": {
@@ -35,7 +40,15 @@
     "plugins": [
       "expo-font",
       "expo-image",
-      "expo-splash-screen",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/loading-background.png",
+          "imageWidth": 320,
+          "resizeMode": "contain",
+          "backgroundColor": "#EAF5E5"
+        }
+      ],
       "expo-secure-store",
       [
         "@react-native-google-signin/google-signin",

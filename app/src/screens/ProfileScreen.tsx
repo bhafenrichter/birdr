@@ -58,7 +58,7 @@ export const ProfileScreen: React.FC = () => {
 
   const isLoading = !profile || streakLoading || cardsLoading;
 
-  const displayName = profile?.display_name ?? "Birder";
+  const displayName = profile?.display_name?.trim() || "A Fearless Birdr User";
   const initial = displayName.charAt(0).toUpperCase();
   const memberSince = profile?.created_at ?? new Date().toISOString();
   const { isSubscribed, presentPaywall, presentCustomerCenter } = useRevenueCat();

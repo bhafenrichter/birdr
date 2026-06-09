@@ -40,7 +40,9 @@ export const CaptureHubScreen: React.FC = () => {
     lastCapture === new Date().toISOString().split("T")[0];
   const { isSubscribed, presentPaywall } = useRevenueCat();
   const posthog = usePostHog();
-  const dailyUsed = profile?.daily_captures_used ?? 0;
+  const quotaResetAt = profile?.daily_captures_reset_at;
+  const quotaIsStale = quotaResetAt ? isNewUTCDay(quotaResetAt) : false;
+  const dailyUsed = quotaIsStale ? 0 : (profile?.daily_captures_used ?? 0);
   const quotaRemaining = Math.max(0, 3 - dailyUsed);
 
   // Pulse animation
@@ -261,5 +263,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 });
+
+// Returns true if the stored reset timestamp is from a previous UTC day,
+// meaning the server-side counter hasn't been reset yet this session.
+function isNewUTCDay(resetAt: string): boolean {
+  const reset = new Date(resetAt);
+  const now = new Date();
+  return (
+    now.getUTCFullYear() !== reset.getUTCFullYear() ||
+    now.getUTCMonth() !== reset.getUTCMonth() ||
+    now.getUTCDate() !== reset.getUTCDate()
+  );
+}
 
 export default CaptureHubScreen;

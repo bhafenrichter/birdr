@@ -39,7 +39,9 @@ export const ViewfinderScreen: React.FC = () => {
   const isLandscape = width > height;
 
   const { isSubscribed } = useRevenueCat();
-  const dailyUsed = profile?.daily_captures_used ?? 0;
+  const quotaResetAt = profile?.daily_captures_reset_at;
+  const quotaIsStale = quotaResetAt ? isNewUTCDay(quotaResetAt) : false;
+  const dailyUsed = quotaIsStale ? 0 : (profile?.daily_captures_used ?? 0);
   const capturesRemaining = !isSubscribed ? Math.max(0, 3 - dailyUsed) : null;
 
   // Unlock orientation when this screen is focused, lock back on leave
@@ -470,5 +472,15 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
 });
+
+function isNewUTCDay(resetAt: string): boolean {
+  const reset = new Date(resetAt);
+  const now = new Date();
+  return (
+    now.getUTCFullYear() !== reset.getUTCFullYear() ||
+    now.getUTCMonth() !== reset.getUTCMonth() ||
+    now.getUTCDate() !== reset.getUTCDate()
+  );
+}
 
 export default ViewfinderScreen;

@@ -3,6 +3,7 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { AppState } from "react-native";
 import * as api from "../services/api";
 import { logger } from "../services/logger";
 import { on, CAPTURE_COMPLETED } from "../services/events";
@@ -64,6 +65,14 @@ export function useProfile(): UseQueryResult<Profile | null> {
 
   useEffect(() => {
     return on(CAPTURE_COMPLETED, result.refetch);
+  }, [result.refetch]);
+
+  // Refetch when app returns to foreground so quota display is fresh after a day change
+  useEffect(() => {
+    const sub = AppState.addEventListener("change", (state) => {
+      if (state === "active") result.refetch();
+    });
+    return () => sub.remove();
   }, [result.refetch]);
 
   return result;

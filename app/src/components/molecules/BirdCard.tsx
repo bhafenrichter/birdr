@@ -488,9 +488,9 @@ export const BirdCard: React.FC<BirdCardProps> = ({
                     color={Colors.white}
                     style={{
                       lineHeight: 20,
-                      textShadowColor: "rgba(0,0,0,0.5)",
+                      textShadowColor: "rgba(0,0,0,0.7)",
                       textShadowOffset: { width: 0, height: 1 },
-                      textShadowRadius: 2,
+                      textShadowRadius: 4,
                     }}
                     testID={`${testID}-firstsight-text`}
                   >
@@ -511,9 +511,9 @@ export const BirdCard: React.FC<BirdCardProps> = ({
                       size="md"
                       color={Colors.white}
                       style={{
-                        textShadowColor: "rgba(0,0,0,0.5)",
+                        textShadowColor: "rgba(0,0,0,0.7)",
                         textShadowOffset: { width: 0, height: 1 },
-                        textShadowRadius: 2,
+                        textShadowRadius: 4,
                       }}
                     >
                       {"First Sight: "}
