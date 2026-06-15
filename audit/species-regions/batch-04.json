@@ -1,0 +1,738 @@
+{
+  "batch": 4,
+  "species_reviewed": 100,
+  "verdicts": {"ok": 10, "minor_issues": 65, "major_issues": 25},
+  "findings": [
+    {
+      "common_name": "Chinese Sparrowhawk",
+      "scientific_name": "Tachyspiza soloensis",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["AK"], "should_be": "rare", "note": "Asian accidental, only a couple AK records; not a year-round resident"}
+      ]
+    },
+    {
+      "common_name": "Chipping Sparrow",
+      "scientific_name": "Spizella passerina",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["AK","MN","ND","SD","MT","WI","MI","ME","NH","VT","NY","WY","WA","OR","ID"], "should_be": "summer", "note": "northern-tier breeder that withdraws in winter; tagged year_round everywhere. Winters across southern US"}
+      ]
+    },
+    {
+      "common_name": "Chuck-will's-widow",
+      "scientific_name": "Antrostomus carolinensis",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CA","NV","NM","ME","NH","SD"], "note": "SE/eastern breeder; these are vagrant-only (CA/NV/NM accidental, ME/NH north of range)"}
+      ]
+    },
+    {
+      "common_name": "Chukar",
+      "scientific_name": "Alectoris chukar",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AL","AR","CT","DE","FL","GA","IA","IL","IN","KS","KY","LA","MA","MD","ME","MI","MN","MO","MS","NC","NH","NJ","NY","OH","PA","RI","SC","TN","VA","VT","WI","WV"], "note": "introduced game bird established only in arid West + HI; not present in eastern US. Established: CA,CO,ID,MT,NV,OR,UT,WA,WY,AZ,ND,SD,NE,HI"}
+      ]
+    },
+    {
+      "common_name": "Cinnamon Hummingbird",
+      "scientific_name": "Amazilia rutila",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["AZ","NM"], "should_be": "rare", "note": "Mexican accidental, only a few AZ/NM records; not a breeding summer resident"}
+      ]
+    },
+    {
+      "common_name": "Cinnamon Teal",
+      "scientific_name": "Spatula cyanoptera",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CT","DE","FL","GA","MA","NC","NJ","NY","PA","RI","SC","VA","WV"], "note": "western duck; eastern states are vagrant-only"},
+        {"type": "wrong_season", "states": ["CO","ID","MT","ND","SD","WY","NE","UT","NV"], "should_be": "summer", "note": "western interior is a breeding/summer bird that winters in CA/AZ/TX/Mexico; tagged year_round"}
+      ]
+    },
+    {
+      "common_name": "Cinnamon-rumped Seedeater",
+      "scientific_name": "Sporophila torqueola",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AZ","CA"], "note": "US occurrence limited to lower Rio Grande TX; AZ/CA would be escapes/vagrants"}
+      ]
+    },
+    {
+      "common_name": "Citrine Wagtail",
+      "scientific_name": "Motacilla citreola",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["MS"], "note": "Eurasian vagrant; AK/CA plausible, MS has no record"}
+      ]
+    },
+    {
+      "common_name": "Clapper Rail",
+      "scientific_name": "Rallus crepitans",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["IL","KY","NE","NM","TN","ME"], "note": "coastal salt-marsh species (Atlantic+Gulf); inland states have no salt marsh. NM/western birds are Ridgway's Rail (split). ME north of range"}
+      ]
+    },
+    {
+      "common_name": "Clark's Grebe",
+      "scientific_name": "Aechmophorus clarkii",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AK","AR","IA","ME","MO","MS","NC","NY","TN","VA","WI"], "note": "western grebe; eastern/AK records are vagrant-only"},
+        {"type": "wrong_season", "states": ["CO","ID","MT","ND","SD","WY","UT"], "should_be": "summer", "note": "interior breeding range is seasonal; winters Pacific coast/SW"}
+      ]
+    },
+    {
+      "common_name": "Clark's Nutcracker",
+      "scientific_name": "Nucifraga columbiana",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AK","AL","AR","IA","IL","LA","MN","MO","OK","WI","ND"], "note": "high-elevation western conifer bird; eastern/Midwest states are irruptive/accidental at best"}
+      ]
+    },
+    {
+      "common_name": "Clay-colored Sparrow",
+      "scientific_name": "Spizella pallida",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["AL","AR","AZ","CA","CT","DE","FL","GA","KY","LA","MA","MD","ME","MS","NC","NH","NJ","NV","NY","OH","OR","PA","RI","SC","TN","VA","VT","WA","WV"], "should_be": "migratory", "note": "breeds north-central plains/upper Midwest (summer), winters s TX/Mexico; year_round across all 49 states is wrong - most are migrant/rare only"}
+      ]
+    },
+    {
+      "common_name": "Clay-colored Thrush",
+      "scientific_name": "Turdus grayi",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AZ","NM"], "note": "resident only in south TX (Rio Grande); AZ/NM vagrant-only"}
+      ]
+    },
+    {
+      "common_name": "Cockatiel",
+      "scientific_name": "Nymphicus hollandicus",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["ALL_LISTED"], "note": "Australian cage bird with no established/self-sustaining US population; all records are escapes"}
+      ]
+    },
+    {
+      "common_name": "Cocos Booby",
+      "scientific_name": "Sula brewsteri",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AZ","CO","NV","AK"], "note": "eastern-Pacific booby; inland AZ/CO/NV and AK are vagrant-only, CA the only realistic state"}
+      ]
+    },
+    {
+      "common_name": "Collared Forest-Falcon",
+      "scientific_name": "Micrastur semitorquatus",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["TX"], "should_be": "rare", "note": "single US vagrant record (Bentsen, TX 1994); not a year-round resident"}
+      ]
+    },
+    {
+      "common_name": "Collared Plover",
+      "scientific_name": "Anarhynchus collaris",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["TX"], "should_be": "rare", "note": "accidental vagrant, only a couple TX records"}
+      ]
+    },
+    {
+      "common_name": "Common Black Hawk",
+      "scientific_name": "Buteogallus anthracinus",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CA","CO","NV","OK"], "note": "riparian SW breeder; these are vagrant. Core AZ,NM,w-TX,sw-UT"},
+        {"type": "wrong_season", "states": ["AZ","NM","TX","UT"], "should_be": "summer", "note": "largely migratory, departs in winter"}
+      ]
+    },
+    {
+      "common_name": "Common Chaffinch",
+      "scientific_name": "Fringilla coelebs",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["IN","MA","ME","MI","NH","NJ","NY","PA","WI"], "should_be": "rare", "note": "European; NE records are vagrant/ship-assisted or escapes, not year-round residents"}
+      ]
+    },
+    {
+      "common_name": "Common Crane",
+      "scientific_name": "Grus grus",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["ALL_LISTED"], "should_be": "migratory", "note": "Eurasian vagrant traveling with Sandhill Cranes; not a year-round resident anywhere"}
+      ]
+    },
+    {
+      "common_name": "Common Cuckoo",
+      "scientific_name": "Cuculus canorus",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["AK","CA","MA","NH","NY","RI"], "should_be": "rare", "note": "Old World vagrant; not year-round"}
+      ]
+    },
+    {
+      "common_name": "Common Eider",
+      "scientific_name": "Somateria mollissima",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["IA","IL","MN","ND","NE","SD","TN","TX","WI","FL","GA","SC","CA","OR"], "note": "Atlantic/Arctic sea duck; interior and southern/Pacific-south states are vagrant. Core: AK, ME (breeds), MA,NH,RI,CT,NY,NJ,DE,MD,VA (winter), rare Great Lakes"}
+      ]
+    },
+    {
+      "common_name": "Common Gallinule",
+      "scientific_name": "Gallinula galeata",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["MN","ND","SD","MT","WI","MI","ME","NH","VT","NY","IA","IL","IN","CO","ID","WY","NE"], "should_be": "summer", "note": "northern breeder that withdraws in winter; year_round only valid in southern/coastal states"}
+      ]
+    },
+    {
+      "common_name": "Common Goldeneye",
+      "scientific_name": "Bucephala clangula",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["AL","AR","AZ","CA","FL","GA","KS","KY","LA","MS","NC","NM","NV","OK","SC","TN","TX","VA"], "should_be": "winter", "note": "winters across most of US, breeds far north; tagged year_round in southern winter-only states"}
+      ]
+    },
+    {
+      "common_name": "Common Grackle",
+      "scientific_name": "Quiscalus quiscula",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AZ","CA","ID","NV","OR","UT","WA"], "note": "eastern/central species; largely absent/vagrant west of the Rockies"},
+        {"type": "wrong_season", "states": ["AL","AR","FL","GA","KY","LA","MS","NC","SC","TN","TX","VA","MO","OK","KS"], "should_be": "year_round", "note": "year-round resident across most of eastern US; tagged summer everywhere. Summer-only valid only in far north (ND,MN,MT)"}
+      ]
+    },
+    {
+      "common_name": "Common Greenshank",
+      "scientific_name": "Tringa nebularia",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["FL","MA","NJ","NY"], "note": "Eurasian; AK regular in spring, Atlantic records are vagrant"}
+      ]
+    },
+    {
+      "common_name": "Common Ground Dove",
+      "scientific_name": "Columbina passerina",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CO","CT","DE","IA","IL","IN","MA","MD","MI","MN","NE","NJ","NY","OH","OR","PA","SD","UT","WI","VA"], "note": "southern-tier resident; northern states are vagrant-only"}
+      ]
+    },
+    {
+      "common_name": "Common Gull",
+      "scientific_name": "Larus canus",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["ALL_LISTED"], "should_be": "winter", "note": "non-breeding visitor; tagged year_round. East-coast records are vagrant Eurasian canus, AK/CA the Short-billed/Mew form"}
+      ]
+    },
+    {
+      "common_name": "Common Hill Myna",
+      "scientific_name": "Gracula religiosa",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CA","OH"], "note": "exotic escape; only ever locally established in s FL (now scarce) and HI"}
+      ]
+    },
+    {
+      "common_name": "Common Hoopoe",
+      "scientific_name": "Upupa epops",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["AK"], "should_be": "rare", "note": "Eurasian accidental; not year-round"}
+      ]
+    },
+    {
+      "common_name": "Common Loon",
+      "scientific_name": "Gavia immer",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["AL","AR","AZ","CA","CO","DE","FL","GA","KS","KY","LA","MD","MO","MS","NC","NJ","NM","NV","OK","SC","TN","TX","UT","VA"], "should_be": "winter", "note": "breeds northern tier (summer), winters on coasts/southern waters; year_round wrong for southern/winter-only states"}
+      ]
+    },
+    {
+      "common_name": "Common Merganser",
+      "scientific_name": "Mergus merganser",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["AL","AR","FL","GA","KS","KY","LA","MS","NC","OK","SC","TN","TX"], "should_be": "winter", "note": "winters across southern US, breeds northern tier/western mountains; tagged year_round in winter-only southern states"}
+      ]
+    },
+    {
+      "common_name": "Common Murre",
+      "scientific_name": "Uria aalge",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["DE","MD","NC","SC","FL","VT"], "note": "Atlantic alcid rare south of MA; mid-Atlantic/SE and inland VT are vagrant. Pacific (AK,WA,OR,CA) and ME/MA/NH/RI/CT/NY ok"}
+      ]
+    },
+    {
+      "common_name": "Common Myna",
+      "scientific_name": "Acridotheres tristis",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AL","CA","CO","IL","OR"], "note": "established only in s FL and HI; others are escapes"}
+      ]
+    },
+    {
+      "common_name": "Common Ostrich",
+      "scientific_name": "Struthio camelus",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CA","NV"], "note": "no wild US population; farmed/escapes only"}
+      ]
+    },
+    {
+      "common_name": "Common Pauraque",
+      "scientific_name": "Nyctidromus albicollis",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["TX"], "should_be": "year_round", "note": "year-round resident in south TX, not just summer"}
+      ]
+    },
+    {
+      "common_name": "Common Pochard",
+      "scientific_name": "Aythya ferina",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["AK","CA","FL","NY","VT"], "should_be": "winter", "note": "Eurasian; regular only in western AK (Aleutians), elsewhere vagrant; not year-round"}
+      ]
+    },
+    {
+      "common_name": "Common Poorwill",
+      "scientific_name": "Phalaenoptilus nuttallii",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["MO"], "note": "western species; MO is east of regular range (vagrant)"}
+      ]
+    },
+    {
+      "common_name": "Common Quail",
+      "scientific_name": "Coturnix coturnix",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CA","IL","MA","NY","VT"], "note": "Old World quail; released/escaped game-farm birds, no established wild population"}
+      ]
+    },
+    {
+      "common_name": "Common Redshank",
+      "scientific_name": "Tringa totanus",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["MA","MI"], "note": "Eurasian; essentially accidental, barely any North American records"}
+      ]
+    },
+    {
+      "common_name": "Common Rosefinch",
+      "scientific_name": "Carpodacus erythrinus",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["AK","CA"], "should_be": "rare", "note": "Asian; regular spring migrant western AK, CA accidental; not year-round"}
+      ]
+    },
+    {
+      "common_name": "Common Scoter",
+      "scientific_name": "Melanitta nigra",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["CA","OR"], "should_be": "rare", "note": "Eurasian vagrant; not year-round, and AK is the more expected state"}
+      ]
+    },
+    {
+      "common_name": "Common Shelduck",
+      "scientific_name": "Tadorna tadorna",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["ALL_LISTED"], "should_be": "rare", "note": "Eurasian; most US records considered escapes, remainder vagrant; not year-round residents"}
+      ]
+    },
+    {
+      "common_name": "Common Swift",
+      "scientific_name": "Apus apus",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["AK","CA","NC","NJ"], "should_be": "rare", "note": "Old World accidental; not a breeding summer resident"}
+      ]
+    },
+    {
+      "common_name": "Common Tern",
+      "scientific_name": "Sterna hirundo",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["ALL_LISTED"], "should_be": "summer", "note": "winters entirely south of the US (Caribbean/S America); year_round in all 49 states is wrong - it is a summer breeder (coastal NE, Great Lakes, n plains) and coastal migrant"},
+        {"type": "wrong_state", "states": ["AZ","ID","MT","NM","NV","UT","WY"], "note": "interior West: rare migrant only, not regular"}
+      ]
+    },
+    {
+      "common_name": "Common Waxbill",
+      "scientific_name": "Estrilda astrild",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CA","FL","NY","TX"], "note": "established only in HI; mainland records are escapes"}
+      ]
+    },
+    {
+      "common_name": "Common Wood-Pigeon",
+      "scientific_name": "Columba palumbus",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["TX"], "note": "Eurasian accidental; NE/Atlantic Canada more expected, TX record dubious; not year-round"}
+      ]
+    },
+    {
+      "common_name": "Common Yellowthroat",
+      "scientific_name": "Geothlypis trichas",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["FL","LA","TX","MS","AL","CA","AZ"], "should_be": "year_round", "note": "year-round/wintering in the Gulf Coast, FL, and southern CA/AZ; tagged summer everywhere"}
+      ]
+    },
+    {
+      "common_name": "Connecticut Warbler",
+      "scientific_name": "Oporornis agilis",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["AL","AR","CT","DE","FL","GA","IA","IL","IN","KS","KY","LA","MA","MD","ME","MO","NC","NE","NH","NJ","NY","OH","PA","RI","SC","TN","VA","VT","WV"], "should_be": "migratory", "note": "breeds only in MN, WI, MI (and north); everywhere else is a passage migrant, not a summer breeder"},
+        {"type": "wrong_state", "states": ["AZ","CA","NV","UT","ID","MT","WY","OR","WA","NM"], "note": "eastern migrant; western states are vagrant-only"}
+      ]
+    },
+    {
+      "common_name": "Cook's Petrel",
+      "scientific_name": "Pterodroma cookii",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AK"], "note": "regular offshore only off CA; OR/WA scarce, AK vagrant"},
+        {"type": "wrong_season", "states": ["CA","OR","WA"], "should_be": "summer", "note": "warm-season pelagic visitor, not year-round"}
+      ]
+    },
+    {
+      "common_name": "Cooper's Hawk",
+      "scientific_name": "Astur cooperii",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AK"], "note": "very rare/casual in AK; not a regular resident"}
+      ]
+    },
+    {
+      "common_name": "Coppery-tailed Trogon",
+      "scientific_name": "Trogon ambiguus",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["NM","TX"], "note": "Elegant Trogon; regular only in SE AZ, NM/w-TX casual"},
+        {"type": "wrong_season", "states": ["AZ"], "should_be": "summer", "note": "primarily a summer breeder in AZ canyons, few overwinter"}
+      ]
+    },
+    {
+      "common_name": "Corn Crake",
+      "scientific_name": "Crex crex",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["CT","MD","ME","NJ","NY","PA","RI"], "should_be": "rare", "note": "Eurasian accidental, historical fall records on NE coast; not year-round"}
+      ]
+    },
+    {
+      "common_name": "Cory's Shearwater",
+      "scientific_name": "Calonectris borealis",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CA"], "note": "Atlantic/Gulf pelagic; Pacific records essentially nonexistent"},
+        {"type": "wrong_season", "states": ["MA","NC","NJ","NY","RI","VA"], "should_be": "summer", "note": "warm-season visitor off Atlantic coast, not year-round"}
+      ]
+    },
+    {
+      "common_name": "Coscoroba Swan",
+      "scientific_name": "Coscoroba coscoroba",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["FL","GA","SC","TX"], "note": "South American; escapes only, no wild US occurrence"}
+      ]
+    },
+    {
+      "common_name": "Costa's Hummingbird",
+      "scientific_name": "Calypte costae",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AK","AL","FL","MI","KS","NE","SD","MT","ID","CO","OK","WY","OR","WA"], "note": "desert SW species (sw CA, AZ, s NV, sw UT, sw NM); listed states are vagrant or far north of range"}
+      ]
+    },
+    {
+      "common_name": "Couch's Kingbird",
+      "scientific_name": "Tyrannus couchii",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AL","AR","AZ","CA","CO","FL","GA","MA","MD","MI","MS","NE","NM","NV","NY","OK","VA"], "note": "south TX specialty (rare sw LA); all other states vagrant-only"},
+        {"type": "wrong_season", "states": ["TX"], "should_be": "year_round", "note": "year-round resident in south TX, not summer-only"}
+      ]
+    },
+    {
+      "common_name": "Crane Hawk",
+      "scientific_name": "Geranospiza caerulescens",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["TX"], "should_be": "rare", "note": "single US record (Santa Ana TX 1987-88); not year-round"}
+      ]
+    },
+    {
+      "common_name": "Crescent-chested Warbler",
+      "scientific_name": "Oreothlypis superciliosa",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["AZ","TX"], "should_be": "rare", "note": "Mexican casual vagrant to SE AZ, accidental TX; not a breeding resident"}
+      ]
+    },
+    {
+      "common_name": "Crested Auklet",
+      "scientific_name": "Aethia cristatella",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CA","WA"], "note": "Bering Sea breeder; CA/WA are vagrant-only"}
+      ]
+    },
+    {
+      "common_name": "Crested Caracara",
+      "scientific_name": "Caracara plancus",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AL","AR","CA","CO","DE","GA","IA","ID","IL","KS","MA","MD","ME","MI","MO","MS","MT","NC","ND","NE","NJ","NV","NY","OH","OK","OR","PA","SC","SD","TN","UT","VA","VT","WA","WI","WV","WY"], "note": "resident only in TX, FL, s AZ, sw LA, s NM; the long list of other states is vagrant-only"}
+      ]
+    },
+    {
+      "common_name": "Crested Duck",
+      "scientific_name": "Lophonetta specularioides",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CA","TX"], "note": "South American; escapes only"}
+      ]
+    },
+    {
+      "common_name": "Crested Myna",
+      "scientific_name": "Acridotheres cristatellus",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CA","FL","NY"], "note": "no established US population; escapes only (formerly established Vancouver BC, now gone)"}
+      ]
+    },
+    {
+      "common_name": "Crested Oropendola",
+      "scientific_name": "Psarocolius decumanus",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CA"], "note": "South American; escape, not a wild occurrence"}
+      ]
+    },
+    {
+      "common_name": "Crested Pigeon",
+      "scientific_name": "Ocyphaps lophotes",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CA"], "note": "Australian; escape only"}
+      ]
+    },
+    {
+      "common_name": "Crimson Rosella",
+      "scientific_name": "Platycercus elegans",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CA","FL"], "note": "Australian parrot; escapes only, no established population"}
+      ]
+    },
+    {
+      "common_name": "Crimson-collared Grosbeak",
+      "scientific_name": "Periporphyrus celaeno",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["TX"], "should_be": "winter", "note": "NE Mexican; casual to south TX mainly in late fall/winter, not summer"}
+      ]
+    },
+    {
+      "common_name": "Crimson-fronted Parakeet",
+      "scientific_name": "Psittacara finschi",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["IL"], "note": "small established population in FL only; IL is an escape"}
+      ]
+    },
+    {
+      "common_name": "Crimson-rumped Waxbill",
+      "scientific_name": "Estrilda rhodopyga",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CA","HI"], "note": "African; escapes, no established wild US population"}
+      ]
+    },
+    {
+      "common_name": "Crowned Slaty Flycatcher",
+      "scientific_name": "Empidonomus aurantioatrocristatus",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["LA"], "should_be": "rare", "note": "South American; single US record (LA 2008), not a breeding visitor"}
+      ]
+    },
+    {
+      "common_name": "Cuban Bullfinch",
+      "scientific_name": "Melopyrrha nigra",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["FL"], "note": "FL records considered escapes; not an accepted wild occurrence"}
+      ]
+    },
+    {
+      "common_name": "Cuban Grassquit",
+      "scientific_name": "Phonipara canora",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["FL"], "note": "FL occurrence is from introduced/escaped birds, not natural"}
+      ]
+    },
+    {
+      "common_name": "Cuban Martin",
+      "scientific_name": "Progne cryptoleuca",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["FL"], "should_be": "rare", "note": "accidental vagrant to FL (few/uncertain records); not a regular summer breeder"}
+      ]
+    },
+    {
+      "common_name": "Cuban Pewee",
+      "scientific_name": "Contopus caribaeus",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["FL"], "should_be": "rare", "note": "casual vagrant to south FL, not a breeding resident"}
+      ]
+    },
+    {
+      "common_name": "Cuban Vireo",
+      "scientific_name": "Vireo gundlachii",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["FL"], "should_be": "rare", "note": "single US record (Key West 2016); not a regular summer occurrence"}
+      ]
+    },
+    {
+      "common_name": "Curlew Sandpiper",
+      "scientific_name": "Calidris ferruginea",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AZ","CO","ID","KS","KY","MO","MT","ND","NE","NM","NV","SD","UT","WY","WV","IA","IN","MN","TN","VT"], "note": "rare but regular migrant chiefly along Atlantic/Pacific/Gulf coasts; listed in ~47 states including landlocked interior where it is only casual/accidental"}
+      ]
+    },
+    {
+      "common_name": "Curve-billed Thrasher",
+      "scientific_name": "Toxostoma curvirostre",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CA","FL","IA","ID","IL","LA","MN","MT","NE","NV","OR","SD","UT","WI","WY"], "note": "SW resident (AZ, NM, TX, se CO, sw KS, w OK); listed states are wanderers/vagrants"}
+      ]
+    },
+    {
+      "common_name": "Cut-throat",
+      "scientific_name": "Amadina fasciata",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CA"], "note": "African finch; escape only"}
+      ]
+    },
+    {
+      "common_name": "Dark-billed Cuckoo",
+      "scientific_name": "Coccyzus melacoryphus",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["FL","TX"], "should_be": "rare", "note": "South American accidental; not year-round residents"}
+      ]
+    },
+    {
+      "common_name": "Dark-eyed Junco",
+      "scientific_name": "Junco hyemalis",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["FL","LA","MS","AL","GA","SC","TX"], "should_be": "winter", "note": "deep-south states are winter-only; tagged year_round"}
+      ]
+    },
+    {
+      "common_name": "Dark-sided Flycatcher",
+      "scientific_name": "Muscicapa sibirica",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CA"], "note": "Asian; AK regular vagrant, CA accidental"}
+      ]
+    },
+    {
+      "common_name": "Demoiselle Crane",
+      "scientific_name": "Grus virgo",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AK","CA"], "note": "Eurasian; US records widely treated as escapes/uncertain origin, not established"}
+      ]
+    },
+    {
+      "common_name": "Desertas Petrel",
+      "scientific_name": "Pterodroma deserta",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["FL","MA","NC","NJ","NY","SC","VA"], "should_be": "summer", "note": "warm-season Gulf Stream pelagic (mainly off NC); rare elsewhere, not year-round"}
+      ]
+    },
+    {
+      "common_name": "Diamond Dove",
+      "scientific_name": "Geopelia cuneata",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CA","FL","IL","LA","MA","MN","NY","TX","VA"], "note": "Australian cage bird; escapes only, no established population"}
+      ]
+    },
+    {
+      "common_name": "Diamond Firetail",
+      "scientific_name": "Stagonopleura guttata",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CA"], "note": "Australian finch; escape only"}
+      ]
+    },
+    {
+      "common_name": "Dickcissel",
+      "scientific_name": "Spiza americana",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["AZ","CA","NV","UT","ID","MT","WY","OR","WA","NM"], "should_be": "migratory", "note": "core breeder is Great Plains/Midwest; western states are migrants/vagrants, not summer breeders"}
+      ]
+    },
+    {
+      "common_name": "Double-barred Finch",
+      "scientific_name": "Stizoptera bichenovii",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CA"], "note": "Australian finch; escape only"}
+      ]
+    },
+    {
+      "common_name": "Double-crested Cormorant",
+      "scientific_name": "Nannopterum auritum",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["ND","MN","MT","ME","WI","SD","VT","NH"], "should_be": "summer", "note": "northern-interior birds are summer/migrant only and withdraw from frozen waters in winter; tagged year_round"}
+      ]
+    },
+    {
+      "common_name": "Double-striped Thick-knee",
+      "scientific_name": "Hesperoburhinus bistriatus",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AZ"], "note": "single US record (TX 1961); AZ has no record"},
+        {"type": "wrong_season", "states": ["TX"], "should_be": "rare", "note": "lone accidental record, not year-round"}
+      ]
+    },
+    {
+      "common_name": "Common Ringed Plover",
+      "scientific_name": "Charadrius hiaticula",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CT","IL","MA","ME","NC","NY","RI","VT","WA"], "note": "breeds/migrates western AK (and CA casual); Atlantic and interior states are vagrant-only"}
+      ]
+    }
+  ]
+}

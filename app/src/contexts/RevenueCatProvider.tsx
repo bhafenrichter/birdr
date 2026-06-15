@@ -2,6 +2,7 @@ import React, {
   createContext,
   useContext,
   useEffect,
+  useRef,
   useState,
   useCallback,
 } from "react";
@@ -72,11 +73,17 @@ export const RevenueCatProvider: React.FC<{ children: React.ReactNode }> = ({
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);
   const [currentOffering, setCurrentOffering] =
     useState<PurchasesOffering | null>(null);
+  const configured = useRef(false);
 
-  // ── Initialize RevenueCat ─────────────────────────────────────────────
+  // ── Initialize RevenueCat once the user's customer_id is known ────────
+  // We skip anonymous configuration entirely — RC is only configured when
+  // we have a real identity to attach. This avoids throwaway anonymous users
+  // being created on every fresh install.
 
   useEffect(() => {
     const apiKey = ENV.REVENUECAT_API_KEY;
+    if (!apiKey || !profile?.customer_id || configured.current) return;
+
     if (!apiKey) {
       logger.warn("RevenueCat API key not configured, skipping init");
       return;
@@ -88,14 +95,17 @@ export const RevenueCatProvider: React.FC<{ children: React.ReactNode }> = ({
           Purchases.setLogLevel(LOG_LEVEL.DEBUG);
         }
 
-        Purchases.configure({ apiKey });
-        logger.info("RevenueCat configured");
+        Purchases.configure({ apiKey, appUserID: profile.customer_id });
+        configured.current = true;
+        logger.info("RevenueCat configured", { customerId: profile.customer_id });
 
-        // Fetch initial customer info
         const info = await Purchases.getCustomerInfo();
         handleCustomerInfoUpdate(info);
 
-        // Fetch offerings
+        if (profile.display_name) {
+          Purchases.setDisplayName(profile.display_name);
+        }
+
         const offerings = await Purchases.getOfferings();
         if (offerings.current) {
           setCurrentOffering(offerings.current);
@@ -113,38 +123,11 @@ export const RevenueCatProvider: React.FC<{ children: React.ReactNode }> = ({
 
     init();
 
-    // Listen for customer info changes (purchases, renewals, cancellations)
     const listener = (info: CustomerInfo) => handleCustomerInfoUpdate(info);
     Purchases.addCustomerInfoUpdateListener(listener);
 
     return () => { Purchases.removeCustomerInfoUpdateListener(listener); };
-  }, []);
-
-  // ── Identify user with RevenueCat using customer_id ────────────────────
-
-  useEffect(() => {
-    if (!isReady || !profile?.customer_id) return;
-
-    const identify = async () => {
-      try {
-        const { customerInfo: info } = await Purchases.logIn(profile.customer_id);
-        handleCustomerInfoUpdate(info);
-
-        // Set display name as an attribute for support/dashboard
-        if (profile.display_name) {
-          Purchases.setDisplayName(profile.display_name);
-        }
-
-        logger.info("RevenueCat user identified", {
-          customerId: profile.customer_id,
-        });
-      } catch (e: any) {
-        logger.error("RevenueCat logIn failed", { message: e.message });
-      }
-    };
-
-    identify();
-  }, [isReady, profile?.customer_id]);
+  }, [profile?.customer_id]);
 
   // ── Handle customer info updates ──────────────────────────────────────
 

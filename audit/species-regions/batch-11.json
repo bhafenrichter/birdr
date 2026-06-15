@@ -1,0 +1,528 @@
+{
+  "batch": 11,
+  "species_reviewed": 100,
+  "verdicts": {"ok": 36, "minor_issues": 41, "major_issues": 23},
+  "findings": [
+    {
+      "common_name": "Red-throated Twinspot",
+      "scientific_name": "Hypargos niveoguttatus",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CA"], "note": "African estrildid finch; not an established wild bird in CA, escapee only"}
+      ]
+    },
+    {
+      "common_name": "Red-vented Bulbul",
+      "scientific_name": "Pycnonotus cafer",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CA", "TX"], "note": "established only in HI; CA/TX records are escapees, not established populations"}
+      ]
+    },
+    {
+      "common_name": "Red-whiskered Bulbul",
+      "scientific_name": "Pycnonotus jocosus",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["IL", "MA", "MN", "NC", "RI", "TX", "WA"], "note": "established only in FL (Miami), HI, and locally CA (LA area); the rest are escapees/not established"}
+      ]
+    },
+    {
+      "common_name": "Red-winged Blackbird",
+      "scientific_name": "Agelaius phoeniceus",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["ALL_LISTED_EXCEPT_AK"], "should_be": "year_round", "note": "abundant year-round resident across most of US; tagged summer everywhere. AK is correctly summer-only"}
+      ]
+    },
+    {
+      "common_name": "Reddish Egret",
+      "scientific_name": "Egretta rufescens",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AZ","CO","IA","ID","IL","IN","KS","KY","MA","MD","NE","NJ","NM","NV","NY","OH","OK","PA","RI","TN","UT","VA"], "note": "Gulf/FL coast specialist; regular only in FL, TX, LA and coastal AL/MS/GA/SC; interior and northern states are post-breeding dispersal vagrants"}
+      ]
+    },
+    {
+      "common_name": "Redhead",
+      "scientific_name": "Aythya americana",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AK"], "note": "rare/casual in AK, not a regular year-round bird"},
+        {"type": "wrong_season", "states": ["MANY_SOUTHERN"], "should_be": "winter", "note": "winter-only in much of SE/Gulf; breeds in prairie/west; year_round across all is a coarse over-simplification"}
+      ]
+    },
+    {
+      "common_name": "Redpoll",
+      "scientific_name": "Acanthis flammea",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["LOWER_48"], "should_be": "winter", "note": "irruptive winter finch; breeds arctic; year_round wrong in lower 48 (winter visitor only)"},
+        {"type": "wrong_state", "states": ["AL","AR","FL","GA","LA","MS","NC","SC","TX"], "note": "deep-south states are casual/vagrant only, not regular winter range"}
+      ]
+    },
+    {
+      "common_name": "Redwing",
+      "scientific_name": "Turdus iliacus",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["AK","ME","NH","NY","PA","WA"], "should_be": "rare", "note": "Eurasian vagrant; not a year-round resident anywhere in US, only sporadic vagrant records"}
+      ]
+    },
+    {
+      "common_name": "Reeves's Pheasant",
+      "scientific_name": "Syrmaticus reevesii",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CA","OR","RI","WA"], "note": "introduced game bird with no self-sustaining established US population"}
+      ]
+    },
+    {
+      "common_name": "Regent Parrot",
+      "scientific_name": "Polytelis anthopeplus",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["FL"], "note": "exotic escapee, no established population"}
+      ]
+    },
+    {
+      "common_name": "Ring-necked Dove",
+      "scientific_name": "Streptopelia capicola",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["NY","SC","TX"], "note": "African dove, escapees only, not established in the wild"}
+      ]
+    },
+    {
+      "common_name": "Ringed Kingfisher",
+      "scientific_name": "Megaceryle torquata",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AZ","LA","OK"], "note": "regular only in south TX (Rio Grande), casual/marginal elsewhere; NM very local"}
+      ]
+    },
+    {
+      "common_name": "Ringed Storm-Petrel",
+      "scientific_name": "Hydrobates hornbyi",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["CA"], "should_be": "rare", "note": "extreme pelagic vagrant, not a year-round resident"}
+      ]
+    },
+    {
+      "common_name": "Ringed Teal",
+      "scientific_name": "Callonetta leucophrys",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AL","AZ","CA","DE","FL","IA","LA","MD","MS","NJ","NV","OR","PA","SC","TN","TX","UT","VA","WA"], "note": "South American exotic; all records escapees, none established"}
+      ]
+    },
+    {
+      "common_name": "Rock Ptarmigan",
+      "scientific_name": "Lagopus muta",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["MN"], "note": "arctic/alpine resident; occurs in AK only in lower 48 region; does not occur in Minnesota"}
+      ]
+    },
+    {
+      "common_name": "Rock Wren",
+      "scientific_name": "Salpinctes obsoletus",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AL","FL","GA","IL","IN","KY","MA","MD","ME","MI","MN","MS","NC","NJ","NY","OH","PA","TN","VA","WI"], "note": "western arid-country bird; eastern records are vagrants. AK also vagrant"}
+      ]
+    },
+    {
+      "common_name": "Rose-breasted Grosbeak",
+      "scientific_name": "Pheucticus ludovicianus",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["AL","FL","LA","MS","TX","OK"], "should_be": "migratory", "note": "passage migrant in deep south, does not breed there; tagged summer"}
+      ]
+    },
+    {
+      "common_name": "Rose-ringed Parakeet",
+      "scientific_name": "Psittacula krameri",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AL","CO","IL","MD","NJ","NV","NY","OH","PA","TN","VA","WI"], "note": "established only locally in CA, FL (and HI); most others escapees"}
+      ]
+    },
+    {
+      "common_name": "Roseate Spoonbill",
+      "scientific_name": "Platalea ajaja",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AZ","CA","CO","CT","DE","IA","IL","IN","KS","KY","MA","MD","ME","MI","MN","MO","NC","NE","NH","NJ","NM","NV","NY","OH","PA","UT","VA","WI","WV"], "note": "regular only on Gulf coast FL/TX/LA and coastal SE; interior/northern states are dispersal vagrants"}
+      ]
+    },
+    {
+      "common_name": "Roseate Tern",
+      "scientific_name": "Sterna dougallii",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["CT","MA","ME","NH","NY","RI"], "should_be": "summer", "note": "Northeast breeder, winters South America; tagged year_round"},
+        {"type": "wrong_state", "states": ["IL","OH","PA"], "note": "inland vagrants only"}
+      ]
+    },
+    {
+      "common_name": "Ross's Goose",
+      "scientific_name": "Anser rossii",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["MOST"], "should_be": "winter", "note": "breeds Canadian arctic, present in US only fall-spring; year_round wrong everywhere including AK (no breeding/year-round US presence)"}
+      ]
+    },
+    {
+      "common_name": "Ross's Gull",
+      "scientific_name": "Rhodostethia rosea",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["ALL_LISTED"], "should_be": "rare", "note": "high-arctic gull; year_round wrong"},
+        {"type": "wrong_state", "states": ["CA","CO","CT","DE","IA","ID","IL","IN","KS","MA","MD","MI","MN","MO","MT","ND","NE","NH","NJ","NY","OH","OR","PA","SD","WA","WI","WY"], "note": "casual/vagrant south of AK; not regular range"}
+      ]
+    },
+    {
+      "common_name": "Rosy-billed Pochard",
+      "scientific_name": "Netta peposaca",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AL","FL","LA","TX"], "note": "South American exotic; escapees only"}
+      ]
+    },
+    {
+      "common_name": "Rosy-faced Lovebird",
+      "scientific_name": "Agapornis roseicollis",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AL","AR","CA","CT","FL","GA","IL","KS","LA","MA","MD","NC","NE","NJ","NM","NV","NY","OR","TX","VA","WI"], "note": "only established population is in AZ (Phoenix); rest are escapees"}
+      ]
+    },
+    {
+      "common_name": "Rough-legged Hawk",
+      "scientific_name": "Buteo lagopus",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["FL","LA","AL","MS"], "note": "winter range; very rare/casual in the deep Gulf south, not regular"}
+      ]
+    },
+    {
+      "common_name": "Rivoli's Hummingbird",
+      "scientific_name": "Eugenes fulgens",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AL","AR","GA","KS","LA","MT","SD","VA","WY"], "note": "regular only in SE AZ, SW NM, far-west TX; CO/UT/NV/CA casual; eastern and northern-plains states are vagrants"}
+      ]
+    },
+    {
+      "common_name": "Ruby-crowned Kinglet",
+      "scientific_name": "Corthylio calendula",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["MANY"], "should_be": "winter", "note": "breeds far north/mountain west (summer), winters across south; year_round across all 49 is coarse - much of east/south is winter-only and plains are migration-only"}
+      ]
+    },
+    {
+      "common_name": "Ruddy Ground Dove",
+      "scientific_name": "Columbina talpacoti",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CO","MS","NV","UT"], "note": "rare visitor mainly to AZ, s CA, s NM, s TX; others vagrant"}
+      ]
+    },
+    {
+      "common_name": "Ruddy Quail-Dove",
+      "scientific_name": "Geotrygon montana",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["FL","TX"], "should_be": "rare", "note": "casual/vagrant to s FL and s TX, not a year-round resident"}
+      ]
+    },
+    {
+      "common_name": "Ruddy Shelduck",
+      "scientific_name": "Tadorna ferruginea",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AL","AR","CA","CT","DE","FL","GA","IA","ID","IL","IN","LA","MA","MD","MI","MO","MS","ND","NE","NJ","NM","NY","OH","OK","OR","PA","SC","TN","TX","UT","VA","VT","WV","WY"], "note": "Old World exotic; US records considered escapees, not established"}
+      ]
+    },
+    {
+      "common_name": "Ruddy-breasted Seedeater",
+      "scientific_name": "Sporophila minuta",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["NY"], "note": "Mexican species reaching only s TX; NY is erroneous/escape"},
+        {"type": "missing_state", "states": ["TX"], "note": "the only US state where it occurs (rarely, s TX) is missing"}
+      ]
+    },
+    {
+      "common_name": "Ruffed Grouse",
+      "scientific_name": "Bonasa umbellus",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CA","CO","NV","KS"], "note": "does not occur in California, Colorado, Nevada, or Kansas; range is northern/eastern forests, Appalachians, Rockies (not CO/NV), Pacific NW"}
+      ]
+    },
+    {
+      "common_name": "Rufous-backed Robin",
+      "scientific_name": "Turdus rufopalliatus",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CO","NV","UT"], "note": "rare winter visitor mainly to AZ; CA/NM/TX casual; CO/NV/UT vagrant"}
+      ]
+    },
+    {
+      "common_name": "Rufous-collared Sparrow",
+      "scientific_name": "Zonotrichia capensis",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CO"], "note": "South/Central American species; CO record is a vagrant/probable escape, not regular range"}
+      ]
+    },
+    {
+      "common_name": "Rufous-crowned Sparrow",
+      "scientific_name": "Aimophila ruficeps",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["WI"], "note": "SW/south-central resident; does not occur in Wisconsin"}
+      ]
+    },
+    {
+      "common_name": "Rufous-necked Wood-Rail",
+      "scientific_name": "Aramides axillaris",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["NM"], "should_be": "rare", "note": "single famous vagrant record (Bosque del Apache); not a year-round resident"}
+      ]
+    },
+    {
+      "common_name": "Rusty Blackbird",
+      "scientific_name": "Euphagus carolinus",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["LOWER_48"], "should_be": "winter", "note": "breeds boreal Canada/AK (AK summer); in lower 48 it is a winter visitor (SE) / migrant (plains); tagged summer everywhere is wrong"}
+      ]
+    },
+    {
+      "common_name": "Sabine's Gull",
+      "scientific_name": "Xema sabini",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["ALL_LISTED"], "should_be": "migratory", "note": "arctic breeder (AK summer), pelagic passage migrant off Pacific; year_round wrong"},
+        {"type": "wrong_state", "states": ["AL","CT","DE","FL","GA","IL","LA","MA","MD","MI","MN","MS","NC","NH","NJ","NY","OH","PA","RI","SC","TX","VA","VT","WI"], "note": "rare/casual migrant inland and on Atlantic/Gulf; not regular range"}
+      ]
+    },
+    {
+      "common_name": "Saffron Finch",
+      "scientific_name": "Sicalis flaveola",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CA","FL","GA","MA","NJ","NY","OR","RI","TX","VA"], "note": "established only in HI; mainland records are escapees"}
+      ]
+    },
+    {
+      "common_name": "Sage Thrasher",
+      "scientific_name": "Oreoscoptes montanus",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AL","AR","DE","FL","GA","IA","IL","IN","KY","LA","MA","MD","ME","MI","MN","MO","MS","NC","NH","NJ","NY","OH","SC","TN","VA","WI"], "note": "Great Basin/sagebrush breeder of the West; eastern states are vagrants"}
+      ]
+    },
+    {
+      "common_name": "Sagebrush Sparrow",
+      "scientific_name": "Artemisiospiza nevadensis",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["KY","MI"], "note": "western sagebrush species; KY and MI are erroneous/vagrant"}
+      ]
+    },
+    {
+      "common_name": "Saker Falcon",
+      "scientific_name": "Falco cherrug",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["NJ","NY"], "note": "Eurasian falcon; US birds are escaped falconry birds, not wild occurrences"}
+      ]
+    },
+    {
+      "common_name": "Saltmarsh Sparrow",
+      "scientific_name": "Ammospiza caudacuta",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["CT","MA","ME","NH","NY"], "should_be": "summer", "note": "northern breeders vacate in winter (winter coastal NC-FL); tagged year_round"},
+        {"type": "wrong_state", "states": ["PA"], "note": "no breeding salt marsh; at most migrant/marginal"}
+      ]
+    },
+    {
+      "common_name": "Salvin's Albatross",
+      "scientific_name": "Thalassarche salvini",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["AK","CA"], "should_be": "rare", "note": "pelagic vagrant, not year-round resident"}
+      ]
+    },
+    {
+      "common_name": "San Blas Jay",
+      "scientific_name": "Cyanocorax sanblasianus",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["FL","TX"], "note": "Mexican endemic; does not occur naturally in US (escapees/error only)"}
+      ]
+    },
+    {
+      "common_name": "Royal Tern",
+      "scientific_name": "Thalasseus maximus",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AZ","CO","IA","IL","IN","KS","MN","NE","NM","NV","OH","OK","PA","TN","WI"], "note": "Atlantic/Gulf and s CA coastal species; interior states are vagrants"}
+      ]
+    },
+    {
+      "common_name": "Sandwich Tern",
+      "scientific_name": "Thalasseus sandvicensis",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AK","CO","IL","IN","KY","TN","WI"], "note": "Atlantic/Gulf coastal tern; does not occur in AK; inland states are vagrants"}
+      ]
+    },
+    {
+      "common_name": "Sargasso Shearwater",
+      "scientific_name": "Puffinus lherminieri",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["KY"], "note": "pelagic species off SE/Gulf; KY is inland and erroneous"}
+      ]
+    },
+    {
+      "common_name": "Savanna Hawk",
+      "scientific_name": "Buteogallus meridionalis",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CA"], "note": "South/Central American species; not a regular US bird (vagrant/error)"}
+      ]
+    },
+    {
+      "common_name": "Scaled Quail",
+      "scientific_name": "Callipepla squamata",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CT","CA","MT","WA"], "note": "range is NM/TX/AZ/CO/KS/OK/se UT; CT clearly wrong, CA/MT/WA at most failed introductions"}
+      ]
+    },
+    {
+      "common_name": "Scaly-breasted Munia",
+      "scientific_name": "Lonchura punctulata",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CO","IL","KS","MA","MD","MN","MS","NJ","NY","OH","PA","SC","TN"], "note": "established mainly CA, TX, FL, HI; many listed states are escapees"}
+      ]
+    },
+    {
+      "common_name": "Scaly-headed Parrot",
+      "scientific_name": "Pionus maximiliani",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CA","FL"], "note": "South American exotic; escapees only, not established"}
+      ]
+    },
+    {
+      "common_name": "Scaly-naped Pigeon",
+      "scientific_name": "Patagioenas squamosa",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["FL"], "should_be": "rare", "note": "Caribbean species; only a handful of FL vagrant records, not year-round"}
+      ]
+    },
+    {
+      "common_name": "Scarlet Ibis",
+      "scientific_name": "Eudocimus ruber",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["FL","MN","NJ"], "note": "South American; US birds are escapees/hybrids; MN and NJ clearly erroneous"}
+      ]
+    },
+    {
+      "common_name": "Scarlet Macaw",
+      "scientific_name": "Ara macao",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CA","FL","MT","NM","TX"], "note": "exotic escapee; no wild US population"}
+      ]
+    },
+    {
+      "common_name": "Scarlet-fronted Parakeet",
+      "scientific_name": "Psittacara wagleri",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["FL"], "note": "small naturalized/escapee population at best; marginal"}
+      ]
+    },
+    {
+      "common_name": "Scissor-tailed Flycatcher",
+      "scientific_name": "Tyrannus forficatus",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AZ","CA","CT","DE","ID","MA","ME","MI","MN","MT","NH","NV","NY","OR","PA","RI","UT","VT","WA","WI","WV","WY"], "note": "breeds south-central US (TX/OK/KS/AR/LA/MO/NE and nearby); these far-flung states are vagrants, not breeding range"}
+      ]
+    },
+    {
+      "common_name": "Scott's Oriole",
+      "scientific_name": "Icterus parisorum",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AL","AR","FL","GA","IA","ID","KY","LA","MN","MT","NC","NE","NY","OR","PA","SC","TN","VA","WA","WI"], "note": "breeds SW (AZ/NM/w TX/s CA/s NV/s UT/sw CO); eastern, midwestern, and NW states are vagrants"}
+      ]
+    },
+    {
+      "common_name": "Sedge Wren",
+      "scientific_name": "Cistothorus stellaris",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AZ","CA","NV","OR","MT","WY","NM"], "note": "central/eastern species; rare/vagrant in the arid West"},
+        {"type": "wrong_season", "states": ["NORTHERN_AND_SOUTHERN"], "should_be": "summer", "note": "breeds upper Midwest/NE/prairie (summer), winters SE (winter); year_round across all is incorrect"}
+      ]
+    },
+    {
+      "common_name": "Senegal Parrot",
+      "scientific_name": "Poicephalus senegalus",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CT","MD"], "note": "African exotic; escapees only"}
+      ]
+    },
+    {
+      "common_name": "Sharp-tailed Grouse",
+      "scientific_name": "Tympanuchus phasianellus",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CT","MA","IA"], "note": "northern plains/west grouse; extirpated from or never present in CT, MA, IA; CA also essentially extirpated"}
+      ]
+    },
+    {
+      "common_name": "Sharp-tailed Sandpiper",
+      "scientific_name": "Calidris acuminata",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AL","AR","CO","CT","FL","IA","ID","IL","IN","KS","MA","MD","MO","NC","NE","SC","TN","TX","VA"], "note": "regular fall migrant in w AK and Pacific coast; rare/casual elsewhere, many listed states are vagrant-level"}
+      ]
+    },
+    {
+      "common_name": "Shiny Cowbird",
+      "scientific_name": "Molothrus bonariensis",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["MA","ME","MI","PA","OK","TN","MD"], "note": "established Gulf/SE coast (FL/LA/MS/AL/GA/SC/NC/TX); northern interior states are vagrants"}
+      ]
+    },
+    {
+      "common_name": "Short-billed Gull",
+      "scientific_name": "Larus brachyrhynchus",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AR","CT","IA","IL","IN","KS","KY","LA","MA","ME","MI","MN","MO","MT","NC","ND","NE","NJ","NM","NV","NY","OH","OK","SD","TX","UT","VA","WI","WY"], "note": "breeds AK/NW Canada, winters Pacific coast (WA/OR/CA); interior and eastern states are casual/vagrant"},
+        {"type": "wrong_season", "states": ["CA","OR","WA"], "should_be": "winter", "note": "non-breeding winter visitor to Pacific coast (year-round only in AK)"}
+      ]
+    }
+  ]
+}

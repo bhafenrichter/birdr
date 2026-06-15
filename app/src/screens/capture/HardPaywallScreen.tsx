@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, StyleSheet, ScrollView, Pressable, Platform } from "react-native";
+import { View, StyleSheet, ScrollView, Pressable, Platform, Linking } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { X, Check } from "lucide-react-native";
 import { Colors, Spacing, BorderRadius, Shadows } from "../../theme";
@@ -135,6 +135,16 @@ export const HardPaywallScreen: React.FC = () => {
             Restore purchases
           </Text>
         </Pressable>
+
+        <View style={styles.legalLinks} testID="hard-paywall-legal-links">
+          <Pressable onPress={() => Linking.openURL("https://hoftware.gitbook.io/birdr/legal/terms-of-service")} testID="hard-paywall-tos">
+            <Text variant="regular" size="xs" color={Colors.inkSoft}>Terms of Use</Text>
+          </Pressable>
+          <Text variant="regular" size="xs" color={Colors.inkFaint}>·</Text>
+          <Pressable onPress={() => Linking.openURL("https://hoftware.gitbook.io/birdr/legal/privacy-policy")} testID="hard-paywall-privacy">
+            <Text variant="regular" size="xs" color={Colors.inkSoft}>Privacy Policy</Text>
+          </Pressable>
+        </View>
       </ScrollView>
     </View>
   );
@@ -196,6 +206,13 @@ const styles = StyleSheet.create({
   restoreLink: {
     alignItems: "center",
     paddingVertical: Spacing.lg,
+  },
+  legalLinks: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: Spacing.sm,
+    paddingBottom: Spacing.lg,
   },
 });
 

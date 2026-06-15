@@ -1,0 +1,791 @@
+{
+  "batch": 26,
+  "offset": 1250,
+  "species": [
+    {
+      "common_name": "Vinous-throated Parrotbill",
+      "scientific_name": "Suthora webbiana",
+      "remove": true,
+      "remove_reason": "Asian species; cage bird with no established wild US population",
+      "regions": []
+    },
+    {
+      "common_name": "Violet-crowned Hummingbird",
+      "scientific_name": "Ramosomyia violiceps",
+      "remove": false,
+      "regions": [
+        {"state": "AZ", "season": "year_round", "freq": 0.02},
+        {"state": "NM", "season": "rare", "freq": 0.003}
+      ]
+    },
+    {
+      "common_name": "Violet-green Swallow",
+      "scientific_name": "Tachycineta thalassina",
+      "remove": false,
+      "regions": [
+        {"state": "WA", "season": "summer", "freq": 0.3},
+        {"state": "OR", "season": "summer", "freq": 0.3},
+        {"state": "CA", "season": "summer", "freq": 0.22},
+        {"state": "ID", "season": "summer", "freq": 0.2},
+        {"state": "MT", "season": "summer", "freq": 0.15},
+        {"state": "WY", "season": "summer", "freq": 0.12},
+        {"state": "NV", "season": "summer", "freq": 0.12},
+        {"state": "UT", "season": "summer", "freq": 0.15},
+        {"state": "CO", "season": "summer", "freq": 0.14},
+        {"state": "AZ", "season": "summer", "freq": 0.12},
+        {"state": "NM", "season": "summer", "freq": 0.1},
+        {"state": "SD", "season": "summer", "freq": 0.05},
+        {"state": "ND", "season": "rare", "freq": 0.01},
+        {"state": "NE", "season": "rare", "freq": 0.01},
+        {"state": "TX", "season": "summer", "freq": 0.03},
+        {"state": "AK", "season": "summer", "freq": 0.08}
+      ]
+    },
+    {
+      "common_name": "Virginia Rail",
+      "scientific_name": "Rallus limicola",
+      "remove": false,
+      "regions": [
+        {"state": "WA", "season": "year_round", "freq": 0.03},
+        {"state": "OR", "season": "year_round", "freq": 0.03},
+        {"state": "CA", "season": "year_round", "freq": 0.04},
+        {"state": "NV", "season": "summer", "freq": 0.02},
+        {"state": "ID", "season": "summer", "freq": 0.02},
+        {"state": "MT", "season": "summer", "freq": 0.02},
+        {"state": "WY", "season": "summer", "freq": 0.02},
+        {"state": "UT", "season": "summer", "freq": 0.03},
+        {"state": "CO", "season": "summer", "freq": 0.02},
+        {"state": "AZ", "season": "winter", "freq": 0.02},
+        {"state": "NM", "season": "year_round", "freq": 0.02},
+        {"state": "ND", "season": "summer", "freq": 0.02},
+        {"state": "SD", "season": "summer", "freq": 0.02},
+        {"state": "NE", "season": "summer", "freq": 0.02},
+        {"state": "KS", "season": "migratory", "freq": 0.01},
+        {"state": "OK", "season": "winter", "freq": 0.01},
+        {"state": "TX", "season": "winter", "freq": 0.02},
+        {"state": "MN", "season": "summer", "freq": 0.02},
+        {"state": "IA", "season": "summer", "freq": 0.02},
+        {"state": "MO", "season": "migratory", "freq": 0.01},
+        {"state": "AR", "season": "winter", "freq": 0.01},
+        {"state": "LA", "season": "winter", "freq": 0.02},
+        {"state": "MS", "season": "winter", "freq": 0.01},
+        {"state": "WI", "season": "summer", "freq": 0.02},
+        {"state": "IL", "season": "summer", "freq": 0.02},
+        {"state": "MI", "season": "summer", "freq": 0.02},
+        {"state": "IN", "season": "summer", "freq": 0.01},
+        {"state": "OH", "season": "summer", "freq": 0.02},
+        {"state": "KY", "season": "rare", "freq": 0.005},
+        {"state": "TN", "season": "winter", "freq": 0.01},
+        {"state": "AL", "season": "winter", "freq": 0.01},
+        {"state": "GA", "season": "winter", "freq": 0.01},
+        {"state": "FL", "season": "winter", "freq": 0.02},
+        {"state": "SC", "season": "winter", "freq": 0.01},
+        {"state": "NC", "season": "winter", "freq": 0.01},
+        {"state": "VA", "season": "year_round", "freq": 0.02},
+        {"state": "WV", "season": "summer", "freq": 0.01},
+        {"state": "MD", "season": "year_round", "freq": 0.02},
+        {"state": "DE", "season": "year_round", "freq": 0.02},
+        {"state": "PA", "season": "summer", "freq": 0.02},
+        {"state": "NJ", "season": "year_round", "freq": 0.02},
+        {"state": "NY", "season": "summer", "freq": 0.02},
+        {"state": "CT", "season": "year_round", "freq": 0.02},
+        {"state": "RI", "season": "year_round", "freq": 0.02},
+        {"state": "MA", "season": "summer", "freq": 0.02},
+        {"state": "VT", "season": "summer", "freq": 0.01},
+        {"state": "NH", "season": "summer", "freq": 0.01},
+        {"state": "ME", "season": "summer", "freq": 0.02}
+      ]
+    },
+    {
+      "common_name": "Virginia's Warbler",
+      "scientific_name": "Leiothlypis virginiae",
+      "remove": false,
+      "regions": [
+        {"state": "CO", "season": "summer", "freq": 0.05},
+        {"state": "UT", "season": "summer", "freq": 0.05},
+        {"state": "NV", "season": "summer", "freq": 0.02},
+        {"state": "AZ", "season": "summer", "freq": 0.04},
+        {"state": "NM", "season": "summer", "freq": 0.06},
+        {"state": "WY", "season": "rare", "freq": 0.005},
+        {"state": "TX", "season": "migratory", "freq": 0.005},
+        {"state": "ID", "season": "rare", "freq": 0.003}
+      ]
+    },
+    {
+      "common_name": "Vitelline Masked-Weaver",
+      "scientific_name": "Ploceus vitellinus",
+      "remove": true,
+      "remove_reason": "African weaver; cage bird with no established wild US population",
+      "regions": []
+    },
+    {
+      "common_name": "Wandering Tattler",
+      "scientific_name": "Tringa incana",
+      "remove": false,
+      "regions": [
+        {"state": "AK", "season": "summer", "freq": 0.04},
+        {"state": "WA", "season": "migratory", "freq": 0.02},
+        {"state": "OR", "season": "migratory", "freq": 0.02},
+        {"state": "CA", "season": "winter", "freq": 0.03},
+        {"state": "HI", "season": "winter", "freq": 0.06}
+      ]
+    },
+    {
+      "common_name": "Warbling White-eye",
+      "scientific_name": "Zosterops japonicus",
+      "remove": false,
+      "regions": [
+        {"state": "HI", "season": "year_round", "freq": 0.55}
+      ]
+    },
+    {
+      "common_name": "Waved Albatross",
+      "scientific_name": "Phoebastria irrorata",
+      "remove": true,
+      "remove_reason": "Galapagos/Humboldt Current species; does not regularly occur in US waters",
+      "regions": []
+    },
+    {
+      "common_name": "Wedge-rumped Storm-Petrel",
+      "scientific_name": "Hydrobates tethys",
+      "remove": false,
+      "regions": [
+        {"state": "CA", "season": "rare", "freq": 0.002}
+      ]
+    },
+    {
+      "common_name": "Wedge-tailed Shearwater",
+      "scientific_name": "Ardenna pacifica",
+      "remove": false,
+      "regions": [
+        {"state": "HI", "season": "year_round", "freq": 0.2},
+        {"state": "CA", "season": "rare", "freq": 0.002}
+      ]
+    },
+    {
+      "common_name": "West Indian Whistling-Duck",
+      "scientific_name": "Dendrocygna arborea",
+      "remove": true,
+      "remove_reason": "Caribbean species; only vagrant/escape records in US, no established wild population",
+      "regions": []
+    },
+    {
+      "common_name": "Western Barn Owl",
+      "scientific_name": "Tyto alba",
+      "remove": false,
+      "regions": [
+        {"state": "CA", "season": "year_round", "freq": 0.04},
+        {"state": "OR", "season": "year_round", "freq": 0.02},
+        {"state": "WA", "season": "year_round", "freq": 0.01},
+        {"state": "NV", "season": "year_round", "freq": 0.02},
+        {"state": "UT", "season": "year_round", "freq": 0.02},
+        {"state": "AZ", "season": "year_round", "freq": 0.03},
+        {"state": "NM", "season": "year_round", "freq": 0.02},
+        {"state": "CO", "season": "year_round", "freq": 0.01},
+        {"state": "TX", "season": "year_round", "freq": 0.03},
+        {"state": "OK", "season": "year_round", "freq": 0.02},
+        {"state": "KS", "season": "year_round", "freq": 0.01},
+        {"state": "MO", "season": "year_round", "freq": 0.01},
+        {"state": "AR", "season": "year_round", "freq": 0.01},
+        {"state": "LA", "season": "year_round", "freq": 0.02},
+        {"state": "MS", "season": "year_round", "freq": 0.01},
+        {"state": "AL", "season": "year_round", "freq": 0.01},
+        {"state": "GA", "season": "year_round", "freq": 0.01},
+        {"state": "FL", "season": "year_round", "freq": 0.02},
+        {"state": "SC", "season": "year_round", "freq": 0.01},
+        {"state": "NC", "season": "year_round", "freq": 0.01},
+        {"state": "TN", "season": "year_round", "freq": 0.01},
+        {"state": "KY", "season": "year_round", "freq": 0.01},
+        {"state": "VA", "season": "year_round", "freq": 0.01},
+        {"state": "MD", "season": "year_round", "freq": 0.01},
+        {"state": "DE", "season": "year_round", "freq": 0.01},
+        {"state": "NJ", "season": "year_round", "freq": 0.01},
+        {"state": "PA", "season": "year_round", "freq": 0.01},
+        {"state": "OH", "season": "year_round", "freq": 0.01},
+        {"state": "IN", "season": "year_round", "freq": 0.01},
+        {"state": "IL", "season": "year_round", "freq": 0.01},
+        {"state": "IA", "season": "year_round", "freq": 0.01},
+        {"state": "HI", "season": "year_round", "freq": 0.02}
+      ]
+    },
+    {
+      "common_name": "Western Bluebird",
+      "scientific_name": "Sialia mexicana",
+      "remove": false,
+      "regions": [
+        {"state": "WA", "season": "year_round", "freq": 0.05},
+        {"state": "OR", "season": "year_round", "freq": 0.15},
+        {"state": "CA", "season": "year_round", "freq": 0.2},
+        {"state": "ID", "season": "summer", "freq": 0.05},
+        {"state": "MT", "season": "summer", "freq": 0.03},
+        {"state": "NV", "season": "year_round", "freq": 0.07},
+        {"state": "UT", "season": "year_round", "freq": 0.08},
+        {"state": "AZ", "season": "year_round", "freq": 0.12},
+        {"state": "NM", "season": "year_round", "freq": 0.12},
+        {"state": "CO", "season": "year_round", "freq": 0.1},
+        {"state": "TX", "season": "winter", "freq": 0.03}
+      ]
+    },
+    {
+      "common_name": "Western Cattle-Egret",
+      "scientific_name": "Ardea ibis",
+      "remove": false,
+      "regions": [
+        {"state": "CA", "season": "year_round", "freq": 0.08},
+        {"state": "OR", "season": "summer", "freq": 0.02},
+        {"state": "NV", "season": "summer", "freq": 0.03},
+        {"state": "UT", "season": "summer", "freq": 0.03},
+        {"state": "AZ", "season": "summer", "freq": 0.05},
+        {"state": "NM", "season": "summer", "freq": 0.04},
+        {"state": "CO", "season": "summer", "freq": 0.03},
+        {"state": "TX", "season": "year_round", "freq": 0.12},
+        {"state": "OK", "season": "summer", "freq": 0.05},
+        {"state": "KS", "season": "summer", "freq": 0.04},
+        {"state": "MO", "season": "summer", "freq": 0.03},
+        {"state": "AR", "season": "summer", "freq": 0.05},
+        {"state": "LA", "season": "year_round", "freq": 0.15},
+        {"state": "MS", "season": "summer", "freq": 0.08},
+        {"state": "AL", "season": "summer", "freq": 0.08},
+        {"state": "GA", "season": "year_round", "freq": 0.08},
+        {"state": "FL", "season": "year_round", "freq": 0.18},
+        {"state": "SC", "season": "summer", "freq": 0.08},
+        {"state": "NC", "season": "summer", "freq": 0.05},
+        {"state": "TN", "season": "summer", "freq": 0.03},
+        {"state": "VA", "season": "summer", "freq": 0.03},
+        {"state": "MD", "season": "summer", "freq": 0.02},
+        {"state": "NJ", "season": "summer", "freq": 0.02},
+        {"state": "DE", "season": "summer", "freq": 0.02},
+        {"state": "HI", "season": "year_round", "freq": 0.2}
+      ]
+    },
+    {
+      "common_name": "Western Flycatcher",
+      "scientific_name": "Empidonax difficilis",
+      "remove": false,
+      "regions": [
+        {"state": "WA", "season": "summer", "freq": 0.1},
+        {"state": "OR", "season": "summer", "freq": 0.15},
+        {"state": "CA", "season": "summer", "freq": 0.15},
+        {"state": "ID", "season": "summer", "freq": 0.08},
+        {"state": "MT", "season": "summer", "freq": 0.05},
+        {"state": "NV", "season": "summer", "freq": 0.03},
+        {"state": "UT", "season": "summer", "freq": 0.05},
+        {"state": "AZ", "season": "summer", "freq": 0.08},
+        {"state": "NM", "season": "summer", "freq": 0.06},
+        {"state": "CO", "season": "summer", "freq": 0.06},
+        {"state": "WY", "season": "summer", "freq": 0.03}
+      ]
+    },
+    {
+      "common_name": "Western Grebe",
+      "scientific_name": "Aechmophorus occidentalis",
+      "remove": false,
+      "regions": [
+        {"state": "WA", "season": "year_round", "freq": 0.06},
+        {"state": "OR", "season": "year_round", "freq": 0.06},
+        {"state": "CA", "season": "year_round", "freq": 0.1},
+        {"state": "NV", "season": "year_round", "freq": 0.05},
+        {"state": "UT", "season": "summer", "freq": 0.08},
+        {"state": "ID", "season": "summer", "freq": 0.04},
+        {"state": "MT", "season": "summer", "freq": 0.05},
+        {"state": "WY", "season": "summer", "freq": 0.03},
+        {"state": "CO", "season": "migratory", "freq": 0.03},
+        {"state": "ND", "season": "summer", "freq": 0.05},
+        {"state": "SD", "season": "summer", "freq": 0.05},
+        {"state": "NE", "season": "migratory", "freq": 0.03},
+        {"state": "KS", "season": "migratory", "freq": 0.02},
+        {"state": "AZ", "season": "winter", "freq": 0.04},
+        {"state": "NM", "season": "winter", "freq": 0.03},
+        {"state": "TX", "season": "winter", "freq": 0.02},
+        {"state": "MN", "season": "summer", "freq": 0.02}
+      ]
+    },
+    {
+      "common_name": "Western Gull",
+      "scientific_name": "Larus occidentalis",
+      "remove": false,
+      "regions": [
+        {"state": "CA", "season": "year_round", "freq": 0.3},
+        {"state": "OR", "season": "year_round", "freq": 0.15},
+        {"state": "WA", "season": "year_round", "freq": 0.08}
+      ]
+    },
+    {
+      "common_name": "Western Kingbird",
+      "scientific_name": "Tyrannus verticalis",
+      "remove": false,
+      "regions": [
+        {"state": "CA", "season": "summer", "freq": 0.15},
+        {"state": "OR", "season": "summer", "freq": 0.1},
+        {"state": "WA", "season": "summer", "freq": 0.08},
+        {"state": "NV", "season": "summer", "freq": 0.1},
+        {"state": "ID", "season": "summer", "freq": 0.1},
+        {"state": "MT", "season": "summer", "freq": 0.1},
+        {"state": "WY", "season": "summer", "freq": 0.12},
+        {"state": "UT", "season": "summer", "freq": 0.12},
+        {"state": "CO", "season": "summer", "freq": 0.15},
+        {"state": "AZ", "season": "summer", "freq": 0.12},
+        {"state": "NM", "season": "summer", "freq": 0.15},
+        {"state": "TX", "season": "summer", "freq": 0.2},
+        {"state": "OK", "season": "summer", "freq": 0.15},
+        {"state": "KS", "season": "summer", "freq": 0.2},
+        {"state": "NE", "season": "summer", "freq": 0.18},
+        {"state": "SD", "season": "summer", "freq": 0.15},
+        {"state": "ND", "season": "summer", "freq": 0.12},
+        {"state": "MN", "season": "summer", "freq": 0.03},
+        {"state": "IA", "season": "summer", "freq": 0.05},
+        {"state": "MO", "season": "summer", "freq": 0.05},
+        {"state": "AR", "season": "rare", "freq": 0.01},
+        {"state": "LA", "season": "rare", "freq": 0.005},
+        {"state": "FL", "season": "winter", "freq": 0.01}
+      ]
+    },
+    {
+      "common_name": "Western Marsh Harrier",
+      "scientific_name": "Circus aeruginosus",
+      "remove": true,
+      "remove_reason": "Eurasian species; only vagrant records in US, does not regularly occur",
+      "regions": []
+    },
+    {
+      "common_name": "Western Meadowlark",
+      "scientific_name": "Sturnella neglecta",
+      "remove": false,
+      "regions": [
+        {"state": "CA", "season": "year_round", "freq": 0.2},
+        {"state": "OR", "season": "year_round", "freq": 0.2},
+        {"state": "WA", "season": "year_round", "freq": 0.18},
+        {"state": "NV", "season": "year_round", "freq": 0.2},
+        {"state": "ID", "season": "year_round", "freq": 0.25},
+        {"state": "MT", "season": "summer", "freq": 0.3},
+        {"state": "WY", "season": "summer", "freq": 0.3},
+        {"state": "UT", "season": "year_round", "freq": 0.2},
+        {"state": "CO", "season": "year_round", "freq": 0.25},
+        {"state": "AZ", "season": "winter", "freq": 0.08},
+        {"state": "NM", "season": "year_round", "freq": 0.15},
+        {"state": "TX", "season": "winter", "freq": 0.1},
+        {"state": "OK", "season": "year_round", "freq": 0.1},
+        {"state": "KS", "season": "year_round", "freq": 0.2},
+        {"state": "NE", "season": "summer", "freq": 0.3},
+        {"state": "SD", "season": "summer", "freq": 0.3},
+        {"state": "ND", "season": "summer", "freq": 0.32},
+        {"state": "MN", "season": "summer", "freq": 0.1},
+        {"state": "IA", "season": "summer", "freq": 0.1},
+        {"state": "MO", "season": "year_round", "freq": 0.05},
+        {"state": "WI", "season": "summer", "freq": 0.05},
+        {"state": "IL", "season": "summer", "freq": 0.03},
+        {"state": "AR", "season": "winter", "freq": 0.02},
+        {"state": "LA", "season": "winter", "freq": 0.02}
+      ]
+    },
+    {
+      "common_name": "Western Red-billed Hornbill",
+      "scientific_name": "Tockus kempi",
+      "remove": true,
+      "remove_reason": "African species; no established wild US population",
+      "regions": []
+    },
+    {
+      "common_name": "Western Red-legged Thrush",
+      "scientific_name": "Turdus plumbeus",
+      "remove": true,
+      "remove_reason": "Caribbean species; only vagrant records in Florida, no established US population",
+      "regions": []
+    },
+    {
+      "common_name": "Western Reef-Heron",
+      "scientific_name": "Egretta gularis",
+      "remove": true,
+      "remove_reason": "Old World species; only vagrant records in US, does not regularly occur",
+      "regions": []
+    },
+    {
+      "common_name": "Western Sandpiper",
+      "scientific_name": "Calidris mauri",
+      "remove": false,
+      "regions": [
+        {"state": "AK", "season": "summer", "freq": 0.1},
+        {"state": "WA", "season": "migratory", "freq": 0.12},
+        {"state": "OR", "season": "migratory", "freq": 0.12},
+        {"state": "CA", "season": "winter", "freq": 0.15},
+        {"state": "NV", "season": "migratory", "freq": 0.04},
+        {"state": "UT", "season": "migratory", "freq": 0.05},
+        {"state": "ID", "season": "migratory", "freq": 0.03},
+        {"state": "MT", "season": "migratory", "freq": 0.02},
+        {"state": "CO", "season": "migratory", "freq": 0.04},
+        {"state": "AZ", "season": "migratory", "freq": 0.05},
+        {"state": "NM", "season": "migratory", "freq": 0.04},
+        {"state": "ND", "season": "migratory", "freq": 0.03},
+        {"state": "SD", "season": "migratory", "freq": 0.03},
+        {"state": "NE", "season": "migratory", "freq": 0.04},
+        {"state": "KS", "season": "migratory", "freq": 0.05},
+        {"state": "OK", "season": "migratory", "freq": 0.05},
+        {"state": "TX", "season": "winter", "freq": 0.12},
+        {"state": "LA", "season": "winter", "freq": 0.12},
+        {"state": "MS", "season": "migratory", "freq": 0.06},
+        {"state": "AL", "season": "migratory", "freq": 0.05},
+        {"state": "FL", "season": "winter", "freq": 0.12},
+        {"state": "GA", "season": "migratory", "freq": 0.06},
+        {"state": "SC", "season": "winter", "freq": 0.08},
+        {"state": "NC", "season": "migratory", "freq": 0.08},
+        {"state": "VA", "season": "migratory", "freq": 0.06},
+        {"state": "MD", "season": "migratory", "freq": 0.05},
+        {"state": "DE", "season": "migratory", "freq": 0.06},
+        {"state": "NJ", "season": "migratory", "freq": 0.08},
+        {"state": "NY", "season": "migratory", "freq": 0.04},
+        {"state": "MA", "season": "migratory", "freq": 0.04},
+        {"state": "MN", "season": "migratory", "freq": 0.03},
+        {"state": "IA", "season": "migratory", "freq": 0.03},
+        {"state": "MO", "season": "migratory", "freq": 0.03},
+        {"state": "IL", "season": "migratory", "freq": 0.03},
+        {"state": "OH", "season": "migratory", "freq": 0.03},
+        {"state": "AR", "season": "migratory", "freq": 0.03},
+        {"state": "HI", "season": "winter", "freq": 0.03}
+      ]
+    },
+    {
+      "common_name": "Western Screech-Owl",
+      "scientific_name": "Megascops kennicottii",
+      "remove": false,
+      "regions": [
+        {"state": "WA", "season": "year_round", "freq": 0.02},
+        {"state": "OR", "season": "year_round", "freq": 0.02},
+        {"state": "CA", "season": "year_round", "freq": 0.03},
+        {"state": "NV", "season": "year_round", "freq": 0.02},
+        {"state": "ID", "season": "year_round", "freq": 0.01},
+        {"state": "UT", "season": "year_round", "freq": 0.02},
+        {"state": "AZ", "season": "year_round", "freq": 0.04},
+        {"state": "NM", "season": "year_round", "freq": 0.02},
+        {"state": "CO", "season": "year_round", "freq": 0.01},
+        {"state": "TX", "season": "year_round", "freq": 0.01},
+        {"state": "MT", "season": "rare", "freq": 0.005}
+      ]
+    },
+    {
+      "common_name": "Western Spindalis",
+      "scientific_name": "Spindalis zena",
+      "remove": false,
+      "regions": [
+        {"state": "FL", "season": "rare", "freq": 0.002}
+      ]
+    },
+    {
+      "common_name": "Western Tanager",
+      "scientific_name": "Piranga ludoviciana",
+      "remove": false,
+      "regions": [
+        {"state": "WA", "season": "summer", "freq": 0.1},
+        {"state": "OR", "season": "summer", "freq": 0.12},
+        {"state": "CA", "season": "summer", "freq": 0.1},
+        {"state": "ID", "season": "summer", "freq": 0.1},
+        {"state": "MT", "season": "summer", "freq": 0.08},
+        {"state": "NV", "season": "summer", "freq": 0.06},
+        {"state": "UT", "season": "summer", "freq": 0.1},
+        {"state": "CO", "season": "summer", "freq": 0.1},
+        {"state": "AZ", "season": "summer", "freq": 0.08},
+        {"state": "NM", "season": "summer", "freq": 0.08},
+        {"state": "WY", "season": "summer", "freq": 0.08},
+        {"state": "TX", "season": "migratory", "freq": 0.03},
+        {"state": "SD", "season": "summer", "freq": 0.03},
+        {"state": "ND", "season": "rare", "freq": 0.01}
+      ]
+    },
+    {
+      "common_name": "Western Warbling Vireo",
+      "scientific_name": "Vireo swainsoni",
+      "remove": false,
+      "regions": [
+        {"state": "WA", "season": "summer", "freq": 0.1},
+        {"state": "OR", "season": "summer", "freq": 0.12},
+        {"state": "CA", "season": "summer", "freq": 0.12},
+        {"state": "ID", "season": "summer", "freq": 0.08},
+        {"state": "MT", "season": "summer", "freq": 0.08},
+        {"state": "NV", "season": "summer", "freq": 0.04},
+        {"state": "UT", "season": "summer", "freq": 0.06},
+        {"state": "CO", "season": "summer", "freq": 0.08},
+        {"state": "AZ", "season": "summer", "freq": 0.05},
+        {"state": "NM", "season": "summer", "freq": 0.05},
+        {"state": "WY", "season": "summer", "freq": 0.06}
+      ]
+    },
+    {
+      "common_name": "Western Wood-Pewee",
+      "scientific_name": "Contopus sordidulus",
+      "remove": false,
+      "regions": [
+        {"state": "WA", "season": "summer", "freq": 0.12},
+        {"state": "OR", "season": "summer", "freq": 0.15},
+        {"state": "CA", "season": "summer", "freq": 0.15},
+        {"state": "ID", "season": "summer", "freq": 0.12},
+        {"state": "MT", "season": "summer", "freq": 0.12},
+        {"state": "NV", "season": "summer", "freq": 0.06},
+        {"state": "UT", "season": "summer", "freq": 0.1},
+        {"state": "CO", "season": "summer", "freq": 0.12},
+        {"state": "AZ", "season": "summer", "freq": 0.1},
+        {"state": "NM", "season": "summer", "freq": 0.1},
+        {"state": "WY", "season": "summer", "freq": 0.1},
+        {"state": "ND", "season": "summer", "freq": 0.03},
+        {"state": "SD", "season": "summer", "freq": 0.05},
+        {"state": "NE", "season": "summer", "freq": 0.03},
+        {"state": "TX", "season": "summer", "freq": 0.04},
+        {"state": "OK", "season": "rare", "freq": 0.01}
+      ]
+    },
+    {
+      "common_name": "Whiskered Auklet",
+      "scientific_name": "Aethia pygmaea",
+      "remove": false,
+      "regions": [
+        {"state": "AK", "season": "year_round", "freq": 0.02}
+      ]
+    },
+    {
+      "common_name": "Whiskered Screech-Owl",
+      "scientific_name": "Megascops trichopsis",
+      "remove": false,
+      "regions": [
+        {"state": "AZ", "season": "year_round", "freq": 0.02},
+        {"state": "NM", "season": "rare", "freq": 0.003}
+      ]
+    },
+    {
+      "common_name": "Whiskered Tern",
+      "scientific_name": "Chlidonias hybrida",
+      "remove": true,
+      "remove_reason": "Old World species; only vagrant records in US, does not regularly occur",
+      "regions": []
+    },
+    {
+      "common_name": "White Cockatoo",
+      "scientific_name": "Cacatua alba",
+      "remove": true,
+      "remove_reason": "Indonesian species; cage bird with no established wild US population",
+      "regions": []
+    },
+    {
+      "common_name": "White Ibis",
+      "scientific_name": "Eudocimus albus",
+      "remove": false,
+      "regions": [
+        {"state": "FL", "season": "year_round", "freq": 0.3},
+        {"state": "GA", "season": "year_round", "freq": 0.1},
+        {"state": "SC", "season": "year_round", "freq": 0.15},
+        {"state": "NC", "season": "summer", "freq": 0.05},
+        {"state": "LA", "season": "year_round", "freq": 0.2},
+        {"state": "TX", "season": "year_round", "freq": 0.15},
+        {"state": "MS", "season": "year_round", "freq": 0.06},
+        {"state": "AL", "season": "year_round", "freq": 0.08},
+        {"state": "VA", "season": "rare", "freq": 0.01},
+        {"state": "AR", "season": "summer", "freq": 0.02},
+        {"state": "CA", "season": "rare", "freq": 0.005}
+      ]
+    },
+    {
+      "common_name": "White Wagtail",
+      "scientific_name": "Motacilla alba",
+      "remove": false,
+      "regions": [
+        {"state": "AK", "season": "summer", "freq": 0.005}
+      ]
+    },
+    {
+      "common_name": "White-breasted Nuthatch",
+      "scientific_name": "Sitta carolinensis",
+      "remove": false,
+      "regions": [
+        {"state": "WA", "season": "year_round", "freq": 0.08},
+        {"state": "OR", "season": "year_round", "freq": 0.08},
+        {"state": "CA", "season": "year_round", "freq": 0.1},
+        {"state": "ID", "season": "year_round", "freq": 0.08},
+        {"state": "MT", "season": "year_round", "freq": 0.08},
+        {"state": "NV", "season": "year_round", "freq": 0.04},
+        {"state": "UT", "season": "year_round", "freq": 0.06},
+        {"state": "AZ", "season": "year_round", "freq": 0.08},
+        {"state": "NM", "season": "year_round", "freq": 0.08},
+        {"state": "CO", "season": "year_round", "freq": 0.12},
+        {"state": "WY", "season": "year_round", "freq": 0.06},
+        {"state": "ND", "season": "year_round", "freq": 0.1},
+        {"state": "SD", "season": "year_round", "freq": 0.12},
+        {"state": "NE", "season": "year_round", "freq": 0.15},
+        {"state": "KS", "season": "year_round", "freq": 0.18},
+        {"state": "OK", "season": "year_round", "freq": 0.18},
+        {"state": "TX", "season": "year_round", "freq": 0.12},
+        {"state": "MN", "season": "year_round", "freq": 0.2},
+        {"state": "IA", "season": "year_round", "freq": 0.25},
+        {"state": "MO", "season": "year_round", "freq": 0.28},
+        {"state": "AR", "season": "year_round", "freq": 0.22},
+        {"state": "LA", "season": "year_round", "freq": 0.15},
+        {"state": "MS", "season": "year_round", "freq": 0.2},
+        {"state": "WI", "season": "year_round", "freq": 0.25},
+        {"state": "IL", "season": "year_round", "freq": 0.28},
+        {"state": "MI", "season": "year_round", "freq": 0.25},
+        {"state": "IN", "season": "year_round", "freq": 0.28},
+        {"state": "OH", "season": "year_round", "freq": 0.3},
+        {"state": "KY", "season": "year_round", "freq": 0.28},
+        {"state": "TN", "season": "year_round", "freq": 0.28},
+        {"state": "AL", "season": "year_round", "freq": 0.22},
+        {"state": "GA", "season": "year_round", "freq": 0.22},
+        {"state": "FL", "season": "year_round", "freq": 0.08},
+        {"state": "SC", "season": "year_round", "freq": 0.22},
+        {"state": "NC", "season": "year_round", "freq": 0.28},
+        {"state": "VA", "season": "year_round", "freq": 0.3},
+        {"state": "WV", "season": "year_round", "freq": 0.28},
+        {"state": "MD", "season": "year_round", "freq": 0.3},
+        {"state": "DE", "season": "year_round", "freq": 0.28},
+        {"state": "NJ", "season": "year_round", "freq": 0.28},
+        {"state": "PA", "season": "year_round", "freq": 0.3},
+        {"state": "NY", "season": "year_round", "freq": 0.28},
+        {"state": "CT", "season": "year_round", "freq": 0.3},
+        {"state": "RI", "season": "year_round", "freq": 0.28},
+        {"state": "MA", "season": "year_round", "freq": 0.3},
+        {"state": "VT", "season": "year_round", "freq": 0.25},
+        {"state": "NH", "season": "year_round", "freq": 0.25},
+        {"state": "ME", "season": "year_round", "freq": 0.22}
+      ]
+    },
+    {
+      "common_name": "White-capped Albatross",
+      "scientific_name": "Thalassarche cauta",
+      "remove": true,
+      "remove_reason": "Southern Ocean species; only vagrant records off US coast, does not regularly occur",
+      "regions": []
+    },
+    {
+      "common_name": "White-cheeked Pintail",
+      "scientific_name": "Anas bahamensis",
+      "remove": true,
+      "remove_reason": "Caribbean/South American species; US records are vagrants or escapes, no established population",
+      "regions": []
+    },
+    {
+      "common_name": "White-cheeked Turaco",
+      "scientific_name": "Menelikornis leucotis",
+      "remove": true,
+      "remove_reason": "African species; cage bird with no established wild US population",
+      "regions": []
+    },
+    {
+      "common_name": "White-chinned Petrel",
+      "scientific_name": "Procellaria aequinoctialis",
+      "remove": true,
+      "remove_reason": "Southern Ocean species; does not regularly occur in US waters",
+      "regions": []
+    },
+    {
+      "common_name": "White-collared Swift",
+      "scientific_name": "Streptoprocne zonaris",
+      "remove": true,
+      "remove_reason": "Neotropical species; only vagrant records in US, does not regularly occur",
+      "regions": []
+    },
+    {
+      "common_name": "White-crested Elaenia",
+      "scientific_name": "Elaenia albiceps",
+      "remove": true,
+      "remove_reason": "South American species; only vagrant records in US, does not regularly occur",
+      "regions": []
+    },
+    {
+      "common_name": "White-crested Laughingthrush",
+      "scientific_name": "Garrulax leucolophus",
+      "remove": true,
+      "remove_reason": "Asian species; cage bird with no established wild US population",
+      "regions": []
+    },
+    {
+      "common_name": "White-crowned Parrot",
+      "scientific_name": "Pionus senilis",
+      "remove": true,
+      "remove_reason": "Mexican/Central American species; no established wild US population",
+      "regions": []
+    },
+    {
+      "common_name": "White-crowned Pigeon",
+      "scientific_name": "Patagioenas leucocephala",
+      "remove": false,
+      "regions": [
+        {"state": "FL", "season": "year_round", "freq": 0.05}
+      ]
+    },
+    {
+      "common_name": "White-crowned Sparrow",
+      "scientific_name": "Zonotrichia leucophrys",
+      "remove": false,
+      "regions": [
+        {"state": "AK", "season": "summer", "freq": 0.1},
+        {"state": "WA", "season": "year_round", "freq": 0.15},
+        {"state": "OR", "season": "year_round", "freq": 0.15},
+        {"state": "CA", "season": "winter", "freq": 0.22},
+        {"state": "NV", "season": "winter", "freq": 0.12},
+        {"state": "ID", "season": "migratory", "freq": 0.05},
+        {"state": "MT", "season": "migratory", "freq": 0.05},
+        {"state": "WY", "season": "summer", "freq": 0.05},
+        {"state": "UT", "season": "winter", "freq": 0.12},
+        {"state": "CO", "season": "winter", "freq": 0.12},
+        {"state": "AZ", "season": "winter", "freq": 0.18},
+        {"state": "NM", "season": "winter", "freq": 0.15},
+        {"state": "TX", "season": "winter", "freq": 0.15},
+        {"state": "OK", "season": "winter", "freq": 0.12},
+        {"state": "KS", "season": "winter", "freq": 0.12},
+        {"state": "NE", "season": "migratory", "freq": 0.08},
+        {"state": "SD", "season": "migratory", "freq": 0.06},
+        {"state": "ND", "season": "migratory", "freq": 0.06},
+        {"state": "MN", "season": "migratory", "freq": 0.08},
+        {"state": "IA", "season": "migratory", "freq": 0.08},
+        {"state": "MO", "season": "winter", "freq": 0.08},
+        {"state": "AR", "season": "winter", "freq": 0.1},
+        {"state": "LA", "season": "winter", "freq": 0.08},
+        {"state": "MS", "season": "winter", "freq": 0.06},
+        {"state": "AL", "season": "winter", "freq": 0.06},
+        {"state": "GA", "season": "winter", "freq": 0.06},
+        {"state": "FL", "season": "winter", "freq": 0.04},
+        {"state": "SC", "season": "winter", "freq": 0.06},
+        {"state": "NC", "season": "winter", "freq": 0.08},
+        {"state": "TN", "season": "winter", "freq": 0.08},
+        {"state": "KY", "season": "winter", "freq": 0.08},
+        {"state": "VA", "season": "winter", "freq": 0.1},
+        {"state": "WV", "season": "winter", "freq": 0.06},
+        {"state": "MD", "season": "winter", "freq": 0.08},
+        {"state": "DE", "season": "winter", "freq": 0.08},
+        {"state": "NJ", "season": "winter", "freq": 0.08},
+        {"state": "PA", "season": "migratory", "freq": 0.06},
+        {"state": "NY", "season": "migratory", "freq": 0.06},
+        {"state": "CT", "season": "winter", "freq": 0.06},
+        {"state": "MA", "season": "migratory", "freq": 0.05},
+        {"state": "WI", "season": "migratory", "freq": 0.06},
+        {"state": "IL", "season": "winter", "freq": 0.08},
+        {"state": "MI", "season": "migratory", "freq": 0.05},
+        {"state": "IN", "season": "winter", "freq": 0.06},
+        {"state": "OH", "season": "migratory", "freq": 0.06},
+        {"state": "ME", "season": "migratory", "freq": 0.04},
+        {"state": "VT", "season": "migratory", "freq": 0.04},
+        {"state": "NH", "season": "migratory", "freq": 0.04}
+      ]
+    },
+    {
+      "common_name": "White-eared Bulbul",
+      "scientific_name": "Pycnonotus leucotis",
+      "remove": true,
+      "remove_reason": "Asian species; cage bird with no established wild US population",
+      "regions": []
+    },
+    {
+      "common_name": "White-eared Hummingbird",
+      "scientific_name": "Basilinna leucotis",
+      "remove": false,
+      "regions": [
+        {"state": "AZ", "season": "summer", "freq": 0.003},
+        {"state": "NM", "season": "rare", "freq": 0.002},
+        {"state": "TX", "season": "rare", "freq": 0.002}
+      ]
+    },
+    {
+      "common_name": "White-eyed Parakeet",
+      "scientific_name": "Psittacara leucophthalmus",
+      "remove": false,
+      "regions": [
+        {"state": "FL", "season": "rare", "freq": 0.003}
+      ]
+    }
+  ]
+}

@@ -38,6 +38,7 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
+      "./plugins/with-app-check-modular-headers",
       "expo-font",
       "expo-image",
       [

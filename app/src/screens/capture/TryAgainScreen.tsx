@@ -16,7 +16,7 @@ const SCREEN_WIDTH = Dimensions.get("window").width;
 export const TryAgainScreen: React.FC = () => {
   const navigation = useNavigation();
   const route = useRoute<Route>();
-  const { photoUri } = route.params;
+  const { photoUri, failedAttemptsExceeded = false } = route.params;
 
   const tips = [
     { icon: Sun, text: "Make sure the bird is well-lit" },
@@ -46,7 +46,7 @@ export const TryAgainScreen: React.FC = () => {
           testID="try-again-title"
           style={{ marginTop: Spacing.xl }}
         >
-          Couldn't identify this one
+          {failedAttemptsExceeded ? "Too many failed attempts" : "Couldn't identify this one"}
         </Text>
         <Text
           variant="regular"
@@ -56,31 +56,37 @@ export const TryAgainScreen: React.FC = () => {
           testID="try-again-subtitle"
           style={{ marginTop: Spacing.sm }}
         >
-          Try again with a clearer photo
+          {failedAttemptsExceeded
+            ? "You've had too many unrecognised photos today. Come back tomorrow."
+            : "Try again with a clearer photo"}
         </Text>
 
-        {/* Tips */}
-        <View style={styles.tipsCard} testID="try-again-tips">
-          {tips.map((tip, i) => (
-            <View key={i} style={styles.tipRow} testID={`try-again-tip-${i}`}>
-              <tip.icon size={20} color={Colors.sage} strokeWidth={1.5} />
-              <Text variant="regular" size="sm" color={Colors.ink} testID={`try-again-tip-${i}-text`}>
-                {tip.text}
-              </Text>
-            </View>
-          ))}
-        </View>
+        {/* Tips — hide when blocked, they can't retry anyway */}
+        {!failedAttemptsExceeded && (
+          <View style={styles.tipsCard} testID="try-again-tips">
+            {tips.map((tip, i) => (
+              <View key={i} style={styles.tipRow} testID={`try-again-tip-${i}`}>
+                <tip.icon size={20} color={Colors.sage} strokeWidth={1.5} />
+                <Text variant="regular" size="sm" color={Colors.ink} testID={`try-again-tip-${i}-text`}>
+                  {tip.text}
+                </Text>
+              </View>
+            ))}
+          </View>
+        )}
       </View>
 
       {/* Bottom group: buttons */}
       <View style={styles.actions}>
-        <PrimaryButton
-          title="Try again"
-          size="lg"
-          fullWidth
-          onPress={() => navigation.goBack()}
-          testID="try-again-retry"
-        />
+        {!failedAttemptsExceeded && (
+          <PrimaryButton
+            title="Try again"
+            size="lg"
+            fullWidth
+            onPress={() => navigation.goBack()}
+            testID="try-again-retry"
+          />
+        )}
         <GhostButton
           title="Close"
           size="lg"

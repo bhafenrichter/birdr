@@ -1,0 +1,333 @@
+{
+  "batch": 12,
+  "species_reviewed": 100,
+  "verdicts": {"ok": 60, "minor_issues": 16, "major_issues": 24},
+  "findings": [
+    {
+      "common_name": "Short-tailed Hawk",
+      "scientific_name": "Buteo brachyurus",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["MI"], "note": "MI is vagrant-only; species is a FL resident with a small AZ breeding population"},
+        {"type": "wrong_season", "states": ["AZ"], "should_be": "summer", "note": "SE Arizona birds are largely breeding-season; GA/SC/AL/NM/TX are marginal/vagrant"}
+      ]
+    },
+    {
+      "common_name": "Short-tailed Shearwater",
+      "scientific_name": "Ardenna tenuirostris",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["FL","IL","MA","NY","WI"], "note": "Pacific shearwater abundant off AK/CA/OR/WA; Atlantic (FL,MA,NY) and Great Lakes (IL,WI) are vagrant-only"}
+      ]
+    },
+    {
+      "common_name": "Silver Gull",
+      "scientific_name": "Chroicocephalus novaehollandiae",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["DE","MD","NJ"], "note": "Australasian/S American gull; US records considered escapes, not an established or wild-occurring population"}
+      ]
+    },
+    {
+      "common_name": "Slaty-backed Gull",
+      "scientific_name": "Larus schistisagus",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["CA","CO","CT","DE","FL","IA","ID","IL","IN","KS","LA","MA","MD","ME","MI","MN","MO","NC","NH","NV","NY","OH","OK","OR","PA","SC","TX","VT","WI"], "should_be": "winter", "note": "Asian gull; regular only in AK. Lower-48 occurrences are rare winter visitors, not year-round"}
+      ]
+    },
+    {
+      "common_name": "Smew",
+      "scientific_name": "Mergellus albellus",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["CA","MI","MN","MO","NY","OR","RI","WA"], "should_be": "winter", "note": "Eurasian merganser; rare winter visitor to lower 48, not year-round resident"}
+      ]
+    },
+    {
+      "common_name": "Smith's Longspur",
+      "scientific_name": "Calcarius pictus",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AL","AZ","CA","CO","CT","DE","FL","GA","ID","MA","MD","ME","MS","MT","NC","NH","NJ","NM","NV","NY","OH","OR","PA","RI","SC","UT","VA","VT","WA","WV","WY"], "note": "Restricted winter range (e KS, OK, n TX, AR, MO, sw IL, w TN, n LA) plus migration through the central plains; listed across nearly all 50 states which is grossly overstated"},
+        {"type": "wrong_season", "states": ["AK"], "should_be": "summer", "note": "AK is the breeding (tundra) range, not winter"}
+      ]
+    },
+    {
+      "common_name": "Smooth-billed Ani",
+      "scientific_name": "Crotophaga ani",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["OH","GA","NC","MS","LA"], "note": "US range is (declining) S Florida resident; OH absurd, the others vagrant. Only FL (and very rarely TX) is real"}
+      ]
+    },
+    {
+      "common_name": "Snail Kite",
+      "scientific_name": "Rostrhamus sociabilis",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["GA","NC","PA","SC","TN","VA","LA"], "note": "US resident only in peninsular FL; PA/TN/VA/NC especially are far-flung vagrants. TX has only a few records"}
+      ]
+    },
+    {
+      "common_name": "Snow Bunting",
+      "scientific_name": "Plectrophenax nivalis",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["FL","LA","MS","AL","GA","AZ","NM","SC"], "note": "Winters across northern US; casual/vagrant in the Gulf states and desert SW"},
+        {"type": "wrong_season", "states": ["AK"], "should_be": "year_round", "note": "AK breeds (summer) with some winter presence; tagging it winter-only is wrong"}
+      ]
+    },
+    {
+      "common_name": "Snow Goose",
+      "scientific_name": "Anser caerulescens",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["ALL_LISTED"], "should_be": "winter", "note": "High-Arctic breeder; in the lower 48 it is a winter visitor and migrant, absent in summer. Year_round everywhere is wrong (AK north slope is summer breeding)"}
+      ]
+    },
+    {
+      "common_name": "Snowy Egret",
+      "scientific_name": "Egretta thula",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["IA","ID","MN","MT","ND","NE","NH","SD","VT","WI","WY","ME","CO"], "should_be": "summer", "note": "Year-round only on southern/coastal areas; in the northern interior it is a summer breeder that withdraws in winter"}
+      ]
+    },
+    {
+      "common_name": "Snowy Owl",
+      "scientific_name": "Bubo scandiacus",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["AL","AR","CA","CO","CT","DE","FL","GA","IA","ID","IL","IN","KS","KY","LA","MA","MD","ME","MI","MN","MO","MS","MT","NC","ND","NE","NH","NJ","NV","NY","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VA","VT","WA","WI","WV","WY"], "should_be": "winter", "note": "Arctic breeder (AK); irruptive winter visitor to lower 48, not year-round"},
+        {"type": "wrong_state", "states": ["FL","LA","MS","AL","AR","TX","SC","GA"], "note": "Deep-south states are extreme rarities, not regular"}
+      ]
+    },
+    {
+      "common_name": "Snowy Plover",
+      "scientific_name": "Anarhynchus nivosus",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AK","CT","ME","MA","MD","NY","PA","RI","NC","VA","OH","IN","MI","MN","WI","IA","ND","SD","MT","ID"], "note": "Western/Gulf species; absent as a regular bird from the NE, Great Lakes, and northern interior listed here"},
+        {"type": "wrong_season", "states": ["CA","FL","TX","LA","MS","AL"], "should_be": "year_round", "note": "Resident on Pacific and Gulf coasts; tagged migratory everywhere"}
+      ]
+    },
+    {
+      "common_name": "Sooty Grouse",
+      "scientific_name": "Dendragapus fuliginosus",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["NV"], "note": "Pacific coastal mountains AK to CA/Sierra Nevada; does not regularly occur in Nevada"}
+      ]
+    },
+    {
+      "common_name": "Sooty Shearwater",
+      "scientific_name": "Ardenna grisea",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AZ"], "note": "Landlocked Arizona; pelagic species off both coasts. AZ is not a regular state"}
+      ]
+    },
+    {
+      "common_name": "Sooty Tern",
+      "scientific_name": "Onychoprion fuscatus",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AR","CO","IL","IN","KY","MO","NM","OH","OK","TN","VT","WI","WV"], "note": "Breeds Dry Tortugas FL; interior states are storm-driven vagrants only"},
+        {"type": "wrong_season", "states": ["FL"], "should_be": "summer", "note": "FL is a summer breeding occurrence"}
+      ]
+    },
+    {
+      "common_name": "Sora",
+      "scientific_name": "Porzana carolina",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["IA","ID","MN","MT","ND","NE","NH","SD","VT","WI","WY","ME","MI","CO","KS"], "should_be": "summer", "note": "Breeds in the north/interior (summer), winters in the south; year-round everywhere is wrong"}
+      ]
+    },
+    {
+      "common_name": "South Polar Skua",
+      "scientific_name": "Stercorarius maccormicki",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["ND","OK","TN"], "note": "Pelagic off both coasts; landlocked-interior ND/OK/TN are not regular"},
+        {"type": "wrong_season", "states": ["CA","OR","WA","NC","etc"], "should_be": "summer", "note": "Nonbreeding visitor to US waters roughly May-Nov, not year-round"}
+      ]
+    },
+    {
+      "common_name": "Spot-breasted Oriole",
+      "scientific_name": "Icterus pectoralis",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["FL"], "should_be": "year_round", "note": "Introduced non-migratory resident in SE Florida; not a summer-only bird"}
+      ]
+    },
+    {
+      "common_name": "Spotted Dove",
+      "scientific_name": "Spilopelia chinensis",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["GA","IL","MA","MN"], "note": "Established only in HI (and formerly LA County CA, now nearly gone); the others are escapes, not established populations"}
+      ]
+    },
+    {
+      "common_name": "Spotted Sandpiper",
+      "scientific_name": "Actitis macularius",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["most northern/western breeding states"], "should_be": "summer", "note": "Breeds across most of the US (summer); tagging migratory-only understates its breeding presence. Winters in the south (CA, Gulf, FL)"}
+      ]
+    },
+    {
+      "common_name": "Spotted Towhee",
+      "scientific_name": "Pipilo maculatus",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AL","FL","GA","SC","NC","CT","DE","MA","MD","ME","NH","NJ","NY","PA","RI","VA","VT","WV","OH","IN","IL","KY","TN","MS","LA","AR","MI","WI"], "note": "Western species (west of the Great Plains); eastern states are rare winter visitors at most, not year-round residents"}
+      ]
+    },
+    {
+      "common_name": "Sprague's Pipit",
+      "scientific_name": "Anthus spragueii",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CT","MA","VA","NC","SC","MI","WI","OH","IL","FL","GA","OR","NV"], "note": "Breeds n Great Plains, winters s-central US/SW, migrates through the plains; the east coast and Great Lakes states are vagrant"},
+        {"type": "wrong_season", "states": ["MT","ND","SD","MN"], "should_be": "summer", "note": "These are breeding-range states, not passage-only"}
+      ]
+    },
+    {
+      "common_name": "Spruce Grouse",
+      "scientific_name": "Canachites canadensis",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["OR"], "note": "Boreal resident; range in lower 48 is WA, ID, MT, MN, WI, MI, ME, NH, VT, NY. Does not occur in Oregon"}
+      ]
+    },
+    {
+      "common_name": "Streaked Shearwater",
+      "scientific_name": "Calonectris leucomelas",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["WY"], "note": "Landlocked Wyoming for a pelagic Asian shearwater is impossible; west-coast (CA, OR) and a NJ Atlantic record are the real occurrences"}
+      ]
+    },
+    {
+      "common_name": "Summer Tanager",
+      "scientific_name": "Piranga rubra",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["ND","SD","MN","WI","MI","ME","NH","VT","MT","WA","OR","ID","WY"], "note": "Breeds southern/central US; far-north tier, upper Midwest, northern Rockies and Pacific NW are out of breeding range (vagrant)"}
+      ]
+    },
+    {
+      "common_name": "Surf Scoter",
+      "scientific_name": "Melanitta perspicillata",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["AZ","CO","ID","KS","MT","ND","NE","NM","NV","OK","SD","UT","WY","AR","MS","AL","TN","KY","WV","IA","MO"], "should_be": "migratory", "note": "Winters mainly on the coasts and Great Lakes; interior/southern-interior occurrences are rare migrants on large water, not regular winter residents"}
+      ]
+    },
+    {
+      "common_name": "Surfbird",
+      "scientific_name": "Calidris virgata",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["FL","ME","PA","TX"], "note": "Pacific-coast species (AK breeding, winters Pacific coast to S America); Atlantic/Gulf and interior PA are vagrant-only"}
+      ]
+    },
+    {
+      "common_name": "Swainson's Hawk",
+      "scientific_name": "Buteo swainsoni",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["ALL_LISTED"], "should_be": "summer", "note": "Long-distance migrant that winters in South America; in North America it is a summer breeder (tiny CA/FL wintering only). Year-round everywhere is wrong"},
+        {"type": "wrong_state", "states": ["AL","CT","DE","MA","MD","ME","NH","NJ","NY","NC","SC","OH","IN","KY","MI","MS","PA","RI","TN","VA","VT","WV","WI","FL","AK"], "note": "Breeds west of the Mississippi (Great Plains to Pacific); eastern states are rare migrants/vagrants"}
+      ]
+    },
+    {
+      "common_name": "Swainson's Thrush",
+      "scientific_name": "Catharus ustulatus",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["ALL_LISTED"], "should_be": "summer", "note": "Boreal/montane summer breeder (north and west) and a passage migrant elsewhere; winters in the Neotropics. Does not occur year-round anywhere in the US"}
+      ]
+    },
+    {
+      "common_name": "Swainson's Warbler",
+      "scientific_name": "Limnothlypis swainsonii",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AZ","CO","NM","MN","WI","IA","ME","VT","NE","MA","NY"], "note": "SE US breeder (swamps + southern Appalachians); western states and the far-north tier are vagrant"}
+      ]
+    },
+    {
+      "common_name": "Swallow-tailed Gull",
+      "scientific_name": "Creagrus furcatus",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["WA"], "note": "Galapagos species; California has the accepted records. Washington is questionable/not regular"}
+      ]
+    },
+    {
+      "common_name": "Swallow-tailed Kite",
+      "scientific_name": "Elanoides forficatus",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["ALL_LISTED"], "should_be": "summer", "note": "Breeds SE US, winters in South America; a summer bird, not year-round"},
+        {"type": "wrong_state", "states": ["IA","IL","IN","KS","KY","MA","MD","ME","MI","MN","MO","ND","NE","NH","NJ","NY","OH","PA","RI","VA","VT","WI","WV","CO","CA","AZ","NM","WY"], "note": "Breeding range is the SE (FL,GA,SC,AL,MS,LA,TX,AR, locally NC); northern and western states are vagrant"}
+      ]
+    },
+    {
+      "common_name": "Swamp Sparrow",
+      "scientific_name": "Melospiza georgiana",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AZ","CA","NV","UT","ID","MT","WY","OR","WA","CO","NM"], "note": "Eastern species; in the West it is a rare/uncommon migrant and winter visitor, not a year-round resident"},
+        {"type": "wrong_season", "states": ["ND","MN","WI","MI","ME","NH","VT"], "should_be": "summer", "note": "Far-north states are summer breeding range; deep-south states (FL, TX, LA) are winter-only"}
+      ]
+    },
+    {
+      "common_name": "Swinhoe's White-eye",
+      "scientific_name": "Zosterops simplex",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["MD","WA"], "note": "Established in CA (San Diego/OC) and HI; MD/WA records are escapes, not established"}
+      ]
+    },
+    {
+      "common_name": "Tennessee Warbler",
+      "scientific_name": "Leiothlypis peregrina",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["AL","AR","AZ","CA","CO","CT","DE","FL","GA","IA","ID","IL","IN","KS","KY","LA","MA","MD","MO","MS","MT","NC","ND","NE","NJ","NM","NV","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VA","WA","WV","WY","AK"], "should_be": "migratory", "note": "Breeds only in the far-northern tier (MN, WI, MI UP, ME, NH, VT, n NY); elsewhere it is a passage migrant, not a summer breeder. Winters in the Neotropics"}
+      ]
+    },
+    {
+      "common_name": "Thick-billed Kingbird",
+      "scientific_name": "Tyrannus crassirostris",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["ND","CO","UT","NV"], "note": "Breeds SE AZ (and sw NM); ND is absurd, others are vagrant"},
+        {"type": "wrong_season", "states": ["CA"], "should_be": "winter", "note": "California occurrences are mainly fall/winter, not summer"}
+      ]
+    },
+    {
+      "common_name": "Thick-billed Longspur",
+      "scientific_name": "Rhynchophanes mccownii",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AL","GA","NC","TN","MI","MN","MA","MO","LA","OR","WA","ID"], "note": "Winters s Great Plains/SW (TX,NM,AZ,OK,KS,se CO); eastern and far-NW states are vagrant"},
+        {"type": "wrong_season", "states": ["MT","ND","SD","WY","NE"], "should_be": "summer", "note": "These are n Great Plains breeding states, not winter range"}
+      ]
+    },
+    {
+      "common_name": "Thick-billed Murre",
+      "scientific_name": "Uria lomvia",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["FL","SC","IA","IN","OH","PA","VT"], "note": "Winters offshore N Atlantic (south to ~NY/NJ) and N Pacific; FL/SC and interior/Great Lakes states are storm-driven vagrants"},
+        {"type": "wrong_season", "states": ["CA","CT","DE","MA","MD","ME","NC","NH","NJ","NY","OR","RI","VA","WA"], "should_be": "winter", "note": "Winter visitor to lower-48 waters; year_round applies only near AK colonies"}
+      ]
+    }
+  ]
+}

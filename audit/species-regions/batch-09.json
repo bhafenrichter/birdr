@@ -1,0 +1,444 @@
+{
+  "batch": 9,
+  "species_reviewed": 100,
+  "verdicts": {"ok": 47, "minor_issues": 29, "major_issues": 24},
+  "findings": [
+    {
+      "common_name": "Mountain Plover",
+      "scientific_name": "Anarhynchus montanus",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["CO","MT","WY","NM","UT","NV","KS","NE","ND","SD","OK"], "should_be": "summer", "note": "shortgrass-prairie breeder, not a passage migrant"},
+        {"type": "wrong_season", "states": ["CA","AZ","TX"], "should_be": "winter", "note": "primary wintering grounds, not migratory"},
+        {"type": "wrong_state", "states": ["AL","FL","IL","IN","LA","MA","MS","NC","NJ","SC","VA","OR","WA"], "note": "vagrant-only; not in regular range"}
+      ]
+    },
+    {
+      "common_name": "Mountain Quail",
+      "scientific_name": "Oreortyx pictus",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["IN","WI"], "note": "western montane species; absent from the Midwest entirely"}
+      ]
+    },
+    {
+      "common_name": "Mourning Dove",
+      "scientific_name": "Zenaida macroura",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AK"], "note": "only casual/rare in Alaska, not a regular resident"}
+      ]
+    },
+    {
+      "common_name": "Mourning Warbler",
+      "scientific_name": "Geothlypis philadelphia",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CA","AZ","NV","OR","WA","ID","UT"], "note": "eastern/boreal warbler; vagrant-only in the West"},
+        {"type": "wrong_season", "states": ["FL","TX","LA","MS","AL","GA","SC","NC","AR","OK","KS","MO","TN","KY","VA","MD","DE","NJ","OH","IN","IL"], "should_be": "migratory", "note": "passage migrant, breeds only in northern tier (MN/WI/MI/NY/New England/PA)"}
+      ]
+    },
+    {
+      "common_name": "Muscovy Duck",
+      "scientific_name": "Cairina moschata",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["MT","ND","SD","WY","NH","VT","ME","WV","AK"], "note": "feral populations established mainly in FL/TX and scattered urban areas; not in far-northern states"}
+      ]
+    },
+    {
+      "common_name": "Mute Swan",
+      "scientific_name": "Cygnus olor",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AZ","NM","MT","WY","ND","SD","AL","MS","AR","LA","OK","UT","NV"], "note": "established feral populations are Atlantic states + Great Lakes + Pacific NW; interior West/South records are vagrant"}
+      ]
+    },
+    {
+      "common_name": "Nanday Parakeet",
+      "scientific_name": "Aratinga nenday",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CO","CT","DE","GA","IL","MA","MD","NC","NJ","NY","TN","VA"], "note": "established only in FL, CA, TX; others are escapees, not naturalized"}
+      ]
+    },
+    {
+      "common_name": "Nashville Warbler",
+      "scientific_name": "Leiothlypis ruficapilla",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AK"], "note": "does not breed/occur regularly in Alaska"},
+        {"type": "wrong_season", "states": ["TX","LA","MS","AL","GA","FL","SC","NC","AR","OK","KS","MO","TN","KY","CO","NM","UT","NV","AZ"], "should_be": "migratory", "note": "passage migrant here; breeds only in NE/Great Lakes and far West (CA/OR/WA/ID/MT)"}
+      ]
+    },
+    {
+      "common_name": "Nazca Booby",
+      "scientific_name": "Sula granti",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AK","OR","WA"], "note": "rare visitor off CA; AK/OR/WA are vagrant"}
+      ]
+    },
+    {
+      "common_name": "Nelson's Sparrow",
+      "scientific_name": "Ammospiza nelsoni",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AZ","CA","NV","UT","WA","NM","WY"], "note": "eastern/central species; vagrant-only in the Far West"},
+        {"type": "wrong_season", "states": ["ND","SD","MN","MT","ME","NH","MA"], "should_be": "summer", "note": "northern-prairie & Atlantic breeding range"},
+        {"type": "wrong_season", "states": ["TX","LA","MS","AL","FL","GA","SC","NC","VA","MD","DE","NJ"], "should_be": "winter", "note": "Gulf/Atlantic coastal wintering grounds, not year-round"}
+      ]
+    },
+    {
+      "common_name": "Neotropic Cormorant",
+      "scientific_name": "Nannopterum brasilianum",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["ID","MT","ND","MN","MI","NH","NJ","NY","OH","PA","VA","NC","DE","MD","WI","IA","OR","WY","SD"], "note": "core range is south-central US (TX/LA/NM/AZ/OK/AR/KS/CO/southern CA); these northern/eastern states are vagrant or rare"}
+      ]
+    },
+    {
+      "common_name": "Newell's Shearwater",
+      "scientific_name": "Puffinus newelli",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CA"], "note": "Hawaiian breeder; California records are extreme vagrants"}
+      ]
+    },
+    {
+      "common_name": "Northern Beardless-Tyrannulet",
+      "scientific_name": "Camptostoma imberbe",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["AZ","TX"], "should_be": "year_round", "note": "permanent resident in southern AZ and south TX, not a summer-only visitor"}
+      ]
+    },
+    {
+      "common_name": "Northern Bobwhite",
+      "scientific_name": "Colinus virginianus",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["ME","NH","VT","MA","RI"], "note": "essentially extirpated in northern New England; presence is released/stocked birds only"}
+      ]
+    },
+    {
+      "common_name": "Northern Cardinal",
+      "scientific_name": "Cardinalis cardinalis",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["ALL_LISTED"], "should_be": "year_round", "note": "sedentary year-round resident everywhere; tagged summer in every state"},
+        {"type": "wrong_state", "states": ["MT","WY","UT","NV"], "note": "absent/vagrant; cardinal range does not reach these states"}
+      ]
+    },
+    {
+      "common_name": "Northern Fulmar",
+      "scientific_name": "Fulmarus glacialis",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["MN","VT","PA"], "note": "pelagic; these are landlocked vagrants (PA has no marine coast)"},
+        {"type": "wrong_season", "states": ["CA","OR","WA","ME","NH","MA","RI","CT","NY","NJ","DE","MD","VA","NC","FL"], "should_be": "winter", "note": "non-breeding winter visitor to lower-48 waters; breeds in Arctic/AK"}
+      ]
+    },
+    {
+      "common_name": "Northern Gannet",
+      "scientific_name": "Morus bassanus",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AK","CA","AR","IL","IN","KY","MI","OH","PA","TN","VT"], "note": "Atlantic/Gulf species; AK & CA are wrong ocean, the rest are inland vagrants"},
+        {"type": "wrong_season", "states": ["ME","NH","MA","RI","CT","NY","NJ","DE","MD","VA","NC","SC","GA","FL","AL","MS","LA","TX"], "should_be": "winter", "note": "non-breeding winter/migration visitor along the coast"}
+      ]
+    },
+    {
+      "common_name": "Northern Hawk Owl",
+      "scientific_name": "Surnia ulula",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CT","IA","NE","NJ","OH","PA","WV","WY","OR"], "note": "vagrant-only; not part of the regular irruptive range"},
+        {"type": "wrong_season", "states": ["MN","ME","MI","NH","VT","NY","WI","ND","MT","WA","ID","SD","MA"], "should_be": "winter", "note": "irregular winter irruptive visitor to lower-48; resident only in AK/boreal"}
+      ]
+    },
+    {
+      "common_name": "Northern House Wren",
+      "scientific_name": "Troglodytes aedon",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["MN","WI","MI","ND","SD","MT","ME","NH","VT","NY","MA","CT","RI","IA","NE","WY","ID","OR","WA","CO","PA","OH","IN","IL"], "should_be": "summer", "note": "withdraws south in winter; year-round only in the southern tier"}
+      ]
+    },
+    {
+      "common_name": "Northern Jacana",
+      "scientific_name": "Jacana spinosa",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AZ"], "note": "sporadic/vagrant in US; only south TX has had any persistence, and it is not a reliable resident"}
+      ]
+    },
+    {
+      "common_name": "Northern Parula",
+      "scientific_name": "Setophaga americana",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CO","ND","SD","NE"], "note": "eastern breeder; CO is vagrant and the prairie states are marginal at best"}
+      ]
+    },
+    {
+      "common_name": "Northern Rough-winged Swallow",
+      "scientific_name": "Stelgidopteryx serripennis",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AK"], "note": "does not breed in Alaska; vagrant only"}
+      ]
+    },
+    {
+      "common_name": "Northern Saw-whet Owl",
+      "scientific_name": "Aegolius acadicus",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["FL","LA","MS","AL","GA","SC","TX","OK","AR"], "should_be": "winter", "note": "rare winter visitor in the deep south, not a year-round resident; FL barely reached"}
+      ]
+    },
+    {
+      "common_name": "Northern Shrike",
+      "scientific_name": "Lanius borealis",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["CT","DE","IA","ID","IL","IN","KS","MA","MD","ME","MI","MN","MO","MT","NE","NH","NJ","NV","NY","OH","OR","PA","RI","SD","UT","VT","WA","WI","WY","CO"], "should_be": "winter", "note": "winter visitor to northern US; breeds AK/Canada, year-round only in AK"},
+        {"type": "wrong_state", "states": ["AZ","NM","TX","AR","TN","NC","VA","OK","KY"], "note": "at/beyond southern winter edge; rare to casual, not regular"}
+      ]
+    },
+    {
+      "common_name": "Northern Waterthrush",
+      "scientific_name": "Parkesia noveboracensis",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["FL","TX","LA","AL","GA","SC","NC","MS","AR","OK","KS","MO","TN","KY","VA","MD","DE","NJ","OH","IN","IL","AZ","CA","NV","NM","UT","CO"], "should_be": "migratory", "note": "boreal/northern breeder; these are passage states (or winter in s. FL), not breeding"}
+      ]
+    },
+    {
+      "common_name": "Northern Wheatear",
+      "scientific_name": "Oenanthe oenanthe",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AL","AR","AZ","CA","CT","DE","FL","GA","IL","IN","LA","MA","MD","ME","MI","MN","NC","ND","NH","NJ","NM","NY","OH","OR","PA","RI","SC","TN","TX","VA","VT","WA","WI"], "note": "regular only in AK (breeds); all lower-48 states are casual fall vagrants"}
+      ]
+    },
+    {
+      "common_name": "Nuttall's Woodpecker",
+      "scientific_name": "Dryobates nuttallii",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["NV"], "note": "California species; extreme-W Nevada occurrence is essentially vagrant"}
+      ]
+    },
+    {
+      "common_name": "Nutting's Flycatcher",
+      "scientific_name": "Myiarchus nuttingi",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["AZ","CA"], "should_be": "winter", "note": "rare vagrant, records mostly fall/winter, not breeding"},
+        {"type": "wrong_state", "states": ["NM","TX"], "note": "vagrant-only, a handful of records"}
+      ]
+    },
+    {
+      "common_name": "Olive Warbler",
+      "scientific_name": "Peucedramus taeniatus",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["UT"], "note": "AZ/NM montane species; Utah is vagrant"}
+      ]
+    },
+    {
+      "common_name": "Olive-backed Pipit",
+      "scientific_name": "Anthus hodgsoni",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CA","NV"], "note": "regular spring migrant in western AK; CA/NV are vagrants"}
+      ]
+    },
+    {
+      "common_name": "Olive-sided Flycatcher",
+      "scientific_name": "Contopus cooperi",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["FL","TX","LA","MS","AL","GA","SC","NC","AR","OK","KS","MO","TN","KY","VA","MD","DE","NJ","OH","IN","IL","IA","NE"], "should_be": "migratory", "note": "boreal/montane breeder; passage migrant through central/southern states"}
+      ]
+    },
+    {
+      "common_name": "Orange Bullfinch",
+      "scientific_name": "Pyrrhula aurantiaca",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["NY"], "note": "Himalayan species with no wild occurrence in North America; bogus entry"}
+      ]
+    },
+    {
+      "common_name": "Orange-billed Nightingale-Thrush",
+      "scientific_name": "Catharus aurantiirostris",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["AZ","NM","SD","TX"], "should_be": "rare", "note": "Middle American vagrant, a handful of records (incl. famous SD record); not a year-round resident"}
+      ]
+    },
+    {
+      "common_name": "Orange-breasted Bunting",
+      "scientific_name": "Passerina leclancherii",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CA","TX"], "note": "Mexican endemic; US records are escapees, no wild occurrence"}
+      ]
+    },
+    {
+      "common_name": "Orange-cheeked Waxbill",
+      "scientific_name": "Estrilda melpoda",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CT","GA","IL","MA","NC","ND","NY","VA","WI"], "note": "African escapee; only marginal feral presence (FL/some CA/TX), rest are cage escapes"}
+      ]
+    },
+    {
+      "common_name": "Orange-crowned Warbler",
+      "scientific_name": "Leiothlypis celata",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["FL","LA","MS","AL","GA","SC","NC","TX","AZ"], "should_be": "winter", "note": "winters in the southern US, does not breed there"},
+        {"type": "wrong_season", "states": ["MO","KS","OK","AR","TN","KY","IA","IL","IN","OH","MI","WI","MN","PA","NY","NJ","DE","MD","VA","CT","RI","MA","NH","VT","ME","ND","SD","NE"], "should_be": "migratory", "note": "passage migrant; breeds in West/boreal (AK, mountain West)"}
+      ]
+    },
+    {
+      "common_name": "Orange-fronted Parakeet",
+      "scientific_name": "Eupsittula canicularis",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["IL","NJ","NM","PA"], "note": "escapees; only small feral pockets in CA/FL"}
+      ]
+    },
+    {
+      "common_name": "Oriental Greenfinch",
+      "scientific_name": "Chloris sinica",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CA","OR"], "note": "vagrant to western AK; CA/OR are casual"}
+      ]
+    },
+    {
+      "common_name": "Osprey",
+      "scientific_name": "Pandion haliaetus",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["AK","ME","NH","VT","NY","MA","CT","RI","PA","OH","MI","WI","MN","ND","SD","MT","ID","WY","CO","IA","NE","KS","MO","IL","IN"], "should_be": "summer", "note": "summer breeder that migrates to Latin America; year-round only in FL/Gulf/parts of SW"}
+      ]
+    },
+    {
+      "common_name": "Ovenbird",
+      "scientific_name": "Seiurus aurocapilla",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CA","AZ","NV","OR","WA","UT"], "note": "eastern/boreal forest breeder; vagrant-only in the Far West"},
+        {"type": "wrong_season", "states": ["TX","LA","MS","AL","GA","SC","FL","OK","KS","NM"], "should_be": "migratory", "note": "passage migrant / very rare winter in s. FL, not a breeder across the deep south"}
+      ]
+    },
+    {
+      "common_name": "Pacific Golden-Plover",
+      "scientific_name": "Pluvialis fulva",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["AK"], "should_be": "summer", "note": "breeds in western Alaska"},
+        {"type": "wrong_season", "states": ["HI"], "should_be": "winter", "note": "major wintering ground"},
+        {"type": "wrong_state", "states": ["AZ","CT","DE","FL","MA","ME","MT","NC","NJ","NM","NV","NY","PA","TX","UT","VT","ID"], "note": "Pacific-coast migrant (CA/OR/WA regular); interior & Atlantic states are vagrant"}
+      ]
+    },
+    {
+      "common_name": "Pacific Loon",
+      "scientific_name": "Gavia pacifica",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["AK"], "should_be": "summer", "note": "breeds on Arctic tundra"},
+        {"type": "wrong_season", "states": ["CA","OR","WA"], "should_be": "winter", "note": "Pacific-coast wintering range"},
+        {"type": "wrong_state", "states": ["AL","AR","CT","DE","FL","GA","IA","IL","IN","KS","KY","LA","MA","MD","ME","MI","MN","MO","MS","MT","NC","ND","NE","NH","NJ","NM","NV","NY","OH","OK","PA","RI","SC","SD","TN","TX","UT","VA","VT","WI","WV","WY"], "note": "interior and Atlantic states are vagrant/rare migrants, not year-round residents"}
+      ]
+    },
+    {
+      "common_name": "Pacific Parrotlet",
+      "scientific_name": "Forpus coelestis",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["MI"], "note": "escapee; not established"}
+      ]
+    },
+    {
+      "common_name": "Pacific Wren",
+      "scientific_name": "Troglodytes pacificus",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["IA","KS","NE","SD","TX","AZ","NM","CO"], "note": "Pacific NW / northern-Rockies species; these interior/southern states are vagrant (Winter Wren range there)"}
+      ]
+    },
+    {
+      "common_name": "Paint-billed Crake",
+      "scientific_name": "Mustelirallus erythrops",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["TX","VA"], "should_be": "rare", "note": "only a couple of US records ever; not a resident"}
+      ]
+    },
+    {
+      "common_name": "Painted Bunting",
+      "scientific_name": "Passerina ciris",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AK","WA","OR","ID","MT","WY","ND","SD","MN","WI","MI","IA","NE","CO","UT","NV","AZ","CA","NH","VT","ME","RI","MA","CT","NY","NJ","PA","OH","IN","IL","WV"], "note": "breeds only south-central (TX/OK/LA/AR/MS/KS/NM) and SE coast (NC/SC/GA/FL); listed states are vagrant or wintering at best"}
+      ]
+    },
+    {
+      "common_name": "Painted Redstart",
+      "scientific_name": "Myioborus pictus",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["AL","AR","IL","KS","LA","MA","MN","MO","MS","MT","NC","ND","NV","NY","OH","OR","SD","UT","WA","WI","CO","CA"], "note": "breeds only in AZ/NM mountains (marginally W TX); all others are vagrants"}
+      ]
+    },
+    {
+      "common_name": "Palm Warbler",
+      "scientific_name": "Setophaga palmarum",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["FL","GA","SC","NC","LA","AL","MS","TX","AR"], "should_be": "winter", "note": "winters in the SE/Gulf; does not breed there"},
+        {"type": "wrong_season", "states": ["IL","IN","OH","IA","MO","KS","NE","SD","ND","PA","NJ","DE","MD","VA","CT","RI","MA","TN","KY","OK"], "should_be": "migratory", "note": "passage migrant; breeds only in far N (MN/WI/MI/ME/NH/n.NY) + Canada"},
+        {"type": "wrong_state", "states": ["CA","AZ","NV","OR","WA","ID","UT","CO","NM"], "note": "vagrant/rare migrant in the West"}
+      ]
+    },
+    {
+      "common_name": "Parakeet Auklet",
+      "scientific_name": "Aethia psittacula",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["CA","OR","WA"], "note": "breeds in AK; off CA/OR/WA it is a rare offshore visitor at best"}
+      ]
+    },
+    {
+      "common_name": "Parasitic Jaeger",
+      "scientific_name": "Stercorarius parasiticus",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["VT"], "note": "inland vagrant"},
+        {"type": "wrong_season", "states": ["CA","OR","WA","CT","DE","FL","GA","LA","MA","MD","ME","NC","NH","NJ","NY","PA","RI","SC","TX","VA","AL","IL","MI","MN","OH","WI"], "should_be": "migratory", "note": "passage/non-breeding visitor to lower-48 coasts & Great Lakes; breeds Arctic AK"}
+      ]
+    },
+    {
+      "common_name": "Passenger Pigeon",
+      "scientific_name": "Ectopistes migratorius",
+      "verdict": "major_issues",
+      "issues": [
+        {"type": "wrong_state", "states": ["ALL_LISTED"], "note": "species extinct since 1914; cannot occur anywhere"}
+      ]
+    },
+    {
+      "common_name": "Pectoral Sandpiper",
+      "scientific_name": "Calidris melanotos",
+      "verdict": "minor_issues",
+      "issues": [
+        {"type": "wrong_season", "states": ["AK"], "should_be": "summer", "note": "breeds on Alaskan tundra; migratory elsewhere is correct"}
+      ]
+    }
+  ]
+}

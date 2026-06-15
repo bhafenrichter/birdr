@@ -21,7 +21,7 @@ export type CaptureFlowParamList = {
     setting?: string;
     photo_quality?: PhotoQuality;
   };
-  TryAgain: { photoUri: string };
+  TryAgain: { photoUri: string; failedAttemptsExceeded?: boolean };
   CardReveal: {
     photoUri: string;
     speciesId: string;

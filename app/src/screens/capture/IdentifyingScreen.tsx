@@ -148,6 +148,11 @@ export const IdentifyingScreen: React.FC = () => {
           navigation.replace("HardPaywall");
           return;
         }
+        if (e.status === 429) {
+          posthog.capture("failed_attempts_exceeded");
+          navigation.replace("TryAgain", { photoUri, failedAttemptsExceeded: true });
+          return;
+        }
         setStatus("error");
       }
     })();

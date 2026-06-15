@@ -29,7 +29,7 @@ const PERMISSIONS = [
     name: "Location",
     rationale: "To record where you spotted each bird and power your personal map.",
     color: Colors.sky,
-    badge: undefined,
+    badge: "Optional",
   },
   {
     key: "notifications",
@@ -144,7 +144,7 @@ export const PermissionsScreen: React.FC = () => {
           size="lg"
           fullWidth
           onPress={handleContinue}
-          disabled={!granted.camera || !granted.location}
+          disabled={!granted.camera}
           testID="permissions-continue"
         />
       </View>

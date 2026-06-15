@@ -29,6 +29,7 @@ import { createBirdIdProvider } from "../_shared/bird-id/provider-factory.ts";
 import { captureAiGeneration } from "../_shared/posthog.ts";
 
 const FREE_DAILY_LIMIT = 3;
+const FAILED_ATTEMPT_LIMIT = 10;
 
 Deno.serve(async (req) => {
   // Handle CORS preflight
@@ -42,6 +43,7 @@ Deno.serve(async (req) => {
     let isServiceRole = false;
     let isSubscribed = true;
     let capturesUsed = 0;
+    let failedAttemptsUsed = 0;
     let userId: string | null = null;
 
     try {
@@ -55,7 +57,7 @@ Deno.serve(async (req) => {
       console.log("[identify-bird] Step 2: Checking daily quota...");
       const { data: profile, error: profileError } = await client
         .from("profiles")
-        .select("subscription_tier, daily_captures_used, daily_captures_reset_at")
+        .select("subscription_tier, daily_captures_used, daily_captures_reset_at, daily_failed_attempts")
         .eq("id", user.id)
         .single();
 
@@ -77,11 +79,13 @@ Deno.serve(async (req) => {
         now.getUTCDate() !== resetAt.getUTCDate();
 
       capturesUsed = profile.daily_captures_used;
+      failedAttemptsUsed = profile.daily_failed_attempts;
       if (isNewDay) {
         capturesUsed = 0;
+        failedAttemptsUsed = 0;
         await client
           .from("profiles")
-          .update({ daily_captures_used: 0, daily_captures_reset_at: now.toISOString() })
+          .update({ daily_captures_used: 0, daily_failed_attempts: 0, daily_captures_reset_at: now.toISOString() })
           .eq("id", user.id);
       }
 
@@ -94,6 +98,16 @@ Deno.serve(async (req) => {
             captures_remaining: 0,
           }),
           { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      if (failedAttemptsUsed >= FAILED_ATTEMPT_LIMIT) {
+        return new Response(
+          JSON.stringify({
+            error: "failed_attempts_exceeded",
+            message: "Too many unrecognised photos today. Try again tomorrow.",
+          }),
+          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
     } catch {
@@ -213,19 +227,7 @@ Deno.serve(async (req) => {
 
     console.log("[identify-bird] Matched candidates:", matchedCandidates.length, matchedCandidates.map(c => `${c.common_name} (${c.confidence})`));
 
-    // 7. Increment daily capture count (skip for service role)
-    let capturesRemaining = -1;
-    if (!isServiceRole && userId) {
-      await client
-        .from("profiles")
-        .update({ daily_captures_used: capturesUsed + 1 })
-        .eq("id", userId);
-      capturesRemaining = isSubscribed
-        ? -1
-        : FREE_DAILY_LIMIT - (capturesUsed + 1);
-    }
-
-    // 8. Check for species aliases — if any matched candidate has aliases, add them
+    // 7. Check for species aliases — if any matched candidate has aliases, add them
     const matchedIds = matchedCandidates.map((c) => c.species_id).filter(Boolean);
     let hasAliases = false;
     if (matchedIds.length > 0) {
@@ -262,7 +264,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    // 9. Determine result type based on confidence, aliases, and photo quality
+    // 8. Determine result type based on confidence, aliases, and photo quality
     const topConfidence = matchedCandidates[0]?.confidence ?? 0;
     let result: "auto_accepted" | "pick_top_3" | "retry";
 
@@ -278,6 +280,29 @@ Deno.serve(async (req) => {
       result = "pick_top_3";
     } else {
       result = "retry";
+    }
+
+    // 9. Update quota counters (skip for service role).
+    // Low-confidence results (retry) don't consume a capture — they increment
+    // the shadow failed-attempts counter instead. This lets free users retry
+    // bad photos without burning their daily allowance, while the shadow limit
+    // prevents abuse.
+    let capturesRemaining = -1;
+    if (!isServiceRole && userId) {
+      if (result === "retry") {
+        await client
+          .from("profiles")
+          .update({ daily_failed_attempts: failedAttemptsUsed + 1 })
+          .eq("id", userId);
+      } else {
+        await client
+          .from("profiles")
+          .update({ daily_captures_used: capturesUsed + 1 })
+          .eq("id", userId);
+        capturesRemaining = isSubscribed
+          ? -1
+          : FREE_DAILY_LIMIT - (capturesUsed + 1);
+      }
     }
 
     console.log("[identify-bird] DONE", { result, topConfidence, capturesRemaining, matchedCount: matchedCandidates.length });

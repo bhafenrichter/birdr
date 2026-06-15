@@ -1,0 +1,33 @@
+{
+  "batch": 29,
+  "offset": 1400,
+  "species": [
+    {
+      "common_name": "Zenaida Dove",
+      "scientific_name": "Zenaida aurita",
+      "remove": true,
+      "remove_reason": "Caribbean species; only a vagrant to the Florida Keys, no regular annual US occurrence",
+      "regions": []
+    },
+    {
+      "common_name": "Zino's Petrel",
+      "scientific_name": "Pterodroma madeira",
+      "remove": true,
+      "remove_reason": "Madeira endemic seabird; does not regularly occur in US waters",
+      "regions": []
+    },
+    {
+      "common_name": "Zone-tailed Hawk",
+      "scientific_name": "Buteo albonotatus",
+      "remove": false,
+      "regions": [
+        {"state": "AZ", "season": "summer", "freq": 0.04},
+        {"state": "NM", "season": "summer", "freq": 0.02},
+        {"state": "TX", "season": "summer", "freq": 0.02},
+        {"state": "CA", "season": "rare", "freq": 0.003},
+        {"state": "NV", "season": "rare", "freq": 0.001},
+        {"state": "UT", "season": "rare", "freq": 0.001}
+      ]
+    }
+  ]
+}
