@@ -310,7 +310,7 @@ export const CardDetailScreen: React.FC = () => {
             contentContainerStyle={styles.sheetContent}
             scrollEnabled={sheetIndex > 0}
           >
-            {isSpotted && sightings.length > 0 ? (
+            {!dataReady ? null : isSpotted && sightings.length > 0 ? (
               <>
                 {/* Header */}
                 <TouchableOpacity

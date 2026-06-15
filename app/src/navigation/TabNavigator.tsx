@@ -22,7 +22,7 @@ export const TabNavigator: React.FC = () => (
     screenOptions={{ headerShown: false }}
   >
     <Tab.Screen name="Capture" component={CaptureStack} />
-    <Tab.Screen name="Collection" component={CollectionStack} />
+    <Tab.Screen name="Collection" component={CollectionStack} options={{ tabBarLabel: "Collect" }} />
     <Tab.Screen name="Explore" component={ExploreStack} />
     <Tab.Screen name="Profile" component={ProfileStack} />
   </Tab.Navigator>
